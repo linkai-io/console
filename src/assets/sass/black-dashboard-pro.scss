@@ -1,0 +1,149 @@
+/*!
+
+ =========================================================
+ * site.product_name - vsite.current_version
+ =========================================================
+
+ * Product Page: site.link_tim
+ * Copyright site.year Creative Tim (http://www.creative-tim.com)
+
+
+ =========================================================
+
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+ */
+
+ // Core
+
+@import "dashboard/custom/functions";
+@import "dashboard/bootstrap/functions";
+
+@import "dashboard/custom/variables";
+@import "dashboard/bootstrap/variables";
+
+@import "dashboard/custom/mixins";
+@import "dashboard/bootstrap/mixins";
+
+ // Bootstrap components
+
+@import "dashboard/bootstrap/root";
+@import "dashboard/bootstrap/reboot";
+@import "dashboard/bootstrap/type";
+@import "dashboard/bootstrap/images";
+@import "dashboard/bootstrap/code";
+@import "dashboard/bootstrap/grid";
+@import "dashboard/bootstrap/tables";
+@import "dashboard/bootstrap/forms";
+@import "dashboard/bootstrap/buttons";
+@import "dashboard/bootstrap/transitions";
+@import "dashboard/bootstrap/dropdown";
+@import "dashboard/bootstrap/button-group";
+@import "dashboard/bootstrap/input-group";
+@import "dashboard/bootstrap/custom-forms";
+@import "dashboard/bootstrap/nav";
+@import "dashboard/bootstrap/navbar";
+@import "dashboard/bootstrap/card";
+@import "dashboard/bootstrap/breadcrumb";
+@import "dashboard/bootstrap/pagination";
+@import "dashboard/bootstrap/badge";
+@import "dashboard/bootstrap/jumbotron";
+@import "dashboard/bootstrap/alert";
+@import "dashboard/bootstrap/progress";
+@import "dashboard/bootstrap/media";
+@import "dashboard/bootstrap/list-group";
+@import "dashboard/bootstrap/close";
+@import "dashboard/bootstrap/modal";
+@import "dashboard/bootstrap/tooltip";
+@import "dashboard/bootstrap/popover";
+@import "dashboard/bootstrap/carousel";
+@import "dashboard/bootstrap/utilities";
+@import "dashboard/bootstrap/print";
+
+ // Custom components
+
+ @import "dashboard/custom/reboot.scss";
+ @import "dashboard/custom/global.scss";
+ @import "dashboard/custom/utilities.scss";
+ @import "dashboard/custom/alerts.scss";
+ @import "dashboard/custom/avatars.scss";
+ @import "dashboard/custom/badge.scss";
+ @import "dashboard/custom/buttons.scss";
+ @import "dashboard/custom/close.scss";
+ @import "dashboard/custom/custom-forms.scss";
+ @import "dashboard/custom/dropdown.scss";
+ @import "dashboard/custom/footer.scss";
+ @import "dashboard/custom/forms.scss";
+ @import "dashboard/custom/grid.scss";
+ @import "dashboard/custom/icons.scss";
+ @import "dashboard/custom/images.scss";
+ @import "dashboard/custom/input-group.scss";
+ @import "dashboard/custom/info-areas.scss";
+ @import "dashboard/custom/modal.scss";
+ @import "dashboard/custom/nav.scss";
+ @import "dashboard/custom/navbar.scss";
+ @import "dashboard/custom/pagination.scss";
+ @import "dashboard/custom/tabs.scss";
+ @import "dashboard/custom/pills.scss";
+ @import "dashboard/custom/popover.scss";
+ @import "dashboard/custom/progress.scss";
+ @import "dashboard/custom/type.scss";
+ @import "dashboard/custom/tables";
+ @import "dashboard/custom/checkboxes-radio";
+ @import "dashboard/custom/fixed-plugin";
+ @import "dashboard/custom/sidebar-and-main-panel.scss";
+ @import "dashboard/custom/misc.scss";
+ @import "dashboard/custom/rtl.scss";
+ @import "dashboard/custom/timeline.scss";
+
+ // Vendor / Plugins
+
+@import "dashboard/custom/vendor/plugin-datetimepicker.scss";
+@import "dashboard/custom/vendor/plugin-nouislider.scss";
+@import "dashboard/custom/vendor/plugin-fullcalendar.scss";
+@import "dashboard/custom/vendor/plugin-sweetalert2.scss";
+@import "dashboard/custom/vendor/plugin-bootstrap-switch.scss";
+@import "dashboard/custom/vendor/plugin-bootstrap-select.scss";
+@import "dashboard/custom/vendor/plugin-jasny-fileupload.scss";
+@import "dashboard/custom/vendor/plugin-tagsinput.scss";
+@import "dashboard/custom/vendor/plugin-perfect-scrollbar.scss";
+@import "dashboard/custom/vendor/plugin-jquery.jvectormap.scss";
+@import "dashboard/custom/vendor/plugin-datatables.net.scss";
+@import "dashboard/custom/vendor/plugin-animate-bootstrap-notify.scss";
+@import "dashboard/custom/vendor/plugin-card-wizard.scss";
+
+// Vendor Element UI plugins
+@import "dashboard/custom/vendor/element-ui/plugin-tags";
+@import "dashboard/custom/vendor/element-ui/plugin-slider";
+@import "dashboard/custom/vendor/element-ui/plugin-select";
+@import "dashboard/custom/vendor/element-ui/plugin-inputs";
+@import "dashboard/custom/vendor/element-ui/plugin-tables";
+@import "dashboard/custom/vendor/element-ui/plugin-datepicker";
+
+// example pages and sections
+
+@import "dashboard/custom/example-pages.scss";
+
+// light mode
+
+@import "dashboard/custom/white-content.scss";
+
+// Cards
+
+@import 'dashboard/custom/card';
+@import "dashboard/custom/cards/card-chart";
+@import "dashboard/custom/cards/card-map";
+@import "dashboard/custom/cards/card-user";
+@import "dashboard/custom/cards/card-task";
+@import "dashboard/custom/cards/card-animation-on-hover";
+@import "dashboard/custom/cards/card-collapse";
+@import "dashboard/custom/cards/card-contributions";
+@import "dashboard/custom/cards/card-lock";
+@import "dashboard/custom/cards/card-pricing";
+@import "dashboard/custom/cards/card-profile";
+@import "dashboard/custom/cards/card-plain";
+@import "dashboard/custom/cards/card-register";
+@import "dashboard/custom/cards/card-stats";
+@import "dashboard/custom/cards/card-subcategories";
+@import "dashboard/custom/cards/card-testimonials";
+@import "dashboard/custom/cards/card-wizard";
