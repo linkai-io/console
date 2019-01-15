@@ -13,6 +13,26 @@ module.exports = {
         src: resolveSrc('src'),
         assets: resolveSrc('src/assets')
       }
+    },
+    devServer: {
+      proxy: {
+        '/org': {
+          target: 'http://localhost:3000/org',
+          logLevel: 'debug'
+        },
+        '/scangroup': {
+          target: 'http://localhost:3000/',
+          logLevel: 'debug'
+        },
+        '/user': {
+          target: 'http://localhost:3000/',
+          logLevel: 'debug'
+        },
+        '/address': {
+          target: 'http://localhost:3000/',
+          logLevel: 'debug'
+        }
+      }
     }
   },
   pluginOptions: {

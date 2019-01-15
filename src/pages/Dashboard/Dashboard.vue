@@ -147,7 +147,6 @@
         <div class="table-responsive"><user-table></user-table></div>
       </card>
     </div>
-    <div class="col-lg-12"><country-map-card></country-map-card></div>
   </div>
 </template>
 <script>
@@ -156,7 +155,6 @@ import BarChart from '@/components/Charts/BarChart';
 import * as chartConfigs from '@/components/Charts/config';
 import TaskList from './TaskList';
 import UserTable from './UserTable';
-import CountryMapCard from './CountryMapCard';
 import StatsCard from 'src/components/Cards/StatsCard';
 import config from '@/config';
 
@@ -166,7 +164,6 @@ export default {
     BarChart,
     StatsCard,
     TaskList,
-    CountryMapCard,
     UserTable
   },
   data() {

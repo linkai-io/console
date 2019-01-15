@@ -2,10 +2,10 @@
   <div class="sidebar" :data="backgroundColor">
     <div class="sidebar-wrapper" ref="sidebarScrollArea">
       <div class="logo">
-        <a href="http://www.creative-tim.com" class="simple-text logo-mini">
+        <a href="https://linkai.io" class="simple-text logo-mini">
           <img :src="logo" alt="app-logo" />
         </a>
-        <a href="http://www.creative-tim.com" class="simple-text logo-normal">
+        <a href="https://linkai.io" class="simple-text logo-normal">
           {{ title }}
         </a>
       </div>
@@ -35,17 +35,17 @@ export default {
   props: {
     title: {
       type: String,
-      default: 'Creative Tim',
+      default: 'hakken',
       description: 'Sidebar title'
     },
     shortTitle: {
       type: String,
-      default: 'CT',
+      default: 'AM',
       description: 'Sidebar short title'
     },
     logo: {
       type: String,
-      default: 'img/icon-vue.png',
+      default: 'img/logo.png',
       description: 'Sidebar app logo'
     },
     backgroundColor: {
@@ -57,6 +57,7 @@ export default {
           'vue',
           'blue',
           'green',
+          'black',
           'orange',
           'red',
           'primary'

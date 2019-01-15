@@ -1,7 +1,7 @@
 {
   "sidebar": {
-    "title": "Creative Tim",
-    "shortTitle": "CT",
+    "title": "Hakken",
+    "shortTitle": "HN",
     "dashboard": "Dashboard",
     "pages": "Pages",
     "pricing": "Pricing",
@@ -11,6 +11,10 @@
     "register": "Register",
     "lock": "Lock Screen",
     "userProfile": "User Profile",
+    "groups": "Scan Groups",
+    "newgroup": "New",
+    "grouplist": "List",
+    "addresses": "Addresses",
     "components": "Components",
     "multiLevelCollapse": "Multilevel Collapse",
     "example": "Example Page",

@@ -1,5 +1,5 @@
 {
-  "name": "vue-black-dashboard-pro",
+  "name": "hakken-console",
   "version": "1.0.0",
   "private": true,
   "scripts": {
@@ -15,7 +15,6 @@
     "es6-promise": "^4.1.1",
     "fullcalendar": "^3.9.0",
     "fuse.js": "^3.2.0",
-    "google-maps": "^3.2.1",
     "jquery": "^3.2.1",
     "jvectormap-next": "^3.0.0",
     "nouislider": "^12.1.0",
@@ -27,8 +26,8 @@
     "vue-chartjs": "^3.4.0",
     "vue-i18n": "^8.0.0",
     "vue-router": "^3.0.1",
-    "vue2-google-maps": "^0.8.4",
-    "vue2-transitions": "^0.2.2"
+    "vue2-transitions": "^0.2.2",
+    "vuex": "^3.0.1"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.1.1",
@@ -38,8 +37,12 @@
     "babel-plugin-component": "^1.1.0",
     "node-sass": "^4.7.2",
     "sass-loader": "^6.0.6",
-    "vue-cli-plugin-i18n": "^0.5.0",
-    "vue-template-compiler": "^2.5.17"
+    "vue-template-compiler": "^2.5.17",
+    "@vue/test-utils": "^1.0.0-beta.28",
+    "babel-core": "~7.0.0-bridge.0",
+    "mocha": "^5.2.0",
+    "mocha-webpack": "^1.1.0",
+    "vue-cli-plugin-i18n": "^0.5.0"
   },
   "postcss": {
     "plugins": {
@@ -51,6 +54,6 @@
     "last 2 versions",
     "not ie <= 8"
   ],
-  "author": "cristijora <joracristi@gmail.com>",
-  "description": "Vue Black Dashboard PRO"
+  "author": "idawson <isaac.dawson@linkai.io>",
+  "description": "linkai.io hakken console"
 }

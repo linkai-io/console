@@ -401,6 +401,12 @@
       }
     }
 
+    &[data="black"] {
+      @include linear-gradient($primary, $default-states);
+      &:before{
+        border-bottom-color: $primary;
+      }
+    }
 
     .user{
         padding-bottom: 20px;

@@ -3,6 +3,7 @@ import BaseAlert from './BaseAlert.vue';
 import IconCheckbox from './Inputs/IconCheckbox.vue';
 import BaseRadio from './Inputs/BaseRadio.vue';
 import BaseInput from './Inputs/BaseInput.vue';
+import BaseTextArea from './Inputs/BaseTextArea.vue';
 import TagsInput from './Inputs/TagsInput.vue';
 import BaseSwitch from './BaseSwitch.vue';
 import Badge from './Badge';
@@ -32,7 +33,6 @@ import Slider from './Slider.vue';
 import SimpleWizard from './Wizard/Wizard.vue';
 import WizardTab from './Wizard/WizardTab.vue';
 import LoadingPanel from './LoadingPanel.vue';
-import AsyncWorldMap from './WorldMap/AsyncWorldMap.vue';
 
 import BasePagination from './BasePagination.vue';
 
@@ -50,6 +50,7 @@ export {
   BasePagination,
   BaseRadio,
   BaseInput,
+  BaseTextArea,
   TagsInput,
   Card,
   StatsCard,
@@ -74,6 +75,5 @@ export {
   BaseButton,
   Collapse,
   CollapseItem,
-  LoadingPanel,
-  AsyncWorldMap
+  LoadingPanel
 };

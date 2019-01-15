@@ -16,166 +16,49 @@
           }"
         >
         </sidebar-item>
-        <sidebar-item
-          :link="{ name: $t('sidebar.pages'), icon: 'tim-icons icon-image-02' }"
+        
+        <sidebar-item 
+          :link="{ 
+            name: $t('sidebar.groups'), 
+            icon: 'tim-icons icon-single-copy-04',
+            path: '/pages/groups' }"
         >
-          <sidebar-item
-            :link="{ name: $t('sidebar.pricing'), path: '/pricing' }"
-          ></sidebar-item>
-          <sidebar-item
-            :link="{ name: $t('sidebar.rtl'), path: '/pages/rtl' }"
-          ></sidebar-item>
-          <sidebar-item
-            :link="{ name: $t('sidebar.timeline'), path: '/pages/timeline' }"
-          ></sidebar-item>
-          <sidebar-item
-            :link="{ name: $t('sidebar.login'), path: '/login' }"
-          ></sidebar-item>
-          <sidebar-item
-            :link="{ name: $t('sidebar.register'), path: '/register' }"
-          ></sidebar-item>
-          <sidebar-item
-            :link="{ name: $t('sidebar.lock'), path: '/lock' }"
-          ></sidebar-item>
-          <sidebar-item
-            :link="{ name: $t('sidebar.userProfile'), path: '/pages/user' }"
-          ></sidebar-item>
+        <sidebar-item
+            :link="{
+              name: $t('sidebar.newgroup'),
+              path: '/pages/groups/new' }"
+          >
+          </sidebar-item>
+          
+        <sidebar-item
+            :link="{
+              name: $t('sidebar.grouplist'),
+              path: '/pages/groups/list' }"
+          >
+          </sidebar-item>
+          
         </sidebar-item>
+        <sidebar-item 
+          :link="{ 
+            name: $t('sidebar.addresses'), 
+            icon: 'tim-icons icon-vector',
+            path: '/pages/addresses' }"
+        >
+        </sidebar-item>
+        <sidebar-item 
+          :link="{ 
+            name: $t('sidebar.userProfile'), 
+            icon: 'tim-icons icon-single-02',
+            path: '/pages/user' }">
+          </sidebar-item>
         <sidebar-item
           :link="{
             name: $t('sidebar.components'),
-            icon: 'tim-icons icon-molecule-40'
-          }"
+            icon: 'tim-icons icon-molecule-40',
+            path: '/components/icons' }"
         >
-          <sidebar-item :link="{ name: $t('sidebar.multiLevelCollapse') }">
-            <sidebar-item
-              :link="{
-                name: $t('sidebar.example'),
-                isRoute: false,
-                path: 'https://google.com',
-                target: '_blank'
-              }"
-            ></sidebar-item>
-          </sidebar-item>
-
-          <sidebar-item
-            :link="{ name: $t('sidebar.buttons'), path: '/components/buttons' }"
-          ></sidebar-item>
-          <sidebar-item
-            :link="{
-              name: $t('sidebar.gridSystem'),
-              path: '/components/grid-system'
-            }"
-          ></sidebar-item>
-          <sidebar-item
-            :link="{ name: $t('sidebar.panels'), path: '/components/panels' }"
-          ></sidebar-item>
-          <sidebar-item
-            :link="{
-              name: $t('sidebar.sweetAlert'),
-              path: '/components/sweet-alert'
-            }"
-          ></sidebar-item>
-          <sidebar-item
-            :link="{
-              name: $t('sidebar.notifications'),
-              path: '/components/notifications'
-            }"
-          ></sidebar-item>
-          <sidebar-item
-            :link="{ name: $t('sidebar.icons'), path: '/components/icons' }"
-          ></sidebar-item>
-          <sidebar-item
-            :link="{
-              name: $t('sidebar.typography'),
-              path: '/components/typography'
-            }"
-          ></sidebar-item>
         </sidebar-item>
-        <sidebar-item
-          :link="{ name: $t('sidebar.forms'), icon: 'tim-icons icon-notes' }"
-        >
-          <sidebar-item
-            :link="{ name: $t('sidebar.regularForms'), path: '/forms/regular' }"
-          ></sidebar-item>
-          <sidebar-item
-            :link="{
-              name: $t('sidebar.extendedForms'),
-              path: '/forms/extended'
-            }"
-          ></sidebar-item>
-          <sidebar-item
-            :link="{
-              name: $t('sidebar.validationForms'),
-              path: '/forms/validation'
-            }"
-          ></sidebar-item>
-          <sidebar-item
-            :link="{ name: $t('sidebar.wizard'), path: '/forms/wizard' }"
-          ></sidebar-item>
-        </sidebar-item>
-        <sidebar-item
-          :link="{
-            name: $t('sidebar.tables'),
-            icon: 'tim-icons icon-puzzle-10'
-          }"
-        >
-          <sidebar-item
-            :link="{
-              name: $t('sidebar.regularTables'),
-              path: '/table-list/regular'
-            }"
-          ></sidebar-item>
-          <sidebar-item
-            :link="{
-              name: $t('sidebar.extendedTables'),
-              path: '/table-list/extended'
-            }"
-          ></sidebar-item>
-          <sidebar-item
-            :link="{
-              name: $t('sidebar.paginatedTables'),
-              path: '/table-list/paginated'
-            }"
-          ></sidebar-item>
-        </sidebar-item>
-        <sidebar-item
-          :link="{ name: $t('sidebar.maps'), icon: 'tim-icons icon-pin' }"
-        >
-          <sidebar-item
-            :link="{ name: $t('sidebar.googleMaps'), path: '/maps/google' }"
-          ></sidebar-item>
-          <sidebar-item
-            :link="{
-              name: $t('sidebar.fullScreenMaps'),
-              path: '/maps/full-screen'
-            }"
-          ></sidebar-item>
-          <sidebar-item
-            :link="{ name: $t('sidebar.vectorMaps'), path: '/maps/vector-map' }"
-          ></sidebar-item>
-        </sidebar-item>
-        <sidebar-item
-          :link="{
-            name: $t('sidebar.widgets'),
-            icon: 'tim-icons icon-settings',
-            path: '/widgets'
-          }"
-        ></sidebar-item>
-        <sidebar-item
-          :link="{
-            name: $t('sidebar.charts'),
-            icon: 'tim-icons icon-chart-bar-32',
-            path: '/charts'
-          }"
-        ></sidebar-item>
-        <sidebar-item
-          :link="{
-            name: $t('sidebar.calendar'),
-            icon: 'tim-icons icon-time-alarm',
-            path: '/calendar'
-          }"
-        ></sidebar-item>
+        
       </template>
     </side-bar>
     <div class="main-panel" :data="sidebarBackground">
@@ -232,13 +115,13 @@ export default {
   },
   data() {
     return {
-      sidebarBackground: 'vue' //vue|blue|orange|green|red|primary
+      sidebarBackground: 'black' //vue|blue|orange|green|red|primary
     };
   },
   methods: {
     toggleSidebar() {
       if (this.$sidebar.showSidebar) {
-        this.$sidebar.displaySidebar(false);
+        this.$sidebar.displaySidebar(true);
       }
     },
     initScrollbar() {
