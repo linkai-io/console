@@ -4,7 +4,8 @@ import API from '../../api/api';
 const state = {
   scangroups: [],
   currentGroup: {},
-  isCreating: false
+  isCreating: false,
+  creationMsg: ''
 };
 
 // getters
@@ -16,6 +17,9 @@ const getters = {
 
 // actions
 const actions = {
+  CLEAR_CREATION_MSG({ commit }) {
+    commit('SET_CREATION_MSG', '');
+  },
   GET_GROUPS({ commit }) {
     API.get('/scangroup/groups').then(
       resp => {
@@ -28,7 +32,7 @@ const actions = {
     commit('SET_INITIALIZED');
   },
   GET_GROUP_BY_NAME({ commit }, name) {
-    API.get('/scangroup/group/' + name).then(
+    API.get('/scangroup/name/' + name).then(
       resp => {
         commit('SET_CURRENT_GROUP', resp.data);
       },
@@ -39,41 +43,32 @@ const actions = {
   },
   CREATE_GROUP({ commit }, group) {
     commit('SET_IS_CREATING', true);
-    this.$notify({
-      message: 'Group Successfully Created',
-      timeout: 3000,
-      icon: 'tim-icons icon-bell-55',
-      horizontalAlign: 'top',
-      verticalAlign: 'center',
-      type: 'success'
-    });
-    /*
-    API.post('/scangroup/groups/' + group.group_name).then(
+    API.post('/scangroup/name/' + group.group_name, group).then(
       resp => {
         commit('SET_IS_CREATING', false);
         if (resp.data.status == 'OK') {
-          this.$notify({
-            message: 'Group Successfully Created',
-            timeout: 3000,
-            icon: 'tim-icons icon-bell-55',
-            horizontalAlign: 'top',
-            verticalAlign: 'center',
-            type: 'success'
-          });
+          commit('SET_CREATION_MSG', 'success');
         }
       },
       err => {
-        console.log(err);
         commit('SET_IS_CREATING', false);
+        if (err.data !== undefined) {
+          commit('SET_CREATION_MSG', err.data.msg);
+          return;
+        }
+        console.log(err);
+        commit('SET_CREATION_MSG', 'Failed to create group: ' + err.message);
       }
     );
-    */
   }
 };
 
 // mutations
 const mutations = {
   SET_INITIALIZED(state) {},
+  SET_CREATION_MSG(state, details) {
+    state.creationMsg = details;
+  },
   SET_IS_CREATING(state, details) {
     state.isCreating = details;
   },

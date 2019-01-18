@@ -51,6 +51,7 @@
                 <base-text-area
                   name="custom_ports"
                   placeholder="80, 443"
+                  valueType="integer"
                   v-model="model.custom_ports"
                   :error="getError('custom_ports')"
                 >
@@ -105,33 +106,57 @@ export default {
     };
   },
   computed: {
-    ...mapState('scangroup', ['isCreating'])
+    ...mapState('scangroup', ['isCreating', 'creationMsg'])
   },
   methods: {
     created() {
-       this.$notify({
-        message: 'Group Successfully Created',
-        timeout: 3000,
-        icon: 'tim-icons icon-bell-55',
-        horizontalAlign: 'top',
-        verticalAlign: 'center',
-        type: 'success'
-      });
+       
     },
     getError(fieldName) {
       return this.errors.first(fieldName);
     },
     validate() {
       this.$validator.validateAll().then(isValid => {
-        console.log(isValid);
-        console.log(this.model);
         if (!isValid) {
           return;
         }
+        // ugh
+        this.model.custom_ports = this.model.custom_ports.map(e => parseInt(e, 10)).filter(function(val, idx, arry) {
+          if (val === null || Number.isNaN(val)) {
+            return false;
+          }
+          return true;
+        });
+
         this.$store.dispatch('scangroup/CREATE_GROUP', this.model);
-        created();
       });
     }
+  },
+  mounted() {
+    this.$watch(
+      'creationMsg',
+      msg => {
+        if (msg === '') {
+          return;
+        }
+
+        let msgType = 'danger';
+
+        if (msg === 'success') {
+          msgType = 'success';
+          msg = 'Group Created Successfully';
+        }
+        this.$notify({
+          message: msg,
+          timeout: 4000,
+          icon: 'tim-icons icon-bell-55',
+          horizontalAlign: 'center',
+          verticalAlign: 'top',
+          type: msgType
+        });
+        this.$store.dispatch('scangroup/CLEAR_CREATION_MSG');
+      }
+    );
   }
 };
 </script>

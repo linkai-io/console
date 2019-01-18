@@ -1,43 +1,116 @@
 <template>
-  <card>
-    <div class="col-12">
+<div class="col-md-12">
+  <form class="form-horizontal">
+    <card>
         <div class="row">
           <div class="col-md-6">
-            <h4 class="card-title">Scan Group: {{updatedScanGroup.group_name}}</h4>
+            <h4 class="card-title">Scan Group: {{model.group_name}}</h4>
             <div class="row">
               <div class="col-md-4">
                 <p class="category">Paused</p>
                 <base-switch
-                  v-model="updatedScanGroup.paused"
+                  v-model="model.paused"
                   type="primary"
                   on-text="Yes"
                   off-text="No"
                 ></base-switch>
               </div>
-              <div class="col-md-4">
-                <base-button>Update</base-button>
-            </div>
+            
           </div>
         </div>
+    </div>
+
+    <div class="row">
+      <label class="col-sm-2 col-form-label">GroupName</label>
+      <div class="col-sm-7">
+        <base-input
+          name="group_name"
+          required
+          v-validate="modelValidations.group_name"
+          v-model="model.group_name"
+          :error="getError('group_name')"
+        >
+        </base-input>
       </div>
     </div>
-    <!--
-    <h5 slot="header" class="title">Scan Group: {{scangroup.group_name}}</h5>
-    <p class="card-text">Created By: {{scangroup.created_by}} @ {{createdAt}}</p>
-    <p class="card-text">Modified By: {{scangroup.modified_by}} @ {{modifiedAt}}</p>
-    <p class="card-text"> {{ getCount() }}</p>
-    <p class="card-text">
-      -->
+    
+    <div class="row">
+      <label class="col-sm-2 col-form-label">Concurrent Requests</label>
+      <div class="col-sm-7">
+        <base-input
+          name="concurrent_requests"
+          required
+          v-validate="modelValidations.concurrent_requests"
+          v-model="model.concurrent_requests"
+          :error="getError('concurrent_requests')"
+        >
+        </base-input>
+      </div>
+    </div>
+
+    <div class="row">
+      <label class="col-sm-2 col-form-label">Custom Sub Domains</label>
+      <div class="col-sm-7">
+        <base-text-area
+          name="custom_sub_names"
+          placeholder="sub1, sub2"
+          v-model="model.custom_sub_names"
+          :error="getError('custom_sub_names')"
+        >
+        </base-text-area>
+      </div>
+    </div>
+
+    <div class="row">
+      <label class="col-sm-2 col-form-label">Custom Ports</label>
+      <div class="col-sm-7">
+        <base-text-area
+          name="custom_ports"
+          placeholder="80, 443"
+          v-model="model.custom_ports"
+          :error="getError('custom_ports')"
+        >
+        </base-text-area>
+      </div>
+    </div>
+    <div class="row">
+      <label class="col-sm-2 col-form-label">Created By</label>
+      <div class="col-sm-3"> 
+        {{scangroup.created_by}} at {{ createdAt }}
+      </div>
+    
+      <label class="col-sm-2 col-form-label">Last Modified By</label>
+      <div class="col-sm-3"> 
+        {{scangroup.modified_by}} at {{ modifiedAt }}
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-3"></div>
+      <div class="col-md-3">
+          <base-button
+            type="primary"
+          >
+          Update</base-button>
+      </div>
+      <div class="col-md-3">
+          <base-button
+          type="danger"
+          >Delete</base-button>
+      </div>
+      </div>
   </card>
+  </form>
+</div>
 </template>
 <script>
-import { BaseSwitch } from 'src/components/index';
+import { BaseSwitch, BaseTextArea } from 'src/components/index';
 import { mapState, mapGetters } from 'vuex';
 import { unixNanoToDate } from 'src/data/time.js';
 
 export default {
   components: {
-    BaseSwitch
+    BaseSwitch,
+    BaseTextArea
   },
   props: {
     scangroup: {
@@ -49,13 +122,22 @@ export default {
   },
   data() {
     return {
-      updatedScanGroup: Object.assign({}, this.scangroup),
-      updatedScanGroupValidations: {
-        group_id: {
-          required: true
-        },
+      model: {
+        group_name: this.scangroup.group_name,
+        custom_sub_names: this.scangroup.module_configurations.dnsbrute_module.custom_subnames,
+        custom_ports: this.scangroup.module_configurations.port_module.custom_ports,
+        concurrent_requests: this.scangroup.module_configurations.ns_module.requests_per_second,
+        paused: this.scangroup.paused
+      },
+      modelValidations: {
         group_name: {
-          required: true
+          required: true,
+          regex: /^((?!\/).)*$/
+        },
+        concurrent_requests: {
+          required: true,
+          min_value: 1,
+          max_value: 25
         },
         paused: {
           required: true
@@ -64,7 +146,7 @@ export default {
     };
   },
   computed: {
-    ...mapState('addresses', ['scangroups', 'currentGroup']),
+    ...mapState('addresses', ['scangroups']),
     ...mapGetters('addresses', ['addressCounts']),
     createdAt: function() {
       console.log(this.scangroup.creation_time);
@@ -85,6 +167,17 @@ export default {
         }
       }
       return 0;
+    },
+    getError(fieldName) {
+      return this.errors.first(fieldName);
+    },
+    validate() {
+      this.$validator.validateAll().then(isValid => {
+        if (!isValid) {
+          return;
+        }
+        this.$store.dispatch('scangroup/CREATE_GROUP', this.model);
+      });
     }
   },
   created() {
@@ -95,5 +188,9 @@ export default {
   mounted() {}
 };
 </script>
-<style>
+<style lang="scss" scoped>
+.disabled_input {
+  color: white;
+}
 </style>
+

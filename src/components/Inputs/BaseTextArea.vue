@@ -58,6 +58,11 @@ export default {
       type: [Array],
       description: 'Input value'
     },
+    valueType: {
+      type: String,
+      description: 'Array value type (string, integer)',
+      default: 'string'
+    },
     addonRightIcon: {
       type: String,
       description: 'Input icon on the right'
@@ -101,8 +106,7 @@ export default {
       if (!this.touched) {
         this.touched = true;
       }
-      // split the string on newline or commas
-      this.$emit('input', evt.target.value.split(/[\n,]+/).map(e => e.trim()));
+      this.$emit('input', evt.target.value.split(/[\n,]+/).map(e => e.trim()));      
     },
     onFocus() {
       this.focused = true;
