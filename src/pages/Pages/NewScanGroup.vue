@@ -128,6 +128,12 @@ export default {
           return true;
         });
 
+        this.model.custom_sub_names = this.model.custom_sub_names.map(e => e).filter(function(val, idx, arr) {
+          if (val === "") {
+            return false;
+          }
+          return true;
+        });
         this.$store.dispatch('scangroup/CREATE_GROUP', this.model);
       });
     }

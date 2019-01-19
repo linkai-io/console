@@ -4,7 +4,7 @@
       <p>You have no groups, create one now.</p>
     </div>
     <div v-else class="row" v-for="scangroup in scangroups" :key="scangroup.group_id">
-      <scan-group-card :scangroup="scangroup"></scan-group-card>
+      <scan-group-card :group="scangroup"></scan-group-card>
     </div>
     
   </div>

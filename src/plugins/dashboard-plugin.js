@@ -2,6 +2,7 @@
 import 'src/polyfills';
 // Notifications plugin. Used on Notifications page
 import Notifications from 'src/components/NotificationPlugin';
+
 // Validation plugin used to validate forms
 import VeeValidate from 'vee-validate';
 // A plugin file where you could register global components used across the app
