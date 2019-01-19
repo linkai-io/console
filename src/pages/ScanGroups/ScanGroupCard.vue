@@ -1,5 +1,6 @@
 <template>
-<div class="col-md-12">
+<div class="container">
+  <div class="col-md-12">
   <form class="form-horizontal">
     <card>
       <div class="row">
@@ -178,6 +179,7 @@
       </base-button>
     </template>
   </modal>
+</div>
 </div>
 </template>
 <script>

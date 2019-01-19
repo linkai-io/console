@@ -88,11 +88,17 @@ function hasElement(className) {
 }
 
 function initScrollbar(className) {
+  console.log('initScrollbar: ' + className);
   if (hasElement(className)) {
+    console.log('initing: ' + className);
     new PerfectScrollbar(`.${className}`);
   } else {
+    if (className === undefined) {
+      return;
+    }
     // try to init it later in case this component is loaded async
     setTimeout(() => {
+      console.log('initing later: ' + className);
       initScrollbar(className);
     }, 100);
   }
@@ -127,6 +133,7 @@ export default {
     initScrollbar() {
       let docClasses = document.body.classList;
       let isWindows = navigator.platform.startsWith('Win');
+      console.log('init scrollbar');
       if (isWindows) {
         // if we are on windows OS we activate the perfectScrollbar function
         initScrollbar('sidebar');
@@ -134,10 +141,14 @@ export default {
 
         docClasses.add('perfect-scrollbar-on');
       } else {
+        console.log('perfect-scrollbar-off called');
         docClasses.add('perfect-scrollbar-off');
       }
     }
-  }
+  },
+  mounted() {
+    initScrollbar('sidebar-wrapper');
+  }   
 };
 </script>
 <style lang="scss">
