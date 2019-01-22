@@ -23,21 +23,21 @@
             icon: 'tim-icons icon-single-copy-04',
             path: '/pages/groups' }"
         >
-        <sidebar-item
-            :link="{
-              name: $t('sidebar.newgroup'),
-              path: '/pages/groups/new' }"
-          >
+          <sidebar-item
+              :link="{
+                name: $t('sidebar.newgroup'),
+                path: '/pages/groups/new' }"
+            >
           </sidebar-item>
-          
-        <sidebar-item
-            :link="{
-              name: $t('sidebar.grouplist'),
-              path: '/pages/groups/list' }"
-          >
+            
+          <sidebar-item
+              :link="{
+                name: $t('sidebar.grouplist'),
+                path: '/pages/groups/list' }"
+            >
           </sidebar-item>
-          
         </sidebar-item>
+
         <sidebar-item 
           :link="{ 
             name: $t('sidebar.addresses'), 

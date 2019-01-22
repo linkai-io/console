@@ -22,6 +22,8 @@ import Breadcrumb from './Breadcrumb/Breadcrumb.vue';
 import BreadcrumbItem from './Breadcrumb/BreadcrumbItem.vue';
 import RouteBreadCrumb from './Breadcrumb/RouteBreadcrumb.vue';
 import ImageUpload from './ImageUpload';
+import TextFileUpload from './TextFileUpload';
+
 import TimeLine from './Timeline/TimeLine.vue';
 import TimeLineItem from './Timeline/TimeLineItem.vue';
 import TabPane from './Tabs/Tab.vue';
@@ -57,6 +59,7 @@ export {
   BaseTable,
   BaseDropdown,
   ImageUpload,
+  TextFileUpload,
   SidebarPlugin,
   BaseNav,
   NavbarToggleButton,

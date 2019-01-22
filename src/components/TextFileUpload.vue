@@ -11,12 +11,12 @@
           @change="handlePreview"
           type="file"
           name="..."
-          class="valid"
+          class="primary"
           :multiple="false"
           aria-invalid="false"
         />
       </span>
-      <base-button v-if="fileExists" @click="removeFile" round type="danger">
+      <base-button v-if="fileExists" @click="removeFile" type="danger">
         <i class="fas fa-times"></i> {{ removeText }}
       </base-button>
     </div>
@@ -42,7 +42,7 @@ export default {
     },
     changeText: {
       type: String,
-      default: 'Change'
+      default: 'Select'
     },
     removeText: {
       type: String,
@@ -61,7 +61,8 @@ export default {
           return 'example.com';
         }
       },
-      filePreview: ""
+      filePreview: null,
+      target: null
     };
   },
   computed: {
@@ -72,11 +73,14 @@ export default {
   methods: {
     handlePreview(event) {
       let file = event.target.files[0];
+      this.target = event.target;
       this.filePreview = URL.createObjectURL(file);
       this.$emit('change', file);
     },
     removeFile() {
+      URL.revokeObjectURL(this.filePreview);
       this.filePreview = null;
+      this.target.value = '';
       this.$emit('change', null);
     }
   }
