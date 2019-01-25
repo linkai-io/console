@@ -53,11 +53,8 @@ const ScanGroup = () =>
 const NewScanGroup = () =>
   import(/* webpackChunkName: "pages" */ 'src/pages/Pages/NewScanGroup.vue');
 
-const Addresses = () =>
-  import(/* webpackChunkName: "pages" */ 'src/pages/Pages/Addresses.vue');
-
-const UploadAddresses = () =>
-  import(/* webpackChunkName: "pages" */ 'src/pages/Pages/Addresses/UploadAddresses.vue');
+const AddressTable = () =>
+  import(/* webpackChunkName: "pages" */ 'src/pages/Pages/AddressTable.vue');
 
 let componentsMenu = {
   path: '/components',
@@ -182,14 +179,10 @@ let pagesMenu = {
       components: { default: NewScanGroup }
     },
     {
-      path: 'addresses',
+      path: 'addresstable/:group_id',
       name: 'Addresses',
-      components: { default: Addresses }
-    },
-    {
-      path: 'addresses/upload',
-      name: 'Upload Addresses',
-      components: { default: UploadAddresses }
+      components: { default: AddressTable },
+      props: { default: true }
     }
   ]
 };

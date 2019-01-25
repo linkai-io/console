@@ -80,7 +80,7 @@ export default {
     removeFile() {
       URL.revokeObjectURL(this.filePreview);
       this.filePreview = null;
-      this.target.value = '';
+      this.target.value = ''; // force change event if file doesn't change.
       this.$emit('change', null);
     }
   }

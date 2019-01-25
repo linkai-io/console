@@ -1,25 +1,14 @@
 <template>
   <div class="content">
     <div class="col-md-8 ml-auto mr-auto">
-      <h2 class="text-center">Paginated Tables</h2>
-      <p class="text-center">
-        With a selection of custom components & and Element UI components, you
-        can built beautiful data tables. For more info check
-        <a
-          href="http://element.eleme.io/#/en-US/component/table"
-          target="_blank"
-          >Element UI Table</a
-        >
-      </p>
+      <h2 class="text-center">{{group.group_name}}</h2>
     </div>
     <div class="row mt-5">
       <div class="col-12">
         <card card-body-classes="table-full-width">
-          <h4 slot="header" class="card-title">Paginated Tables</h4>
+          <h4 slot="header" class="card-title">Address Data</h4>
           <div>
-            <div
-              class="col-12 d-flex justify-content-center justify-content-sm-between flex-wrap"
-            >
+            <div class="col-12 d-flex justify-content-center justify-content-sm-between flex-wrap">
               <el-select
                 class="select-primary mb-3 pagination-select"
                 v-model="pagination.perPage"
@@ -31,8 +20,7 @@
                   :key="item"
                   :label="item"
                   :value="item"
-                >
-                </el-option>
+                ></el-option>
               </el-select>
 
               <base-input>
@@ -44,8 +32,7 @@
                   placeholder="Search records"
                   v-model="searchQuery"
                   aria-controls="datatables"
-                >
-                </el-input>
+                ></el-input>
               </base-input>
             </div>
             <el-table :data="queriedData">
@@ -55,37 +42,46 @@
                 :min-width="column.minWidth"
                 :prop="column.prop"
                 :label="column.label"
-              >
-              </el-table-column>
+              ></el-table-column>
               <el-table-column :min-width="135" align="right" label="Actions">
                 <div slot-scope="props">
-                  <base-button
-                    @click.native="handleLike(props.$index, props.row);"
-                    class="like btn-link"
-                    type="info"
-                    size="sm"
-                    icon
-                  >
-                    <i class="tim-icons icon-heart-2"></i>
-                  </base-button>
-                  <base-button
-                    @click.native="handleEdit(props.$index, props.row);"
-                    class="edit btn-link"
-                    type="warning"
-                    size="sm"
-                    icon
-                  >
-                    <i class="tim-icons icon-pencil"></i>
-                  </base-button>
-                  <base-button
-                    @click.native="handleDelete(props.$index, props.row);"
-                    class="remove btn-link"
-                    type="danger"
-                    size="sm"
-                    icon
-                  >
-                    <i class="tim-icons icon-simple-remove"></i>
-                  </base-button>
+
+                  <el-tooltip
+                      content="Ignore Host"
+                      effect="light"
+                      :open-delay="100"
+                      placement="top"
+                    >
+                    <base-button
+                      @click.native="handleEdit(props.$index, props.row);"
+                      class="edit btn-link"
+                      type="warning"
+                      size="sm"
+                      icon
+                    >
+                    <i class="tim-icons icon-simple-delete"></i>
+                    
+                    
+                    </base-button>
+                  </el-tooltip>
+
+                  <el-tooltip
+                      content="Delete Host"
+                      effect="light"
+                      :open-delay="100"
+                      placement="top"
+                    >
+                    <base-button
+                      @click.native="handleDelete(props.$index, props.row);"
+                      class="remove btn-link"
+                      type="danger"
+                      size="sm"
+                      icon
+                    >
+                      
+                      <i class="tim-icons icon-simple-remove"></i>
+                    </base-button>
+                  </el-tooltip>
                 </div>
               </el-table-column>
             </el-table>
@@ -94,27 +90,26 @@
             slot="footer"
             class="col-12 d-flex justify-content-center justify-content-sm-between flex-wrap"
           >
-            <div class="">
-              <p class="card-category">
-                Showing {{ from + 1 }} to {{ to }} of {{ total }} entries
-              </p>
+            <div class>
+              <p class="card-category">Showing {{ from + 1 }} to {{ to }} of {{ total }} entries</p>
             </div>
             <base-pagination
               class="pagination-no-border"
               v-model="pagination.currentPage"
               :per-page="pagination.perPage"
               :total="total"
-            >
-            </base-pagination>
+            ></base-pagination>
           </div>
         </card>
       </div>
-    </div></div
-></template>
+    </div>
+  </div>
+</template>
 <script>
 import { Table, TableColumn, Select, Option } from 'element-ui';
 import { BasePagination } from 'src/components';
-import addresses from './addresses';
+import { mapGetters } from 'vuex';
+import API from 'src/api/api.js';
 import Fuse from 'fuse.js';
 import swal from 'sweetalert2';
 
@@ -126,7 +121,14 @@ export default {
     [Table.name]: Table,
     [TableColumn.name]: TableColumn
   },
+  props: {
+    group_id: {
+      type: String
+    }
+  },
   computed: {
+    ...mapGetters('address', ['getCountByID']),
+    ...mapGetters('scangroup', ['groups']),
     /***
      * Returns a page from the searched data or the whole data. Search is performed in the watch section below
      */
@@ -151,6 +153,15 @@ export default {
       return this.searchedData.length > 0
         ? this.searchedData.length
         : this.tableData.length;
+    },
+    group() {
+      if (this.groups[this.group_id] === undefined) {
+        return {
+          group_id: this.group_id,
+          group_name: ''
+        }
+      }
+      return this.groups[this.group_id];
     }
   },
   data() {
@@ -159,23 +170,36 @@ export default {
         perPage: 25,
         currentPage: 1,
         perPageOptions: [25, 50, 100, 200],
+        lastIndex: 0,
         total: 0
       },
       searchQuery: '',
-      propsToSearch: ['host_address', 'ip_address', 'discovery_time', 
-                      'discovered_by', 'last_scanned_time', 'last_seen_time', 
-                      'confidence_score', 'user_confidence_score', 'is_wildcard_zone', 
-                      'is_hosted_service', 'ignored', 'found_from', 'ns_record', 'address_hash'],
+      propsToSearch: [
+        'host_address',
+        'ip_address',
+        'discovery_time',
+        'discovered_by',
+        'last_scanned_time',
+        'last_seen_time',
+        'confidence_score',
+        'user_confidence_score',
+        'is_wildcard_zone',
+        'is_hosted_service',
+        'ignored',
+        'found_from',
+        'ns_record',
+        'address_hash'
+      ],
       tableColumns: [
         {
           prop: 'host_address',
           label: 'Hostname',
-          minWidth: 200
+          minWidth: 60
         },
         {
           prop: 'ip_address',
           label: 'IP Address',
-          minWidth: 120
+          minWidth: 60
         },
         {
           prop: 'discovery_time',
@@ -200,27 +224,27 @@ export default {
         {
           prop: 'confidence_score',
           label: 'Confidence',
-          minWidth: 20
+          minWidth: 40
         },
         {
           prop: 'user_confidence_score',
           label: 'User Confidence',
-          minWidth: 20
+          minWidth: 40
         },
         {
           prop: 'is_wildcard_zone',
           label: 'Wildcard Zone',
-          minWidth: 10
+          minWidth: 40
         },
         {
           prop: 'is_hosted_service',
           label: 'Hosted Service',
-          minWidth: 10
+          minWidth: 40
         },
         {
           prop: 'ignored',
           label: 'Ignored',
-          minWidth: 10
+          minWidth: 20
         },
         {
           prop: 'found_from',
@@ -230,7 +254,7 @@ export default {
         {
           prop: 'ns_record',
           label: 'NS Record',
-          minWidth: 20
+          minWidth: 30
         },
         {
           prop: 'address_hash',
@@ -238,12 +262,31 @@ export default {
           minWidth: 60
         }
       ],
-      tableData: users,
+      tableData: [],
       searchedData: [],
       fuseSearch: null
     };
   },
   methods: {
+    async getTableData(page) {
+      this.loading = true;
+      let reqPage = page || this.page;
+      let limit = this.pagination.perPage;
+      let start = this.pagination.lastIndex;
+      try {
+        let response = await API.get('/address/group/' + this.group_id, {
+          params: {
+            start: start,
+            limit: limit
+          }
+        });
+        this.tableData = response.data.addresses;
+        this.pagination.lastIndex = response.data.last_index;
+        //this.total = response.data.addresses.length;
+      } finally {
+        this.loading = false;
+      }
+    },
     handleLike(index, row) {
       swal({
         title: `You liked ${row.name}`,
@@ -292,11 +335,15 @@ export default {
     }
   },
   mounted() {
+    console.log('mounted: ' + this.group_id);
     // Fuse search initialization.
     this.fuseSearch = new Fuse(this.tableData, {
-      keys: ['name', 'email'],
+      keys: ['hostname'],
       threshold: 0.3
     });
+  },
+  created() {
+    this.getTableData();
   },
   watch: {
     /**

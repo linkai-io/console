@@ -109,9 +109,7 @@ export default {
     ...mapState('scangroup', ['isCreating', 'creationMsg'])
   },
   methods: {
-    created() {
-       
-    },
+    created() {},
     getError(fieldName) {
       return this.errors.first(fieldName);
     },
@@ -138,32 +136,7 @@ export default {
       });
     }
   },
-  mounted() {
-    this.$watch(
-      'creationMsg',
-      msg => {
-        if (msg === '') {
-          return;
-        }
-
-        let msgType = 'danger';
-
-        if (msg === 'success') {
-          msgType = 'success';
-          msg = 'Group Created Successfully';
-        }
-        this.$notify({
-          message: msg,
-          timeout: 4000,
-          icon: 'tim-icons icon-bell-55',
-          horizontalAlign: 'center',
-          verticalAlign: 'top',
-          type: msgType
-        });
-        this.$store.dispatch('scangroup/CLEAR_CREATION_MSG');
-      }
-    );
-  }
+  mounted() {}
 };
 </script>
 <style>

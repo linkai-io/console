@@ -3,15 +3,15 @@
     <div v-if="!hasGroups" class="col-md-6">
       <p>You have no groups, create one now.</p>
     </div>
-    <div v-else class="row" v-for="scangroup in scangroups" :key="scangroup.group_id">
-      <scan-group-card :group="scangroup"></scan-group-card>
+    <div v-else class="row" v-for="(value, key) in groups" :key="key">
+      <scan-group-card :group="value"></scan-group-card>
     </div>
     
   </div>
 </template>
 
 <script>
-import { mapState } from 'vuex';
+import { mapGetters } from 'vuex';
 import ScanGroupCard from './ScanGroupCard.vue';
 
 export default {
@@ -22,18 +22,18 @@ export default {
     return {};
   },
   computed: {
-    ...mapState('scangroup', ['scangroups', 'currentGroup']),
-    groupLen() {
-      return this.scangroups.length;
-    },
+    ...mapGetters('scangroup', ['groups']),
     hasGroups() {
-      return this.scangroups.length > 0;
+      return this.groups !== {};
+    }
+  },
+  watch: {
+    groups(newVal, oldVal) {
+      console.log(newVal);
     }
   },
   methods: {},
-  created() {
-    this.$store.dispatch('scangroup/GET_GROUPS');
-  }
+  created() {}
 };
 </script>
 <style>

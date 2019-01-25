@@ -1,18 +1,22 @@
 // import router from '../../routes/router';
+import Vue from 'vue';
 import API from '../../api/api';
 
 // initial state
 const state = {
-  addressCounts: [],
-  isUploading: false,
-  uploadMsg: '',
-  uploadMsgType: ''
+  addressCounts: {},
+  isUploading: false
 };
 
 // getters
 const getters = {
-  addressCounts() {
+  addrCounts() {
     return state.addressCounts;
+  },
+  getCountByID: state => id => {
+    return state.addressCounts[id] === undefined
+      ? 0
+      : state.addressCounts[id].count;
   }
 };
 
@@ -40,37 +44,47 @@ const actions = {
         commit('SET_IS_UPLOADING', false);
         console.log(resp.data);
         if (resp.data.status == 'OK') {
-          commit('SET_UPLOADING_MSG', {
-            group_id: details.group_id,
-            msg: 'Successfully uploaded addresses to group',
-            msgType: 'success'
-          });
+          dispatch(
+            'notify/CREATE_NOTIFY_MSG',
+            {
+              msg: 'Successfully uploaded addresses to group',
+              msgType: 'success'
+            },
+            { root: true }
+          );
           dispatch('GET_ADDRESS_COUNT', details.group_id);
         }
       },
       err => {
         commit('SET_IS_UPLOADING', false);
         if (err.data !== undefined) {
-          commit('SET_UPLOADING_MSG', {
-            group_id: details.group_id,
-            msg: err.data.msg,
-            msgType: 'danger'
-          });
-          return;
+          dispatch(
+            'notify/CREATE_NOTIFY_MSG',
+            {
+              msg: err.data.msg,
+              msgType: 'danger'
+            },
+            { root: true }
+          );
+        } else if (err.response.data !== undefined) {
+          dispatch(
+            'notify/CREATE_NOTIFY_MSG',
+            {
+              msg: 'Failed to upload to group: ' + err.response.data.msg,
+              msgType: 'danger'
+            },
+            { root: true }
+          );
+        } else {
+          dispatch(
+            'notify/CREATE_NOTIFY_MSG',
+            {
+              msg: 'Failed to upload to group: ' + err.message,
+              msgType: 'danger'
+            },
+            { root: true }
+          );
         }
-        if (err.response.data !== undefined) {
-          commit('SET_UPLOADING_MSG', {
-            group_id: details.group_id,
-            msg: 'Failed to upload to group: ' + err.response.data.msg,
-            msgType: 'danger'
-          });
-          return;
-        }
-        commit('SET_UPLOADING_MSG', {
-          group_id: details.group_id,
-          msg: 'Failed to upload to group: ' + err.message,
-          msgType: 'danger'
-        });
       }
     );
   }
@@ -81,20 +95,8 @@ const mutations = {
   SET_IS_UPLOADING(state, details) {
     this.isUploading = details;
   },
-  SET_UPLOADING_MSG(state, details) {
-    state.uploadMsg = details.msg;
-    state.uploadMsgType = details.msgType;
-  },
   SET_ADDRESS_COUNT(state, details) {
-    for (let i = 0; i < state.addressCounts.length; i++) {
-      if (state.addressCounts[i].group_id == details.group_id) {
-        state.addressCounts[i] = details;
-        console.log(state.addressCounts[i]);
-        return;
-      }
-    }
-    state.addressCounts.push(details);
-    console.log(details);
+    Vue.set(state.addressCounts, details.group_id, details);
   }
 };
 
