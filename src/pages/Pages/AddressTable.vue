@@ -7,23 +7,9 @@
       <div class="col-12">
         <card card-body-classes="table-full-width">
           <h4 slot="header" class="card-title">Address Data</h4>
-          <div>
-            <div class="col-12 d-flex justify-content-center justify-content-sm-between flex-wrap">
-              <el-select
-                class="select-primary mb-3 pagination-select"
-                v-model="pagination.perPage"
-                placeholder="Per page"
-              >
-                <el-option
-                  class="select-primary"
-                  v-for="item in pagination.perPageOptions"
-                  :key="item"
-                  :label="item"
-                  :value="item"
-                ></el-option>
-              </el-select>
-
-              <base-input>
+          
+          <div class="col-sm-12">
+            <base-input>
                 <el-input
                   type="search"
                   class="mb-3 search-input"
@@ -32,73 +18,98 @@
                   placeholder="Search records"
                   v-model="searchQuery"
                   aria-controls="datatables"
-                ></el-input>
+                >
+                </el-input>
               </base-input>
-            </div>
-            <el-table :data="queriedData">
-              <el-table-column
+            <base-button
+              type="primary"
+              :round="true"
+              :disabled="!hasMultiSelected"
+              @click.native="handleMultiDelete"
+              >Delete
+            </base-button>
+            <base-button
+              type="primary"
+              :round="true"
+              :disabled="!hasMultiSelected"
+              @click.native="handleMultiDelete"
+              >Ignore
+            </base-button>
+          </div>
+          <div class="text-center col-sm-12 ml-auto">
+            Showing {{ count }} of {{ total }} entries.
+          </div>
+          <div class="col-sm-12">
+          <el-table 
+            ref="addressTable" 
+            :data="tableData"
+            @selection-change="handleSelectionChange"
+          >
+            <el-table-column
+              type="selection"
+              width="55">
+            </el-table-column>
+            <el-table-column
                 v-for="column in tableColumns"
                 :key="column.label"
                 :min-width="column.minWidth"
                 :prop="column.prop"
+                sortable
                 :label="column.label"
-              ></el-table-column>
-              <el-table-column :min-width="135" align="right" label="Actions">
-                <div slot-scope="props">
+            ></el-table-column>
 
-                  <el-tooltip
-                      content="Ignore Host"
-                      effect="light"
-                      :open-delay="100"
-                      placement="top"
-                    >
-                    <base-button
-                      @click.native="handleEdit(props.$index, props.row);"
-                      class="edit btn-link"
-                      type="warning"
-                      size="sm"
-                      icon
-                    >
+            <el-table-column>
+              <div
+                slot-scope="{
+                  row,
+                  $index
+                }"
+                class="text-right table-actions"
+              >
+                <el-tooltip
+                  content="Ignore Host"
+                  effect="light"
+                  :open-delay="150"
+                  placement="top"
+                >
+                  <base-button
+                    type="warning"
+                    icon
+                    size="sm"
+                    class="btn-link"
+                  >
                     <i class="tim-icons icon-simple-delete"></i>
-                    
-                    
-                    </base-button>
-                  </el-tooltip>
-
-                  <el-tooltip
-                      content="Delete Host"
-                      effect="light"
-                      :open-delay="100"
-                      placement="top"
-                    >
-                    <base-button
-                      @click.native="handleDelete(props.$index, props.row);"
-                      class="remove btn-link"
-                      type="danger"
-                      size="sm"
-                      icon
-                    >
-                      
-                      <i class="tim-icons icon-simple-remove"></i>
-                    </base-button>
-                  </el-tooltip>
-                </div>
+                  </base-button>
+                </el-tooltip>
+                <el-tooltip
+                  content="Delete Host"
+                  effect="light"
+                  :open-delay="150"
+                  placement="top"
+                >
+                  <base-button
+                    type="danger"
+                    icon
+                    size="sm"
+                    class="btn-link"
+                  >
+                    <i class="tim-icons icon-simple-remove"></i>
+                  </base-button>
+                </el-tooltip>
+              </div>
               </el-table-column>
-            </el-table>
-          </div>
-          <div
-            slot="footer"
-            class="col-12 d-flex justify-content-center justify-content-sm-between flex-wrap"
-          >
-            <div class>
-              <p class="card-category">Showing {{ from + 1 }} to {{ to }} of {{ total }} entries</p>
-            </div>
-            <base-pagination
-              class="pagination-no-border"
-              v-model="pagination.currentPage"
-              :per-page="pagination.perPage"
-              :total="total"
-            ></base-pagination>
+            
+            <template slot="append">
+              <infinite-loading
+                slot="append"
+                spinner="waveDots"
+                :distance="10"
+                @infinite="getTableData"
+                >
+              </infinite-loading>
+            </template>
+          </el-table>
+          Showing {{ count }} of {{ total }} entries.
           </div>
         </card>
       </div>
@@ -107,7 +118,7 @@
 </template>
 <script>
 import { Table, TableColumn, Select, Option } from 'element-ui';
-import { BasePagination } from 'src/components';
+import InfiniteLoading from 'vue-infinite-loading';
 import { mapGetters } from 'vuex';
 import API from 'src/api/api.js';
 import Fuse from 'fuse.js';
@@ -115,7 +126,7 @@ import swal from 'sweetalert2';
 
 export default {
   components: {
-    BasePagination,
+    InfiniteLoading,
     [Select.name]: Select,
     [Option.name]: Option,
     [Table.name]: Table,
@@ -129,49 +140,32 @@ export default {
   computed: {
     ...mapGetters('address', ['getCountByID']),
     ...mapGetters('scangroup', ['groups']),
-    /***
-     * Returns a page from the searched data or the whole data. Search is performed in the watch section below
-     */
-    queriedData() {
-      let result = this.tableData;
-      if (this.searchedData.length > 0) {
-        result = this.searchedData;
-      }
-      return result.slice(this.from, this.to);
-    },
-    to() {
-      let highBound = this.from + this.pagination.perPage;
-      if (this.total < highBound) {
-        highBound = this.total;
-      }
-      return highBound;
-    },
-    from() {
-      return this.pagination.perPage * (this.pagination.currentPage - 1);
-    },
-    total() {
-      return this.searchedData.length > 0
-        ? this.searchedData.length
-        : this.tableData.length;
-    },
     group() {
       if (this.groups[this.group_id] === undefined) {
         return {
           group_id: this.group_id,
           group_name: ''
-        }
+        };
       }
       return this.groups[this.group_id];
+    },
+    hasMultiSelected() {
+      return this.multipleSelection.length > 0;
+    },
+    count() {
+      return this.pagination.count;
+    },
+    total() {
+      return this.pagination.total;
     }
   },
   data() {
     return {
       pagination: {
-        perPage: 25,
-        currentPage: 1,
-        perPageOptions: [25, 50, 100, 200],
         lastIndex: 0,
-        total: 0
+        limit: 50,
+        total: 0,
+        count: 0
       },
       searchQuery: '',
       propsToSearch: [
@@ -263,15 +257,32 @@ export default {
         }
       ],
       tableData: [],
-      searchedData: [],
+      multipleSelection: [],
       fuseSearch: null
     };
   },
   methods: {
-    async getTableData(page) {
+    toggleSelection(rows) {
+      if (rows) {
+        rows.forEach(row => {
+          this.$refs.addressTable.toggleRowSelection(row);
+        });
+      } else {
+        this.$refs.addressTable.clearSelection();
+      }
+    },
+    handleSelectionChange(val) {
+      console.log(val);
+      this.multipleSelection = val;
+    },
+    async getTableData(state) {
+      if (state === undefined) {
+        return;
+      }
+      console.log(state);
+      
       this.loading = true;
-      let reqPage = page || this.page;
-      let limit = this.pagination.perPage;
+      let limit = this.pagination.limit;
       let start = this.pagination.lastIndex;
       try {
         let response = await API.get('/address/group/' + this.group_id, {
@@ -280,11 +291,23 @@ export default {
             limit: limit
           }
         });
-        this.tableData = response.data.addresses;
+
+        if (response.data.addresses.length <= 1) {
+          state.complete();
+          return;
+        }
+
+        console.log(response.data.addresses[0]);
+        console.log(this.tableData);
+        this.tableData.push(...response.data.addresses);
+        state.loaded();
+
         this.pagination.lastIndex = response.data.last_index;
-        //this.total = response.data.addresses.length;
+        this.pagination.count = this.tableData.length;
+        this.pagination.total = response.data.total;
       } finally {
         this.loading = false;
+        console.log('fINALLY');
       }
     },
     handleLike(index, row) {
@@ -325,6 +348,9 @@ export default {
         }
       });
     },
+    handleMultiDelete() {
+      return true;
+    },
     deleteRow(row) {
       let indexToDelete = this.tableData.findIndex(
         tableRow => tableRow.id === row.id
@@ -342,9 +368,7 @@ export default {
       threshold: 0.3
     });
   },
-  created() {
-    this.getTableData();
-  },
+  created() {},
   watch: {
     /**
      * Searches through the table data by a given query.
@@ -365,5 +389,9 @@ export default {
 .pagination-select,
 .search-input {
   width: 200px;
+}
+.el-table {
+  overflow: hidden;
+  position: relative;
 }
 </style>

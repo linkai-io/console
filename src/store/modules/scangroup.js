@@ -54,6 +54,7 @@ const actions = {
             },
             { root: true }
           );
+          dispatch('GET_GROUPS');
         }
       },
       err => {
@@ -239,6 +240,7 @@ const mutations = {
   },
   SET_GROUPS(state, details) {
     console.log(details);
+    state.scangroups = {};
     for (let i = 0; i < details.length; i++) {
       Vue.set(state.scangroups, details[i].group_id, details[i]);
     }

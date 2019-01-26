@@ -24,12 +24,7 @@ export default {
   computed: {
     ...mapGetters('scangroup', ['groups']),
     hasGroups() {
-      return this.groups !== {};
-    }
-  },
-  watch: {
-    groups(newVal, oldVal) {
-      console.log(newVal);
+      return Object.entries(this.groups).length !== 0;
     }
   },
   methods: {},
