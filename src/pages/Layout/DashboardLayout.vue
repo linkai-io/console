@@ -20,18 +20,18 @@
           :link="{ 
             name: $t('sidebar.groups'), 
             icon: 'tim-icons icon-single-copy-04',
-            path: '/pages/groups' }"
+            path: '/groups' }"
         >
           <sidebar-item
             :link="{
                 name: $t('sidebar.newgroup'),
-                path: '/pages/groups/new' }"
+                path: '/groups/new' }"
           ></sidebar-item>
 
           <sidebar-item
             :link="{
                 name: $t('sidebar.grouplist'),
-                path: '/pages/groups/list' }"
+                path: '/groups/list' }"
           ></sidebar-item>
         </sidebar-item>
 
@@ -39,29 +39,31 @@
           :link="{ 
             name: $t('sidebar.addresses'), 
             icon: 'tim-icons icon-vector',
-            path: '/pages/addresses' }"
+            path: '/addresses' }"
         >
           <sidebar-item
             v-for="group in groups"
             :key="group.group_id"
             :link="{
               name: group.group_name,
-              path: '/pages/addresstable/'+group.group_id
+              path: '/addresstable/'+group.group_id
               }"
           ></sidebar-item>
         </sidebar-item>
         <sidebar-item
+          :link="{
+            name: $t('sidebar.web'),
+            icon: 'tim-icons icon-globe-2',
+            path: '/web' }"
+        ></sidebar-item>
+
+        <sidebar-item
           :link="{ 
             name: $t('sidebar.userProfile'), 
             icon: 'tim-icons icon-single-02',
-            path: '/pages/user' }"
+            path: '/user' }"
         ></sidebar-item>
-        <sidebar-item
-          :link="{
-            name: $t('sidebar.components'),
-            icon: 'tim-icons icon-molecule-40',
-            path: '/components/icons' }"
-        ></sidebar-item>
+        
       </template>
     </side-bar>
     <div class="main-panel" :data="sidebarBackground">

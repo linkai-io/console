@@ -1,11 +1,13 @@
 // import router from '../../routes/router';
 import Vue from 'vue';
 import API from '../../api/api';
+import { fileDownloader } from '../../data/downloader.js';
 
 // initial state
 const state = {
   addressCounts: {},
-  isUploading: false
+  isUploading: false,
+  isUpdating: false
 };
 
 // getters
@@ -31,6 +33,158 @@ const actions = {
       },
       err => {
         console.log(err);
+      }
+    );
+  },
+  EXPORT_ADDRESSES({ dispatch, commit }, details) {
+    commit('SET_IS_UPDATING', true);
+    API.post('/address/group/' + details.group_id + '/download', details, {
+      responseType: 'blob'
+    }).then(
+      resp => {
+        commit('SET_IS_UPDATING', false);
+        if (resp.data !== undefined) {
+          console.log('downloading file');
+          fileDownloader(
+            resp.data,
+            'addresses.' + details.group_id + '.json',
+            'application/octet-stream'
+          );
+        }
+      },
+      err => {
+        commit('SET_IS_UPDATING', false);
+        if (err.data !== undefined) {
+          dispatch(
+            'notify/CREATE_NOTIFY_MSG',
+            {
+              msg: err.data.msg,
+              msgType: 'danger'
+            },
+            { root: true }
+          );
+        } else if (err.response.data !== undefined) {
+          dispatch(
+            'notify/CREATE_NOTIFY_MSG',
+            {
+              msg: 'Failed to download addresses: ' + err.response.data.msg,
+              msgType: 'danger'
+            },
+            { root: true }
+          );
+        } else {
+          dispatch(
+            'notify/CREATE_NOTIFY_MSG',
+            {
+              msg: 'Failed to download addresses: ' + err.message,
+              msgType: 'danger'
+            },
+            { root: true }
+          );
+        }
+      }
+    );
+  },
+  DELETE_ADDRESSES({ dispatch, commit }, details) {
+    commit('SET_IS_UPDATING', true);
+    API.patch('/address/group/' + details.group_id + '/delete', {
+      address_ids: details.address_ids
+    }).then(
+      resp => {
+        commit('SET_IS_UPDATING', false);
+        if (resp.data.status == 'OK') {
+          dispatch(
+            'notify/CREATE_NOTIFY_MSG',
+            {
+              msg: 'Successfully deleted addresses',
+              msgType: 'success'
+            },
+            { root: true }
+          );
+        }
+      },
+      err => {
+        commit('SET_IS_UPDATING', false);
+        if (err.data !== undefined) {
+          dispatch(
+            'notify/CREATE_NOTIFY_MSG',
+            {
+              msg: err.data.msg,
+              msgType: 'danger'
+            },
+            { root: true }
+          );
+        } else if (err.response.data !== undefined) {
+          dispatch(
+            'notify/CREATE_NOTIFY_MSG',
+            {
+              msg: 'Failed to delete addresses: ' + err.response.data.msg,
+              msgType: 'danger'
+            },
+            { root: true }
+          );
+        } else {
+          dispatch(
+            'notify/CREATE_NOTIFY_MSG',
+            {
+              msg: 'Failed to delete addresses: ' + err.message,
+              msgType: 'danger'
+            },
+            { root: true }
+          );
+        }
+      }
+    );
+  },
+  IGNORE_ADDRESSES({ dispatch, commit }, details) {
+    commit('SET_IS_UPDATING', true);
+    API.patch('/address/group/' + details.group_id + '/ignore', {
+      address_ids: details.address_ids,
+      ignore_value: details.ignore_value
+    }).then(
+      resp => {
+        commit('SET_IS_UPDATING', false);
+        if (resp.data.status == 'OK') {
+          dispatch(
+            'notify/CREATE_NOTIFY_MSG',
+            {
+              msg: 'Successfully ignored addresses',
+              msgType: 'success'
+            },
+            { root: true }
+          );
+        }
+      },
+      err => {
+        commit('SET_IS_UPDATING', false);
+        if (err.data !== undefined) {
+          dispatch(
+            'notify/CREATE_NOTIFY_MSG',
+            {
+              msg: err.data.msg,
+              msgType: 'danger'
+            },
+            { root: true }
+          );
+        } else if (err.response.data !== undefined) {
+          dispatch(
+            'notify/CREATE_NOTIFY_MSG',
+            {
+              msg: 'Failed to ignored addresses: ' + err.response.data.msg,
+              msgType: 'danger'
+            },
+            { root: true }
+          );
+        } else {
+          dispatch(
+            'notify/CREATE_NOTIFY_MSG',
+            {
+              msg: 'Failed to ignored addresses: ' + err.message,
+              msgType: 'danger'
+            },
+            { root: true }
+          );
+        }
       }
     );
   },
@@ -93,7 +247,10 @@ const actions = {
 // mutations
 const mutations = {
   SET_IS_UPLOADING(state, details) {
-    this.isUploading = details;
+    state.isUploading = details;
+  },
+  SET_IS_UPDATING(state, details) {
+    state.isUpdating = details;
   },
   SET_ADDRESS_COUNT(state, details) {
     Vue.set(state.addressCounts, details.group_id, details);

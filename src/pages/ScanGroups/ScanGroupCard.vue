@@ -273,7 +273,7 @@ export default {
     },
     addrCount: function() {
       return this.addrCounts[this.group.group_id] === undefined
-        ? 0
+        ? 1 // seems silly but set it to one whilst we wait for the real count to load so we don't show the upload notification
         : this.addrCounts[this.group.group_id].count;
     }
   },

@@ -26,7 +26,7 @@ export default {
   },
   methods: {
     createGroup(evt) {
-      this.$router.push('/pages/groups/new');
+      this.$router.push('/groups/new');
     }
   }
 };

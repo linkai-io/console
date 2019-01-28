@@ -7,7 +7,6 @@
       <div class="col-12">
         <card card-body-classes="table-full-width">
           <h4 slot="header" class="card-title">Address Data</h4>
-          
           <div class="col-sm-12">
             <base-input>
                 <el-input
@@ -32,11 +31,32 @@
               type="primary"
               :round="true"
               :disabled="!hasMultiSelected"
-              @click.native="handleMultiDelete"
+              @click.native="handleMultiIgnore"
               >Ignore
             </base-button>
+            <base-button
+              type="primary"
+              :round="true"
+              :disabled="!hasMultiSelected"
+              @click.native="handleMultiUnignore"
+              >Unignore
+            </base-button>
+            <base-button
+              type="primary"
+              :round="true"
+              :disabled="!hasMultiSelected"
+              @click.native="handleMultiExport"
+              >Export selected
+            </base-button>
+            <base-button
+              type="secondary"
+              :round="true"
+              :loading="updating"
+              @click.native="handleExport"
+              >Export all
+            </base-button>
           </div>
-          <div class="text-center col-sm-12 ml-auto">
+          <div class="text-right col-sm-12 ml-auto">
             Showing {{ count }} of {{ total }} entries.
           </div>
           <div class="col-sm-12">
@@ -58,7 +78,12 @@
                 :label="column.label"
             ></el-table-column>
 
-            <el-table-column>
+            <el-table-column
+            min-width="150"
+              header-align="right"
+              align="right"
+              label="Actions"
+            >
               <div
                 slot-scope="{
                   row,
@@ -76,9 +101,12 @@
                     type="warning"
                     icon
                     size="sm"
+                    @click="handleIgnore(row)"
                     class="btn-link"
                   >
-                    <i class="tim-icons icon-simple-delete"></i>
+
+                    <i v-if="row.ignored" class="tim-icons icon-simple-delete"></i>
+                    <i v-else class="tim-icons icon-bulb-63"></i>
                   </base-button>
                 </el-tooltip>
                 <el-tooltip
@@ -91,6 +119,7 @@
                     type="danger"
                     icon
                     size="sm"
+                    @click="handleDelete(row)"
                     class="btn-link"
                   >
                     <i class="tim-icons icon-simple-remove"></i>
@@ -119,7 +148,7 @@
 <script>
 import { Table, TableColumn, Select, Option } from 'element-ui';
 import InfiniteLoading from 'vue-infinite-loading';
-import { mapGetters } from 'vuex';
+import { mapGetters, mapState } from 'vuex';
 import API from 'src/api/api.js';
 import Fuse from 'fuse.js';
 import swal from 'sweetalert2';
@@ -138,7 +167,8 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('address', ['getCountByID']),
+    ...mapGetters('addresses', ['getCountByID']),
+    ...mapState('addresses', ['isUpdating']),
     ...mapGetters('scangroup', ['groups']),
     group() {
       if (this.groups[this.group_id] === undefined) {
@@ -157,6 +187,9 @@ export default {
     },
     total() {
       return this.pagination.total;
+    },
+    updating() {
+      return this.isUpdating;
     }
   },
   data() {
@@ -296,9 +329,6 @@ export default {
           state.complete();
           return;
         }
-
-        console.log(response.data.addresses[0]);
-        console.log(this.tableData);
         this.tableData.push(...response.data.addresses);
         state.loaded();
 
@@ -307,48 +337,73 @@ export default {
         this.pagination.total = response.data.total;
       } finally {
         this.loading = false;
-        console.log('fINALLY');
       }
     },
-    handleLike(index, row) {
-      swal({
-        title: `You liked ${row.name}`,
-        buttonsStyling: false,
-        type: 'success',
-        confirmButtonClass: 'btn btn-success btn-fill'
-      });
-    },
-    handleEdit(index, row) {
-      swal({
-        title: `You want to edit ${row.name}`,
-        buttonsStyling: false,
-        confirmButtonClass: 'btn btn-info btn-fill'
-      });
+    handleIgnore(index, row) {
+      let ignore_value = false;
+      if (row.ignored === false) {
+        ignore_value = true;
+      }
+      let details = {
+        group_id: this.group_id,
+        address_ids: [row.address_id],
+        ignore_value: ignore_value
+      };
+      console.log(row);
+      this.$store.dispatch('addresses/IGNORE_ADDRESSES', details);
     },
     handleDelete(index, row) {
-      swal({
-        title: 'Are you sure?',
-        text: `You won't be able to revert this!`,
-        type: 'warning',
-        showCancelButton: true,
-        confirmButtonClass: 'btn btn-success btn-fill',
-        cancelButtonClass: 'btn btn-danger btn-fill',
-        confirmButtonText: 'Yes, delete it!',
-        buttonsStyling: false
-      }).then(result => {
-        if (result.value) {
-          this.deleteRow(row);
-          swal({
-            title: 'Deleted!',
-            text: `You deleted ${row.name}`,
-            type: 'success',
-            confirmButtonClass: 'btn btn-success btn-fill',
-            buttonsStyling: false
-          });
-        }
-      });
+      let details = {
+        group_id: this.group_id,
+        address_ids: [row.address_id],
+      };
+      this.$store.dispatch('addresses/DELETE_ADDRESSES', details);
     },
     handleMultiDelete() {
+      let details = {
+        group_id: this.group_id,
+        address_ids: this.getMultipleIDs()
+      };
+      this.$store.dispatch('addresses/DELETE_ADDRESSES', details);
+    },
+    handleMultiIgnore() {
+      let details = {
+        group_id: this.group_id,
+        address_ids: this.getMultipleIDs(),
+        ignore_value: true
+      };
+      this.$store.dispatch('addresses/IGNORE_ADDRESSES', details);
+    },
+    handleMultiUnignore() {
+      let details = {
+        group_id: this.group_id,
+        address_ids: this.getMultipleIDs(),
+        ignore_value: false
+      };
+      this.$store.dispatch('addresses/IGNORE_ADDRESSES', details);
+    },
+    handleMultiExport() {
+      let details = {
+        group_id: this.group_id,
+        address_ids: this.getMultipleIDs(),
+        all_addresses: false
+      };
+      this.$store.dispatch('addresses/EXPORT_ADDRESSES', details);
+    },
+    getMultipleIDs() {
+      let addrIDs = [];
+      for (let i = 0; i < this.multipleSelection.length; i++) {
+        addrIDs.push(this.multipleSelection[i].address_id);
+      }
+      return addrIDs;
+    },
+    handleExport() {
+      let details = {
+        group_id: this.group_id,
+        all_addresses: true
+      };
+
+      this.$store.dispatch('addresses/EXPORT_ADDRESSES', details);
       return true;
     },
     deleteRow(row) {
@@ -361,7 +416,6 @@ export default {
     }
   },
   mounted() {
-    console.log('mounted: ' + this.group_id);
     // Fuse search initialization.
     this.fuseSearch = new Fuse(this.tableData, {
       keys: ['hostname'],
@@ -370,6 +424,13 @@ export default {
   },
   created() {},
   watch: {
+    isUpdating(val) {
+      // reset the table data after we delete/ignore/unignore values
+      if (val === false) {
+        this.pagination.lastIndex = 0;
+        this.tableData = [];
+      }
+    },
     /**
      * Searches through the table data by a given query.
      * NOTE: If you have a lot of data, it's recommended to do the search on the Server Side and only display the results here.
