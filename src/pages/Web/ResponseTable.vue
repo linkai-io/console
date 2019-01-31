@@ -6,7 +6,7 @@
     <div class="row mt-5">
       <div class="col-12">
         <card card-body-classes="table-full-width">
-          <h4 slot="header" class="card-title">Address Data</h4>
+          <h4 slot="header" class="card-title">Response Data</h4>
           <div class="col-sm-12">
             <base-button
               type="primary"

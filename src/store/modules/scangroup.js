@@ -115,7 +115,7 @@ const actions = {
           return;
         }
 
-        if (err.response.data !== undefined) {
+        if (err.response !== undefined && err.response.data !== undefined) {
           dispatch(
             'notify/CREATE_NOTIFY_MSG',
             {

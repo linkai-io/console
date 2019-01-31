@@ -5,6 +5,7 @@ function resolveSrc(_path) {
 }
 // vue.config.js
 module.exports = {
+  baseUrl: process.env.NODE_ENV === 'production' ? '/app/' : '/',
   lintOnSave: true,
   configureWebpack: {
     // Set up all the aliases we use in our app.
@@ -29,6 +30,10 @@ module.exports = {
           logLevel: 'debug'
         },
         '/address': {
+          target: 'http://localhost:3000/',
+          logLevel: 'debug'
+        },
+        '/web/': {
           target: 'http://localhost:3000/',
           logLevel: 'debug'
         }

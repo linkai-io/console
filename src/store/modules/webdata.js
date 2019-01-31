@@ -5,38 +5,19 @@ import { fileDownloader } from '../../data/downloader.js';
 
 // initial state
 const state = {
-  addressCounts: {},
-  isUploading: false,
-  isUpdating: false
+  isUpdating: false,
+  responses: {},
+  snapshots: {},
+  certificates: {}
 };
 
 // getters
 const getters = {
-  isUpdating: state => state.isUpdating,
-  addrCounts() {
-    return state.addressCounts;
-  },
-  getCountByID: state => id => {
-    return state.addressCounts[id] === undefined
-      ? 0
-      : state.addressCounts[id].count;
-  }
+  isUpdating: state => state.isUpdating
 };
 
 // actions
 const actions = {
-  GET_ADDRESS_COUNT({ commit }, group_id) {
-    API.get('/address/group/' + group_id + '/count').then(
-      resp => {
-        if (resp.data.status == 'OK') {
-          commit('SET_ADDRESS_COUNT', resp.data);
-        }
-      },
-      err => {
-        console.log(err);
-      }
-    );
-  },
   EXPORT_ADDRESSES({ dispatch, commit }, details) {
     commit('SET_IS_UPDATING', true);
     API.post('/address/group/' + details.group_id + '/download', details, {
@@ -58,30 +39,8 @@ const actions = {
       }
     );
   },
-  DELETE_ADDRESSES({ dispatch, commit }, details) {
-    commit('SET_IS_UPDATING', true);
-    API.patch('/address/group/' + details.group_id + '/delete', {
-      address_ids: details.address_ids
-    }).then(
-      resp => {
-        commit('SET_IS_UPDATING', false);
-        if (resp.data.status == 'OK') {
-          dispatch(
-            'notify/CREATE_NOTIFY_MSG',
-            {
-              msg: 'Successfully deleted addresses',
-              msgType: 'success'
-            },
-            { root: true }
-          );
-        }
-      },
-      err => {
-        handleError(commit, dispatch, err);
-      }
-    );
-  },
-  IGNORE_ADDRESSES({ dispatch, commit }, details) {
+
+  GET_RESPONSES({ dispatch, commit }, details) {
     commit('SET_IS_UPDATING', true);
     API.patch('/address/group/' + details.group_id + '/ignore', {
       address_ids: details.address_ids,
@@ -98,32 +57,6 @@ const actions = {
             },
             { root: true }
           );
-        }
-      },
-      err => {
-        handleError(commit, dispatch, err);
-      }
-    );
-  },
-  UPLOAD_ADDRESSES({ dispatch, commit }, details) {
-    commit('SET_IS_UPLOADING', true);
-    API.put(
-      '/address/group/' + details.group_id + '/initial',
-      details.addresses
-    ).then(
-      resp => {
-        commit('SET_IS_UPLOADING', false);
-        console.log(resp.data);
-        if (resp.data.status == 'OK') {
-          dispatch(
-            'notify/CREATE_NOTIFY_MSG',
-            {
-              msg: 'Successfully uploaded addresses to group',
-              msgType: 'success'
-            },
-            { root: true }
-          );
-          dispatch('GET_ADDRESS_COUNT', details.group_id);
         }
       },
       err => {

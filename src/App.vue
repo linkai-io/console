@@ -13,6 +13,7 @@ export default {
     }
   },
   mounted() {
+    this.$store.dispatch('auth/INIT');
     this.initializeLayout();
   }
 };

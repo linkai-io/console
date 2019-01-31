@@ -53,6 +53,9 @@ export default {
   },
   computed: {},
   methods: {},
+  created() {
+    
+  },
   mounted() {
     this.i18n = this.$i18n;
     if (this.enableRTL) {

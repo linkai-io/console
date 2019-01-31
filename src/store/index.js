@@ -4,6 +4,7 @@ import auth from './modules/auth';
 import notify from './modules/notify';
 import scangroup from './modules/scangroup';
 import addresses from './modules/addresses';
+import webdata from './modules/webdata';
 import user from './modules/user';
 
 import createLogger from '../plugins/logger';
@@ -18,6 +19,7 @@ export default new Vuex.Store({
     notify,
     scangroup,
     addresses,
+    webdata,
     user
   },
   strict: debug,
