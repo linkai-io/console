@@ -33,7 +33,7 @@ module.exports = {
           target: 'http://localhost:3000/',
           logLevel: 'debug'
         },
-        '/web/': {
+        '/webdata/': {
           target: 'http://localhost:3000/',
           logLevel: 'debug'
         }

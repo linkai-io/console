@@ -70,12 +70,16 @@
                 Create
               </base-button>
             </div>
+
+          <base-alert v-if="groupCreated" type="success" dismissible icon="tim-icons icon-bell-55">
+            Group created, go to <router-link to="/groups/list" class="alert-link">scan group list</router-link> to configure now
+          </base-alert>
       </card>
     </form>
   </div>
 </template>
 <script>
-import { BaseAlert } from 'src/components';
+import { BaseAlert, } from 'src/components';
 import { BaseTextArea } from 'src/components/index';
 import { mapState } from 'vuex';
 
@@ -106,7 +110,7 @@ export default {
     };
   },
   computed: {
-    ...mapState('scangroup', ['isCreating', 'creationMsg'])
+    ...mapState('scangroup', ['isCreating', 'creationMsg', 'groupCreated'])
   },
   methods: {
     created() {},
@@ -136,8 +140,14 @@ export default {
       });
     }
   },
+  beforeDestroy() {
+    this.$store.dispatch('scangroup/UNSET_CREATED');
+  },
   mounted() {}
 };
 </script>
 <style>
+.alert-link {
+  color: black;
+}
 </style>

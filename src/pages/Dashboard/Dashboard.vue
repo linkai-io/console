@@ -33,7 +33,7 @@
       </router-link>
     </div>
     <div class="col-lg-3 col-md-6">
-      <router-link to="/web">
+      <router-link to="/webdata">
       <stats-card title="Review Web Results" type="info" icon="tim-icons icon-globe-2">
         <div slot="footer"></div>
       </stats-card>

@@ -18,18 +18,22 @@ const getters = {
 
 // actions
 const actions = {
-  EXPORT_ADDRESSES({ dispatch, commit }, details) {
+  EXPORT_RESPONSES({ dispatch, commit }, details) {
     commit('SET_IS_UPDATING', true);
-    API.post('/address/group/' + details.group_id + '/download', details, {
-      responseType: 'blob'
-    }).then(
+    API.post(
+      '/webdata/group/' + details.group_id + '/responses/download',
+      details,
+      {
+        responseType: 'blob'
+      }
+    ).then(
       resp => {
         commit('SET_IS_UPDATING', false);
         if (resp.data !== undefined) {
           console.log('downloading file');
           fileDownloader(
             resp.data,
-            'addresses.' + details.group_id + '.json',
+            'responses.' + details.group_id + '.json',
             'application/octet-stream'
           );
         }
@@ -40,22 +44,48 @@ const actions = {
     );
   },
 
-  GET_RESPONSES({ dispatch, commit }, details) {
+  EXPORT_WEBSITES({ dispatch, commit }, details) {
     commit('SET_IS_UPDATING', true);
-    API.patch('/address/group/' + details.group_id + '/ignore', {
-      address_ids: details.address_ids,
-      ignore_value: details.ignore_value
-    }).then(
+    API.post(
+      '/webdata/group/' + details.group_id + '/snapshots/download',
+      details,
+      {
+        responseType: 'blob'
+      }
+    ).then(
       resp => {
         commit('SET_IS_UPDATING', false);
-        if (resp.data.status == 'OK') {
-          dispatch(
-            'notify/CREATE_NOTIFY_MSG',
-            {
-              msg: 'Successfully ignored addresses',
-              msgType: 'success'
-            },
-            { root: true }
+        if (resp.data !== undefined) {
+          console.log('downloading file');
+          fileDownloader(
+            resp.data,
+            'websites.' + details.group_id + '.json',
+            'application/octet-stream'
+          );
+        }
+      },
+      err => {
+        handleError(commit, dispatch, err);
+      }
+    );
+  },
+  EXPORT_CERTIFICATES({ dispatch, commit }, details) {
+    commit('SET_IS_UPDATING', true);
+    API.post(
+      '/webdata/group/' + details.group_id + '/certificates/download',
+      details,
+      {
+        responseType: 'blob'
+      }
+    ).then(
+      resp => {
+        commit('SET_IS_UPDATING', false);
+        if (resp.data !== undefined) {
+          console.log('downloading file');
+          fileDownloader(
+            resp.data,
+            'certificates.' + details.group_id + '.json',
+            'application/octet-stream'
           );
         }
       },

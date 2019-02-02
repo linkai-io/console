@@ -54,7 +54,7 @@
           :link="{
             name: $t('sidebar.web'),
             icon: 'tim-icons icon-globe-2',
-            path: '/web' }"
+            path: '/webdata' }"
         ></sidebar-item>
 
         <sidebar-item

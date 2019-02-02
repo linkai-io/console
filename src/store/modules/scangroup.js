@@ -5,6 +5,7 @@ import API from '../../api/api';
 // initial state
 const state = {
   scangroups: {},
+  groupCreated: false,
   isCreating: false,
   isUpdating: false
 };
@@ -20,6 +21,9 @@ const getters = {
 
 // actions
 const actions = {
+  UNSET_CREATED({ commit }) {
+    commit('CLEAR_CREATED');
+  },
   GET_GROUPS({ commit }) {
     API.get('/scangroup/groups').then(
       resp => {
@@ -54,6 +58,7 @@ const actions = {
             },
             { root: true }
           );
+          commit('SET_CREATED');
           dispatch('GET_GROUPS');
         }
       },
@@ -232,6 +237,12 @@ const actions = {
 
 // mutations
 const mutations = {
+  CLEAR_CREATED(state) {
+    state.groupCreated = false;
+  },
+  SET_CREATED(state) {
+    state.groupCreated = true;
+  },
   SET_IS_CREATING(state, details) {
     state.isCreating = details;
   },

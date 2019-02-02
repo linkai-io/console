@@ -26,6 +26,12 @@ const Web = () => import(/* webpackChunkName: "pages" */ 'src/pages/Web.vue');
 const SnapshotTable = () =>
   import(/* webpackChunkName: "pages" */ 'src/pages/Web/SnapshotTable.vue');
 
+const ResponseTable = () =>
+  import(/* webpackChunkName: "pages" */ 'src/pages/Web/ResponseTable.vue');
+
+const CertificateTable = () =>
+  import(/* webpackChunkName: "pages" */ 'src/pages/Web/CertificateTable.vue');
+
 const routes = [
   {
     path: '/',
@@ -70,15 +76,27 @@ const routes = [
         props: { default: true }
       },
       {
-        path: 'web',
+        path: 'webdata',
         name: 'Web Results',
         components: { default: Web },
         props: { default: true }
       },
       {
-        path: 'web/sites/:group_id',
+        path: 'webdata/sites/:group_id',
         name: 'Web Sites',
         components: { default: SnapshotTable },
+        props: { default: true }
+      },
+      {
+        path: 'webdata/responses/:group_id',
+        name: 'Web Responses',
+        components: { default: ResponseTable },
+        props: { default: true }
+      },
+      {
+        path: 'webdata/certificates/:group_id',
+        name: 'Web Certificates',
+        components: { default: CertificateTable },
         props: { default: true }
       }
     ]

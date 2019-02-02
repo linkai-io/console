@@ -7,13 +7,51 @@
       <div class="col-12">
         <card card-body-classes="table-full-width">
           <h4 slot="header" class="card-title">Response Data</h4>
-          <div>
-            <base-button
-              type="secondary"
-              :round="true"
-              :loading="updating"
-              @click.native="handleExport"
-            >Export all</base-button>
+
+          <div class="row">
+            <form class="form-horizontal col-md-8">
+              <div class="row">
+                  <div class="col-md-4">
+                    <el-tooltip
+                      content="Return results captured after the supplied date/time."
+                      effect="light"
+                      :open-delay="150"
+                      placement="top"
+                    >
+                      <base-input>
+                        <el-date-picker
+                          type="datetime"
+                          placeholder="Filter since time taken"
+                          v-model="dateTimePicker"
+                        ></el-date-picker>
+                      </base-input>
+                    </el-tooltip>
+                  </div>
+
+                  <div class="col-md-4">
+                    <base-input>
+                      <base-button
+                        type="secondary"
+                        :round="true"
+                        :loading="updating"
+                        @click.native="filterSince"
+                      >Filter</base-button>
+                    </base-input>
+                  </div>
+              </div>
+            </form>
+
+            <!-- end row -->
+          </div>
+          <div class="row">
+            <div>
+              <base-button
+                type="secondary"
+                :round="true"
+                :loading="updating"
+                @click.native="handleExport"
+              >Export all</base-button>
+            </div>
           </div>
           <div class="col-sm-12">
             <!-- start table -->
@@ -30,10 +68,26 @@
                 :formatter="formatColumn"
                 sortable
                 :label="column.label"
-              ></el-table-column>
+              >
+                <template slot-scope="scope">
+                  <div v-if="column.prop ==='snapshot_link'">
+                    <img :src="'/app/data'+scope.row.snapshot_link">
+                  </div>
+                  <div v-else-if="column.prop === 'serialized_dom_link'">
+                    <a
+                      :href="'/app/data'+scope.row.serialized_dom_link"
+                    >{{ scope.row.serialized_dom_hash }}</a>
+                  </div>
+                  <div
+                    v-else-if="column.prop === 'response_timestamp'"
+                  >{{ formatTime(scope.row.serialized_dom_hash) }}</div>
+                  <div v-else>{{ scope.row[column.prop] }}</div>
+                </template>
+              </el-table-column>
 
               <template slot="append">
                 <infinite-loading
+                  ref="infiniteLoader"
                   slot="append"
                   spinner="waveDots"
                   :distance="10"
@@ -48,7 +102,14 @@
   </div>
 </template>
 <script>
-import { Table, TableColumn, Select, Option } from 'element-ui';
+import {
+  TimeSelect,
+  DatePicker,
+  Table,
+  TableColumn,
+  Select,
+  Option
+} from 'element-ui';
 import InfiniteLoading from 'vue-infinite-loading';
 import { mapGetters, mapState } from 'vuex';
 import API from 'src/api/api.js';
@@ -58,6 +119,8 @@ import swal from 'sweetalert2';
 export default {
   components: {
     InfiniteLoading,
+    [DatePicker.name]: DatePicker,
+    [TimeSelect.name]: TimeSelect,
     [Select.name]: Select,
     [Option.name]: Option,
     [Table.name]: Table,
@@ -96,10 +159,12 @@ export default {
   },
   data() {
     return {
+      dateTimePicker: '',
       pagination: {
         lastIndex: 0,
         limit: 50,
         total: 0,
+        sinceTimeTaken: 0,
         count: 0
       },
       searchQuery: '',
@@ -107,7 +172,7 @@ export default {
         {
           prop: 'snapshot_link',
           label: 'Image',
-          minWidth: 60,
+          minWidth: 60
         },
         {
           prop: 'address_id_host_address',
@@ -136,22 +201,26 @@ export default {
     };
   },
   methods: {
+    filterSince() {
+      //let date = 
+      try {
+        let date = new Date(this.dateTimePicker);
+        this.pagination.sinceTimeTaken = date.getTime();
+        // force reset
+        this.pagination.lastIndex = 0;
+        this.tableData = [];
+        this.getTableData(this.$refs.infiniteLoader.stateChanger);
+      } catch(e) {
+        console.log(e);
+        this.pagination.sinceTimeTaken = 0;
+      }
+    },
     formatColumn(row, column, cellValue, index) {
       switch (column.property) {
-        case 'snapshot_link':
-          return this.formatImage(cellValue);
-        case 'serialized_dom_link':
-          return this.formatLink(cellValue);
         case 'response_timestamp':
           return this.formatTime(cellValue);
       }
       return cellValue;
-    },
-    formatImage(value) {
-      return new Image().src = '/data/'+value;
-    },
-    formatLink(value) {
-      return '<a href="/data/'+value+'">'+value+'</a>';
     },
     formatTime(value) {
       if (value === 0) {
@@ -190,12 +259,16 @@ export default {
       this.loading = true;
       let limit = this.pagination.limit;
       let start = this.pagination.lastIndex;
+      let params = {
+        start: start,
+        limit: limit
+      };
+      if (this.pagination.sinceTimeTaken !== 0) {
+        params.since_response_time = this.pagination.sinceTimeTaken;
+      }
       try {
-        let response = await API.get('/web/snapshots/' + this.group_id, {
-          params: {
-            start: start,
-            limit: limit
-          }
+        let response = await API.get('/webdata/group/'+this.group_id+'/snapshots', {
+          params: params
         });
 
         if (response.data.snapshots.length <= 1) {
@@ -212,81 +285,14 @@ export default {
         this.loading = false;
       }
     },
-    handleIgnore(row) {
-      console.log(row);
-      let ignore_value = false;
-      if (row.ignored === false) {
-        ignore_value = true;
-      }
-      let details = {
-        group_id: this.group_id,
-        address_ids: [row.address_id],
-        ignore_value: ignore_value
-      };
-      console.log(row);
-      this.$store.dispatch('addresses/IGNORE_ADDRESSES', details);
-    },
-    handleDelete(index, row) {
-      let details = {
-        group_id: this.group_id,
-        address_ids: [row.address_id]
-      };
-      this.$store.dispatch('addresses/DELETE_ADDRESSES', details);
-    },
-    handleMultiDelete() {
-      let details = {
-        group_id: this.group_id,
-        address_ids: this.getMultipleIDs()
-      };
-      this.$store.dispatch('addresses/DELETE_ADDRESSES', details);
-    },
-    handleMultiIgnore() {
-      let details = {
-        group_id: this.group_id,
-        address_ids: this.getMultipleIDs(),
-        ignore_value: true
-      };
-      this.$store.dispatch('addresses/IGNORE_ADDRESSES', details);
-    },
-    handleMultiUnignore() {
-      let details = {
-        group_id: this.group_id,
-        address_ids: this.getMultipleIDs(),
-        ignore_value: false
-      };
-      this.$store.dispatch('addresses/IGNORE_ADDRESSES', details);
-    },
-    handleMultiExport() {
-      let details = {
-        group_id: this.group_id,
-        address_ids: this.getMultipleIDs(),
-        all_addresses: false
-      };
-      this.$store.dispatch('addresses/EXPORT_ADDRESSES', details);
-    },
-    getMultipleIDs() {
-      let addrIDs = [];
-      for (let i = 0; i < this.multipleSelection.length; i++) {
-        addrIDs.push(this.multipleSelection[i].address_id);
-      }
-      return addrIDs;
-    },
     handleExport() {
       let details = {
         group_id: this.group_id,
         all_addresses: true
       };
 
-      this.$store.dispatch('addresses/EXPORT_ADDRESSES', details);
+      this.$store.dispatch('webdata/EXPORT_WEBSITES', details);
       return true;
-    },
-    deleteRow(row) {
-      let indexToDelete = this.tableData.findIndex(
-        tableRow => tableRow.id === row.id
-      );
-      if (indexToDelete >= 0) {
-        this.tableData.splice(indexToDelete, 1);
-      }
     }
   },
   mounted() {
