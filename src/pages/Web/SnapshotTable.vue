@@ -11,46 +11,55 @@
           <div class="row">
             <form class="form-horizontal col-md-8">
               <div class="row">
-                  <div class="col-md-4">
-                    <el-tooltip
-                      content="Return results captured after the supplied date/time."
-                      effect="light"
-                      :open-delay="150"
-                      placement="top"
-                    >
-                      <base-input>
-                        <el-date-picker
-                          type="datetime"
-                          placeholder="Filter since time taken"
-                          v-model="dateTimePicker"
-                        ></el-date-picker>
-                      </base-input>
-                    </el-tooltip>
-                  </div>
-
-                  <div class="col-md-4">
+                <div class="col-md-4">
+                  <el-tooltip
+                    content="Return results captured after the supplied date/time."
+                    effect="light"
+                    :open-delay="150"
+                    placement="top"
+                  >
                     <base-input>
-                      <base-button
-                        type="secondary"
-                        :round="true"
-                        :loading="updating"
-                        @click.native="filterSince"
-                      >Filter</base-button>
+                      <el-date-picker
+                        type="datetime"
+                        placeholder="Filter since time taken"
+                        v-model="dateTimePicker"
+                      ></el-date-picker>
                     </base-input>
-                  </div>
+                  </el-tooltip>
+                </div>
+
+                <div class="col-md-4">
+                  <base-input>
+                    <base-button
+                      type="secondary"
+                      :round="true"
+                      :loading="updating"
+                      @click.native="filterSince"
+                    >Filter</base-button>
+                  </base-input>
+                </div>
               </div>
             </form>
 
             <!-- end row -->
           </div>
           <div class="row">
-            <div>
+            <div class="col-md-12 text-right">
               <base-button
                 type="secondary"
                 :round="true"
                 :loading="updating"
                 @click.native="handleExport"
               >Export all</base-button>
+              <base-button
+                type="primary"
+                icon
+                round
+                :loading="updating"
+                @click.native="refreshTable"
+              >
+                <i class="tim-icons icon-refresh-02"></i>
+              </base-button>
             </div>
           </div>
           <div class="col-sm-12">
@@ -71,16 +80,16 @@
               >
                 <template slot-scope="scope">
                   <div v-if="column.prop ==='snapshot_link'">
-                    <img :src="'/app/data'+scope.row.snapshot_link">
+                    <img :src="'/app/data/'+scope.row.snapshot_link">
                   </div>
                   <div v-else-if="column.prop === 'serialized_dom_link'">
                     <a
-                      :href="'/app/data'+scope.row.serialized_dom_link"
+                      :href="'/app/data/'+scope.row.serialized_dom_link"
                     >{{ scope.row.serialized_dom_hash }}</a>
                   </div>
                   <div
                     v-else-if="column.prop === 'response_timestamp'"
-                  >{{ formatTime(scope.row.serialized_dom_hash) }}</div>
+                  >{{ formatNSTime(scope.row.response_timestamp) }}</div>
                   <div v-else>{{ scope.row[column.prop] }}</div>
                 </template>
               </el-table-column>
@@ -112,6 +121,7 @@ import {
 } from 'element-ui';
 import InfiniteLoading from 'vue-infinite-loading';
 import { mapGetters, mapState } from 'vuex';
+import { unixNanoToMinDate } from 'src/data/time.js';
 import API from 'src/api/api.js';
 import Fuse from 'fuse.js';
 import swal from 'sweetalert2';
@@ -202,18 +212,21 @@ export default {
   },
   methods: {
     filterSince() {
-      //let date = 
       try {
         let date = new Date(this.dateTimePicker);
-        this.pagination.sinceTimeTaken = date.getTime();
+        this.pagination.sinceTimeTaken = date.getTime() * 1000000;
         // force reset
-        this.pagination.lastIndex = 0;
-        this.tableData = [];
-        this.getTableData(this.$refs.infiniteLoader.stateChanger);
-      } catch(e) {
+        this.refreshTable();
+      } catch (e) {
         console.log(e);
         this.pagination.sinceTimeTaken = 0;
       }
+    },
+    refreshTable() {
+      // force reset
+      this.pagination.lastIndex = 0;
+      this.tableData = [];
+      this.getTableData(this.$refs.infiniteLoader.stateChanger);
     },
     formatColumn(row, column, cellValue, index) {
       switch (column.property) {
@@ -222,20 +235,8 @@ export default {
       }
       return cellValue;
     },
-    formatTime(value) {
-      if (value === 0) {
-        return 'NA';
-      }
-      let d = new Date();
-      return (
-        [d.getMonth() + 1, d.getDate(), d.getFullYear()].join('/') +
-        ' ' +
-        [
-          d.getHours(),
-          new String(d.getMinutes()).padStart(2, '0'),
-          new String(d.getSeconds()).padStart(2, '0')
-        ].join(':')
-      );
+    formatNSTime(value) {
+      return unixNanoToMinDate(value);
     },
     toggleSelection(rows) {
       if (rows) {
@@ -267,11 +268,17 @@ export default {
         params.since_response_time = this.pagination.sinceTimeTaken;
       }
       try {
-        let response = await API.get('/webdata/group/'+this.group_id+'/snapshots', {
-          params: params
-        });
+        let response = await API.get(
+          '/webdata/group/' + this.group_id + '/snapshots',
+          {
+            params: params
+          }
+        );
 
-        if (response.data.snapshots.length <= 1) {
+        if (
+          response.data.snapshots === null ||
+          response.data.snapshots.length === 0
+        ) {
           state.complete();
           return;
         }

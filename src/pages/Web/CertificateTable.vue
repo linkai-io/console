@@ -44,14 +44,23 @@
             <!-- end row -->
           </div>
           <div class="row">
-            <div>
+            <div class="col-md-12 text-right">
               <base-button
                 type="secondary"
                 :round="true"
                 :loading="updating"
                 @click.native="handleExport"
               >Export all</base-button>
+              <base-button
+                type="primary"
+                icon
+                round
+                :loading="updating"
+                @click.native="refreshTable"
+              ><i class="tim-icons icon-refresh-02"></i>            
+              </base-button>
             </div>
+            
           </div>
           <div class="col-sm-12">
             <!-- start table -->
@@ -70,11 +79,11 @@
                 :label="column.label"
               >
                 <template slot-scope="scope">
-                  <div v-if="column.prop === 'validFrom'">{{ formatTime(scope.row.validFrom) }}</div>
-                  <div v-else-if="column.prop === 'validTo'">{{ formatTime(scope.row.validTo) }}</div>
+                  <div v-if="column.prop === 'validFrom'">{{ formatUnixTime(scope.row.validFrom) }}</div>
+                  <div v-else-if="column.prop === 'validTo'">{{ formatUnixTime(scope.row.validTo) }}</div>
                   <div
                     v-else-if="column.prop === 'response_timestamp'"
-                  >{{ formatTime(scope.row.response_timestamp) }}</div>
+                  >{{ formatNSTime(scope.row.response_timestamp) }}</div>
                   <div v-else>{{ scope.row[column.prop] }}</div>
                 </template>
               </el-table-column>
@@ -105,6 +114,7 @@ import {
   Option
 } from 'element-ui';
 import InfiniteLoading from 'vue-infinite-loading';
+import { unixNanoToMinDate, unixTimeToMinDate } from 'src/data/time.js';
 import { mapGetters, mapState } from 'vuex';
 import API from 'src/api/api.js';
 import Fuse from 'fuse.js';
@@ -162,27 +172,6 @@ export default {
         count: 0
       },
       searchQuery: '',
-      /*
-      'organization_id'
-      'group_id'
-      'certificate_id' // from DB
-      'response_timestamp'
-      'host_address'
-      'port'
-      'protocol'                          // Protocol name (e.g. "TLS 1.2" or "QUIC").
-      'keyExchange'                       // Key Exchange used by the connection, or the empty string if not applicable.
-      'keyExchangeGroup'        // (EC)DH group used by the connection, if applicable.
-      'cipher'                            // Cipher name.
-      'mac'                     // TLS MAC. Note that AEAD ciphers do not have separate MACs.
-      'certificateId'                     // from browser                    // Certificate ID value.
-      'subjectName'                       // Certificate subject name.
-      'sanList'                           // Subject Alternative Name (SAN) DNS names and IP addresses.
-      'issuer'                            // Name of the issuing CA.
-      'validFrom'                         // Certificate valid from date.
-      'validTo'                           // Certificate valid to (expiration) date
-      'certificateTransparencyCompliance' // Whether the request complied with Certificate Transparency policy enum values: unknown, not-compliant, compliant
-      'is_deleted'
-      */
       tableColumns: [
         {
           prop: 'host_address',
@@ -236,19 +225,28 @@ export default {
     };
   },
   methods: {
+    refreshTable() {
+      this.pagination.lastIndex = 0;
+      this.tableData = [];
+      this.getTableData(this.$refs.infiniteLoader.stateChanger);
+    },
     filterSince() {
       //let date =
       try {
         let date = new Date(this.dateTimePicker);
-        this.pagination.sinceTimeTaken = date.getTime();
+        this.pagination.sinceTimeTaken = date.getTime() * 1000000;
         // force reset
-        this.pagination.lastIndex = 0;
-        this.tableData = [];
-        this.getTableData(this.$refs.infiniteLoader.stateChanger);
+        this.refreshTable();
       } catch (e) {
         console.log(e);
         this.pagination.sinceTimeTaken = 0;
       }
+    },
+    formatNSTime(value) {
+      return unixNanoToMinDate(value);
+    },
+    formatUnixTime(value) {
+      return unixTimeToMinDate(value);
     },
     formatWebLink(value) {
       // little sanity check here...
@@ -264,24 +262,9 @@ export default {
     formatColumn(row, column, cellValue, index) {
       switch (column.property) {
         case 'response_timestamp':
-          return this.formatTime(cellValue);
+          return this.formatNSTime(cellValue);
       }
       return cellValue;
-    },
-    formatTime(value) {
-      if (value === 0) {
-        return 'NA';
-      }
-      let d = new Date();
-      return (
-        [d.getMonth() + 1, d.getDate(), d.getFullYear()].join('/') +
-        ' ' +
-        [
-          d.getHours(),
-          new String(d.getMinutes()).padStart(2, '0'),
-          new String(d.getSeconds()).padStart(2, '0')
-        ].join(':')
-      );
     },
     toggleSelection(rows) {
       if (rows) {
@@ -320,7 +303,10 @@ export default {
           }
         );
 
-        if (response.data.certificates.length <= 1) {
+        if (
+          response.data.certificates === null ||
+          response.data.certificates.length === 0
+        ) {
           state.complete();
           return;
         }

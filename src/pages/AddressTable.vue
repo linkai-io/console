@@ -32,12 +32,23 @@
               :disabled="!hasMultiSelected"
               @click.native="handleMultiExport"
             >Export selected</base-button>
+
+          <div class="col-md-12 text-right">
             <base-button
               type="secondary"
               :round="true"
               :loading="updating"
               @click.native="handleExport"
             >Export all</base-button>
+            <base-button
+                type="primary"
+                icon
+                round
+                :loading="updating"
+                @click.native="refreshTable"
+              ><i class="tim-icons icon-refresh-02"></i>            
+              </base-button>
+          </div>
           </div>
           <div class="text-right col-sm-12 ml-auto">Showing {{ count }} of {{ total }} entries.</div>
           <div class="col-sm-12">
@@ -104,6 +115,7 @@
 
               <template slot="append">
                 <infinite-loading
+                  ref="infiniteLoader"
                   slot="append"
                   spinner="waveDots"
                   :distance="10"
@@ -121,6 +133,7 @@
 <script>
 import { Table, TableColumn, Select, Option } from 'element-ui';
 import InfiniteLoading from 'vue-infinite-loading';
+import { unixNanoToMinDate } from 'src/data/time.js';
 import { mapGetters, mapState } from 'vuex';
 import API from 'src/api/api.js';
 import Fuse from 'fuse.js';
@@ -238,6 +251,12 @@ export default {
     };
   },
   methods: {
+    refreshTable() {
+      // force reset
+      this.pagination.lastIndex = 0;
+      this.tableData = [];
+      this.getTableData(this.$refs.infiniteLoader.stateChanger);
+    },
     formatColumn(row, column, cellValue, index) {
       switch (column.property) {
         case 'ns_record':
@@ -248,9 +267,9 @@ export default {
         case 'last_seen_time':
         case 'last_scanned_time':
         case 'discovery_time':
-          return this.formatTime(cellValue);
+          return unixNanoToMinDate(cellValue);
         case 'discovered_by':
-          return cellValue.replace('_', ' ');
+          return cellValue.replace(s/_/g, ' ');
       }
       return cellValue;
     },
@@ -411,21 +430,6 @@ export default {
         case 255:
           return 'ANY';
       }
-    },
-    formatTime(value) {
-      if (value === 0) {
-        return 'NA';
-      }
-      let d = new Date();
-      return (
-        [d.getMonth() + 1, d.getDate(), d.getFullYear()].join('/') +
-        ' ' +
-        [
-          d.getHours(),
-          new String(d.getMinutes()).padStart(2, '0'),
-          new String(d.getSeconds()).padStart(2, '0')
-        ].join(':')
-      );
     },
     setIgnoreIcon(row) {
       return !row.ignored;
