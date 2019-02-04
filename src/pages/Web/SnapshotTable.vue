@@ -101,7 +101,9 @@
                   spinner="waveDots"
                   :distance="10"
                   @infinite="getTableData"
-                ></infinite-loading>
+                >
+                  <div slot="no-more">No more websites</div>
+                </infinite-loading>
               </template>
             </el-table>
           </div>
@@ -311,9 +313,9 @@ export default {
   },
   created() {},
   watch: {
-    isUpdating(val) {
+    isUpdating(val, oldValue) {
       // reset the table data after we delete/ignore/unignore values
-      if (val === false) {
+      if (val === false && oldValue === true) {
         this.pagination.lastIndex = 0;
         this.tableData = [];
       }

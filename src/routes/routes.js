@@ -18,6 +18,9 @@ const ScanGroup = () =>
 const NewScanGroup = () =>
   import(/* webpackChunkName: "pages" */ 'src/pages/NewScanGroup.vue');
 
+const Addresses = () =>
+  import(/* webpackChunkName: "pages" */ 'src/pages/Addresses.vue');
+
 const AddressTable = () =>
   import(/* webpackChunkName: "pages" */ 'src/pages/AddressTable.vue');
 
@@ -70,8 +73,14 @@ const routes = [
         components: { default: NewScanGroup }
       },
       {
-        path: 'addresstable/:group_id',
+        path: 'addresses',
         name: 'Addresses',
+        components: { default: Addresses },
+        props: { default: true }
+      },
+      {
+        path: 'addresstable/:group_id',
+        name: 'Address Data',
         components: { default: AddressTable },
         props: { default: true }
       },

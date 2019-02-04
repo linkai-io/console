@@ -120,8 +120,12 @@
                   spinner="waveDots"
                   :distance="10"
                   @infinite="getTableData"
-                ></infinite-loading>
+                >
+                  <div slot="no-more">No more data</div>
+                </infinite-loading>
+                
               </template>
+              
             </el-table>
             Showing {{ count }} of {{ total }} entries.
           </div>
@@ -269,7 +273,7 @@ export default {
         case 'discovery_time':
           return unixNanoToMinDate(cellValue);
         case 'discovered_by':
-          return cellValue.replace(s/_/g, ' ');
+          return cellValue.replace(/_/g, ' ');
       }
       return cellValue;
     },
@@ -466,8 +470,8 @@ export default {
             limit: limit
           }
         });
-
-        if (response.data.addresses.length <= 1) {
+        console.log(response.data);
+        if (response.data.addresses == null || response.data.addresses.length === 0) {
           state.complete();
           return;
         }
@@ -567,9 +571,10 @@ export default {
   },
   created() {},
   watch: {
-    isUpdating(val) {
+    isUpdating(val, oldValue) {
+      console.log("new: " + val + " old: " + oldValue);
       // reset the table data after we delete/ignore/unignore values
-      if (val === false) {
+      if (val === false && oldValue === true) {
         this.pagination.lastIndex = 0;
         this.tableData = [];
       }
