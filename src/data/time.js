@@ -15,12 +15,12 @@ export function unixNanoToMinDate(ns) {
   return formatMinDate(d);
 }
 
-export function unixTimeToMinDate(ms) {
-  if (ms === undefined || ms === 0) {
+export function unixTimeToMinDate(sec) {
+  if (sec === undefined || sec === 0) {
     return 'Unknown time';
   }
-  let d = new Date();
-  d.setMilliseconds(ms);
+  let d = new Date(0);
+  d.setSeconds(sec, 0);
   return formatMinDate(d);
 }
 

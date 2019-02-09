@@ -56,13 +56,14 @@
             icon: 'tim-icons icon-globe-2',
             path: '/webdata' }"
         ></sidebar-item>
-
+      <!--
         <sidebar-item
           :link="{ 
             name: $t('sidebar.userProfile'), 
             icon: 'tim-icons icon-single-02',
             path: '/user' }"
         ></sidebar-item>
+        -->
         
       </template>
     </side-bar>

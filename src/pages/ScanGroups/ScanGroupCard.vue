@@ -50,7 +50,7 @@
                 name="concurrent_requests"
                 required
                 v-validate="modelValidations.concurrent_requests"
-                v-model="model.concurrent_requests"
+                v-model.number="model.concurrent_requests"
                 :error="getError('concurrent_requests')"
               ></base-input>
             </div>
@@ -357,6 +357,8 @@ export default {
             return true;
           });
 
+        this.model.concurrent_requests = parseInt(this.model.concurrent_requests, 10);
+        
         let details = {
           updates: this.model,
           group_id: this.group.group_id,

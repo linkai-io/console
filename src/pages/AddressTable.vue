@@ -121,7 +121,7 @@
                   :distance="10"
                   @infinite="getTableData"
                 >
-                  <div slot="no-more">No more data</div>
+                  <div slot="no-more">No more addresses</div>
                 </infinite-loading>
                 
               </template>
