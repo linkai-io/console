@@ -50,7 +50,7 @@ export default {
     },
     backgroundColor: {
       type: String,
-      default: 'vue',
+      default: 'black',
       validator: value => {
         let acceptedValues = [
           '',
