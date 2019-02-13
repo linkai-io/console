@@ -56,7 +56,15 @@
             icon: 'tim-icons icon-globe-2',
             path: '/webdata' }"
         ></sidebar-item>
-      <!--
+        <sidebar-item
+          @click.native="feedBack"
+          :link="{
+            name: $t('sidebar.feedback'),
+            icon: 'tim-icons icon-send',
+            path: '#'
+           }"
+        ></sidebar-item>
+        <!--
         <sidebar-item
           :link="{ 
             name: $t('sidebar.userProfile'), 
@@ -64,7 +72,6 @@
             path: '/user' }"
         ></sidebar-item>
         -->
-        
       </template>
     </side-bar>
     <div class="main-panel" :data="sidebarBackground">
@@ -108,6 +115,8 @@ function initScrollbar(className) {
 }
 
 import DashboardNavbar from './DashboardNavbar.vue';
+import API from '../../api/api.js';
+import swal from 'sweetalert2';
 import ContentFooter from './ContentFooter.vue';
 import DashboardContent from './Content.vue';
 import SidebarFixedToggleButton from './SidebarFixedToggleButton.vue';
@@ -134,6 +143,72 @@ export default {
     ...mapGetters('scangroup', ['groups'])
   },
   methods: {
+    feedBack() {
+      swal({
+        title: 'Send Feedback or Report a Bug',
+        html:
+          '<select id="swal-input1" class="swal2-select">' +
+          //'<option>Choose a type</option>' +
+          '<option value="feedback">Feedback</option>' +
+          '<option value="bug">Bug</option>' +
+          '<option value="feature">Feature Request</option>' +
+          '</select>' +
+          '<textarea id="swal-input2" placeholder="Type your response here..." class="swal2-textarea"></textarea>',
+        showCancelButton: true,
+        preConfirm: () => {
+          return [
+            document.getElementById('swal-input1').value,
+            document.getElementById('swal-input2').value
+          ];
+        }
+      }).then(val => {
+        let w = Math.max(
+          document.documentElement.clientWidth,
+          window.innerWidth || 0
+        );
+        let h = Math.max(
+          document.documentElement.clientHeight,
+          window.innerHeight || 0
+        );
+
+        API.post('/user/feedback', {
+          type: val[0],
+          message: val[1],
+          page: document.location,
+          width: w,
+          height: h
+        }).then(resp => {
+          if (resp.data.status === 'OK') {
+            this.$store.dispatch(
+              'notify/CREATE_NOTIFY_MSG',
+              {
+                msg: 'Thank you for your feedback!',
+                msgType: 'success'
+              },
+              { root: true }
+            );
+          } else {
+            this.$store.dispatch(
+              'notify/CREATE_NOTIFY_MSG',
+              {
+                msg: 'Unable to process feedback',
+                msgType: 'danger'
+              },
+              { root: true }
+            );
+          }
+        }, err => {
+          this.$store.dispatch(
+              'notify/CREATE_NOTIFY_MSG',
+              {
+                msg: 'Server error processing feedback',
+                msgType: 'danger'
+              },
+              { root: true }
+            );
+        });
+      });
+    },
     toggleSidebar() {
       if (this.$sidebar.showSidebar) {
         this.$sidebar.displaySidebar(true);
