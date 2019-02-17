@@ -40,8 +40,7 @@
             name: $t('sidebar.addresses'), 
             icon: 'tim-icons icon-vector',
             path: '/addresses' }"
-        >
-        </sidebar-item>
+        ></sidebar-item>
         <sidebar-item
           :link="{
             name: $t('sidebar.web'),
@@ -57,7 +56,7 @@
             path: '#feedback'
            }"
         ></sidebar-item>
-        
+
         <sidebar-item
           @click.native="logout"
           :link="{ 
@@ -65,7 +64,6 @@
             icon: 'tim-icons icon-lock-circle',
             path: '#logout' }"
         ></sidebar-item>
-        
       </template>
     </side-bar>
     <div class="main-panel" :data="sidebarBackground">
@@ -134,23 +132,24 @@ export default {
   computed: {
     ...mapState('notify', ['notifyMsg', 'notifyMsgType']),
     ...mapGetters('notify', ['getMsg', 'getMsgType']),
-    ...mapGetters('scangroup', ['groups'])
+    ...mapGetters('scangroup', ['groups', 'groupStats'])
   },
   methods: {
     logout() {
       API.get('/user/logout').then(
-          resp => {
-        window.location = '/login/';
-      }, err => {
-        window.location = '/login/';
-      });
+        resp => {
+          window.location = '/login/';
+        },
+        err => {
+          window.location = '/login/';
+        }
+      );
     },
     feedBack() {
       swal({
         title: 'Send Feedback or Report a Bug',
         html:
           '<select id="swal-input1" class="swal2-select">' +
-          //'<option>Choose a type</option>' +
           '<option value="feedback">Feedback</option>' +
           '<option value="bug">Bug</option>' +
           '<option value="feature">Feature Request</option>' +
@@ -239,7 +238,6 @@ export default {
     initScrollbar() {
       let docClasses = document.body.classList;
       let isWindows = navigator.platform.startsWith('Win');
-      console.log('init scrollbar');
       if (isWindows) {
         // if we are on windows OS we activate the perfectScrollbar function
         initScrollbar('sidebar');
@@ -247,19 +245,18 @@ export default {
 
         docClasses.add('perfect-scrollbar-on');
       } else {
-        console.log('perfect-scrollbar-off called');
         docClasses.add('perfect-scrollbar-off');
       }
     }
   },
   created() {
     this.$store.dispatch('scangroup/GET_GROUPS');
+    this.$store.dispatch('scangroup/GET_GROUP_STATS');
   },
   mounted() {
     initScrollbar('sidebar-wrapper');
 
     this.$watch('getMsg', msg => {
-      console.log('notify watch updated');
       if (msg === '') {
         return;
       }

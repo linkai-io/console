@@ -5,20 +5,24 @@ import API from '../../api/api';
 // initial state
 const state = {
   scangroups: {},
+  groupStats: {},
   groupCreated: false,
   isCreating: false,
   isUpdating: false,
-  isLoading: false
+  isLoading: false,
+  isLoadingStats: false
 };
 
 // getters
 const getters = {
   groups: state => state.scangroups,
+  groupStats: state => state.groupStats,
   getGroupByID: state => id => {
     return state.scangroups[id] === undefined ? {} : state.scangroups[id];
   },
   isUpdating: state => state.isUpdating,
-  isLoading: state => state.isLoading
+  isLoading: state => state.isLoading,
+  isLoadingStats: state => state.isLoadingStats
 };
 
 // actions
@@ -26,7 +30,7 @@ const actions = {
   UNSET_CREATED({ commit }) {
     commit('CLEAR_CREATED');
   },
-  GET_GROUPS({ commit }) {
+  GET_GROUPS({ dispatch, commit }) {
     commit('SET_IS_LOADING', true);
     API.get('/scangroup/groups').then(
       resp => {
@@ -35,7 +39,34 @@ const actions = {
       },
       err => {
         commit('SET_IS_LOADING', false);
-        console.log(err);
+        dispatch(
+          'notify/CREATE_NOTIFY_MSG',
+          {
+            msg: 'Failed to get group data: ' + err.message,
+            msgType: 'danger'
+          },
+          { root: true }
+        );
+      }
+    );
+  },
+  GET_GROUP_STATS({ dispatch, commit }) {
+    commit('SET_IS_LOADING', true);
+    API.get('/scangroup/groups/stats').then(
+      resp => {
+        commit('SET_IS_LOADING_STATS', false);
+        commit('SET_GROUPS_STATS', resp.data.group_stats);
+      },
+      err => {
+        commit('SET_IS_LOADING_STATS', false);
+        dispatch(
+          'notify/CREATE_NOTIFY_MSG',
+          {
+            msg: 'Failed to get group activity: ' + err.message,
+            msgType: 'danger'
+          },
+          { root: true }
+        );
       }
     );
   },
@@ -257,11 +288,21 @@ const mutations = {
   SET_IS_LOADING(state, value) {
     state.isLoading = value;
   },
+  SET_IS_LOADING_STATS(state, value) {
+    state.isLoadingStats = value;
+  },
   SET_GROUPS(state, details) {
-    console.log(details);
     state.scangroups = {};
     for (let i = 0; i < details.length; i++) {
       Vue.set(state.scangroups, details[i].group_id, details[i]);
+    }
+  },
+  SET_GROUPS_STATS(state, details) {
+    state.groupStats = {};
+    for (let id in details) {
+      if (details.hasOwnProperty(id)) {
+        Vue.set(state.groupStats, id, details[id]);
+      }
     }
   }
 };

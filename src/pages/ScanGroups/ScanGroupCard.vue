@@ -87,7 +87,25 @@
             <label class="col-sm-2 col-form-label">Last Modified By</label>
             <div class="col-sm-3">{{group.modified_by}} at {{ modifiedAt }}</div>
           </div>
-
+          <!-- activity details -->
+          <div class="row">
+            <card class="col-md-12">
+              <h5 slot="header" class="card-title">Group Activity</h5>
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-md-6">
+                    <p>Addresses In Queue: {{ batchSize }}</p>
+                    <p>Queue Started: {{ batchStart }}</p>
+                  </div>
+                  <div class="col-md-6">
+                    <p>Addresses Undergoing Analysis: {{ activeAddresses }}</p>
+                    <p>Queue Ended: {{ batchEnd }}</p>
+                    <p>Last Updated: {{ lastUpdatedActivity }}</p>
+                  </div>
+                </div>
+              </div>
+            </card>
+          </div>
           <div class="row">
             <div class="col-md-4">
               <base-button
@@ -209,7 +227,7 @@ import {
   Modal
 } from 'src/components/index';
 import { mapState, mapGetters } from 'vuex';
-import { unixNanoToDate } from 'src/data/time.js';
+import { unixNanoToDate, unixNanoToMinDate } from 'src/data/time.js';
 
 export default {
   components: {
@@ -261,7 +279,62 @@ export default {
     ...mapState('scangroup', ['updateGroups']),
     ...mapState('addresses', ['isUploading']),
     ...mapGetters('addresses', ['addrCounts', 'getCountByID']),
-    ...mapGetters('scangroup', ['isUpdating']),
+    ...mapGetters('scangroup', ['isUpdating', 'groupStats']),
+    /*
+    <p>Addresses Undergoing Analysis: {{ activeAddresses }}</p>
+                <p>Addresses In Queue: {{ batchSize }}</p>
+                <p>Queue Started: {{ batchStart }}</p>
+                <p>Queue Ended: {{ batchEnd }}</p>
+                <p>Last Updated: {{ lastUpdatedActivity }}</p>
+    */
+    activeAddresses: function() {
+      let stats = this.groupStats[this.group.group_id];
+      if (stats !== undefined) {
+        return stats.active_addresses;
+      }
+      return 'Unknown';
+    },
+    batchSize: function() {
+      let stats = this.groupStats[this.group.group_id];
+      if (stats !== undefined) {
+        return stats.batch_size;
+      }
+      return 'Unknown';
+    },
+    lastUpdatedActivity: function() {
+      let stats = this.groupStats[this.group.group_id];
+      if (stats !== undefined) {
+        let active = stats.last_updated;
+        if (active !== undefined && active !== 0 && !Number.isNaN(active)) {
+          return unixNanoToMinDate(active);
+        }
+      }
+      return 'Unknown';
+    },
+    batchStart: function() {
+      let stats = this.groupStats[this.group.group_id];
+      if (stats !== undefined) {
+        let start = stats.batch_start;
+        if (start !== undefined && start !== 0 && !Number.isNaN(start)) {
+          return unixNanoToMinDate(start);
+        }
+      }
+      return 'Unknown';
+    },
+    batchEnd: function() {
+      let stats = this.groupStats[this.group.group_id];
+      if (stats !== undefined) {
+        let end = stats.batch_end;
+        if (end === 0) {
+          return 'In Progress';
+        }
+        if (end !== undefined && !Number.isNaN(end)) {
+          return unixNanoToMinDate(end);
+        }
+      }
+      return 'Unknown';
+    },
+
     createdAt: function() {
       return unixNanoToDate(this.group.creation_time);
     },
@@ -357,8 +430,11 @@ export default {
             return true;
           });
 
-        this.model.concurrent_requests = parseInt(this.model.concurrent_requests, 10);
-        
+        this.model.concurrent_requests = parseInt(
+          this.model.concurrent_requests,
+          10
+        );
+
         let details = {
           updates: this.model,
           group_id: this.group.group_id,
