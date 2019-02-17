@@ -18,14 +18,21 @@
       <div v-else class="row" v-for="(value, key) in groups" :key="key">
         <card>
         <div class="card-header mb-5">
-          <h3 class="card-title">{{ value.group_name }}</h3>
+          <h3 class="card-title">{{ value.group_name }} group - Asset List</h3>
         </div>
         <div class="card-body">
           <div class="row">
           <div class="col-sm">
+             <router-link :to="'/hoststable/'+ value.group_id">
+            <stats-card title="Hostnames" type="info" class="results-card" icon="tim-icons icon-laptop">
+              <div slot="footer">All hostnames identified with a list of IP addresses</div>
+            </stats-card>
+            </router-link>
+          </div>
+          <div class="col-sm">
             <router-link :to="'/addresstable/'+ value.group_id">
-            <stats-card title="Addresses" type="info" class="results-card" icon="tim-icons icon-vector">
-              <div slot="footer">All identified assets</div>
+            <stats-card title="All Addresses" type="info" class="results-card" icon="tim-icons icon-vector">
+              <div slot="footer">All assets discovered, nameserver records, timestamps and more</div>
             </stats-card>
             </router-link>
           </div>

@@ -22,7 +22,10 @@ const Addresses = () =>
   import(/* webpackChunkName: "pages" */ 'src/pages/Addresses.vue');
 
 const AddressTable = () =>
-  import(/* webpackChunkName: "pages" */ 'src/pages/AddressTable.vue');
+  import(/* webpackChunkName: "pages" */ 'src/pages/Addresses/AddressTable.vue');
+
+const HostsTable = () =>
+  import(/* webpackChunkName: "pages" */ 'src/pages/Addresses/HostsTable.vue');
 
 const Web = () => import(/* webpackChunkName: "pages" */ 'src/pages/Web.vue');
 
@@ -31,6 +34,9 @@ const SnapshotTable = () =>
 
 const ResponseTable = () =>
   import(/* webpackChunkName: "pages" */ 'src/pages/Web/ResponseTable.vue');
+
+const URLListTable = () =>
+  import(/* webpackChunkName: "pages" */ 'src/pages/Web/URLListTable.vue');
 
 const CertificateTable = () =>
   import(/* webpackChunkName: "pages" */ 'src/pages/Web/CertificateTable.vue');
@@ -85,6 +91,12 @@ const routes = [
         props: { default: true }
       },
       {
+        path: 'hoststable/:group_id',
+        name: 'Host List Data',
+        components: { default: HostsTable },
+        props: { default: true }
+      },
+      {
         path: 'webdata',
         name: 'Web Results',
         components: { default: Web },
@@ -100,6 +112,12 @@ const routes = [
         path: 'webdata/responses/:group_id',
         name: 'Web Responses',
         components: { default: ResponseTable },
+        props: { default: true }
+      },
+      {
+        path: 'webdata/urls/:group_id',
+        name: 'URL List',
+        components: { default: URLListTable },
         props: { default: true }
       },
       {

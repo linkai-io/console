@@ -11,8 +11,10 @@
         </div>
       </card>
     </div>
-
-      <div v-if="!hasGroups" class="col-md-6">
+      <div v-if="isLoading" class="col-md-6">
+        <h4>Loading... </h4>
+      </div>
+      <div v-else-if="!hasGroups" class="col-md-6">
         <p>You have no groups, create one first.</p>
       </div>
       <div v-else class="row" v-for="(value, key) in groups" :key="key">
@@ -34,6 +36,14 @@
             <router-link :to="'/webdata/responses/'+ value.group_id">
             <stats-card title="Web Responses" type="info"  class="results-card" icon="tim-icons icon-credit-card">
               <div slot="footer">All captured network traffic for each asset identified</div>
+            </stats-card>
+            </router-link>
+          </div>
+
+          <div class="col-sm">
+            <router-link :to="'/webdata/urls/'+ value.group_id">
+            <stats-card title="URL List" type="info"  class="results-card" icon="tim-icons icon-paper">
+              <div slot="footer">List of URLs requested during loading of each asset in a browser.</div>
             </stats-card>
             </router-link>
           </div>
@@ -66,7 +76,7 @@ export default {
     return {};
   },
   computed: {
-    ...mapGetters('scangroup', ['groups']),
+    ...mapGetters('scangroup', ['groups', 'isLoading']),
     hasGroups() {
       return Object.entries(this.groups).length !== 0;
     }

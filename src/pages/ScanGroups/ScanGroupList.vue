@@ -1,6 +1,9 @@
 <template>
   <div>
-    <div v-if="!hasGroups" class="col-md-6">
+    <div v-if="isLoading" class="col-md-6">
+      <h4>Loading... </h4>
+    </div>
+    <div v-else-if="!hasGroups" class="col-md-6">
       <p>You have no groups, create one now.</p>
     </div>
     <div v-else class="row" v-for="(value, key) in groups" :key="key">
@@ -22,7 +25,7 @@ export default {
     return {};
   },
   computed: {
-    ...mapGetters('scangroup', ['groups']),
+    ...mapGetters('scangroup', ['groups', 'isLoading']),
     hasGroups() {
       return Object.entries(this.groups).length !== 0;
     }
@@ -32,4 +35,5 @@ export default {
 };
 </script>
 <style>
+
 </style>

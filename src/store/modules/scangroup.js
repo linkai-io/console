@@ -7,7 +7,8 @@ const state = {
   scangroups: {},
   groupCreated: false,
   isCreating: false,
-  isUpdating: false
+  isUpdating: false,
+  isLoading: false
 };
 
 // getters
@@ -16,7 +17,8 @@ const getters = {
   getGroupByID: state => id => {
     return state.scangroups[id] === undefined ? {} : state.scangroups[id];
   },
-  isUpdating: state => state.isUpdating
+  isUpdating: state => state.isUpdating,
+  isLoading: state => state.isLoading
 };
 
 // actions
@@ -25,11 +27,14 @@ const actions = {
     commit('CLEAR_CREATED');
   },
   GET_GROUPS({ commit }) {
+    commit('SET_IS_LOADING', true);
     API.get('/scangroup/groups').then(
       resp => {
+        commit('SET_IS_LOADING', false);
         commit('SET_GROUPS', resp.data);
       },
       err => {
+        commit('SET_IS_LOADING', false);
         console.log(err);
       }
     );
@@ -248,6 +253,9 @@ const mutations = {
   },
   SET_IS_UPDATING(state, value) {
     state.isUpdating = value;
+  },
+  SET_IS_LOADING(state, value) {
+    state.isLoading = value;
   },
   SET_GROUPS(state, details) {
     console.log(details);

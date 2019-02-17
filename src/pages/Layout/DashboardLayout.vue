@@ -41,14 +41,6 @@
             icon: 'tim-icons icon-vector',
             path: '/addresses' }"
         >
-          <sidebar-item
-            v-for="group in groups"
-            :key="group.group_id"
-            :link="{
-              name: group.group_name,
-              path: '/addresstable/'+group.group_id
-              }"
-          ></sidebar-item>
         </sidebar-item>
         <sidebar-item
           :link="{
@@ -58,20 +50,22 @@
         ></sidebar-item>
         <sidebar-item
           @click.native="feedBack"
+          :defer="true"
           :link="{
             name: $t('sidebar.feedback'),
             icon: 'tim-icons icon-send',
-            path: '#'
+            path: '#feedback'
            }"
         ></sidebar-item>
-        <!--
+        
         <sidebar-item
+          @click.native="logout"
           :link="{ 
-            name: $t('sidebar.userProfile'), 
-            icon: 'tim-icons icon-single-02',
-            path: '/user' }"
+            name: $t('sidebar.logout'), 
+            icon: 'tim-icons icon-lock-circle',
+            path: '#logout' }"
         ></sidebar-item>
-        -->
+        
       </template>
     </side-bar>
     <div class="main-panel" :data="sidebarBackground">
@@ -143,6 +137,14 @@ export default {
     ...mapGetters('scangroup', ['groups'])
   },
   methods: {
+    logout() {
+      API.get('/user/logout').then(
+          resp => {
+        window.location = '/login/';
+      }, err => {
+        window.location = '/login/';
+      });
+    },
     feedBack() {
       swal({
         title: 'Send Feedback or Report a Bug',
@@ -153,7 +155,9 @@ export default {
           '<option value="bug">Bug</option>' +
           '<option value="feature">Feature Request</option>' +
           '</select>' +
-          '<textarea id="swal-input2" placeholder="Type your response here..." class="swal2-textarea"></textarea>',
+          '<textarea id="swal-input2" placeholder="Type your response here..." class="swal2-textarea"></textarea>' +
+          '<div>By clicking OK you agree to have your browser type, screen size, and current URL location sent to us.</div>',
+
         showCancelButton: true,
         preConfirm: () => {
           return [
@@ -162,6 +166,11 @@ export default {
           ];
         }
       }).then(val => {
+        if (val.dismiss !== undefined) {
+          return;
+        }
+        console.log(val);
+        console.log(val.value);
         let w = Math.max(
           document.documentElement.clientWidth,
           window.innerWidth || 0
@@ -170,43 +179,56 @@ export default {
           document.documentElement.clientHeight,
           window.innerHeight || 0
         );
-
+        let screen = w + 'x' + h + ' - ' + navigator.userAgent;
         API.post('/user/feedback', {
-          type: val[0],
-          message: val[1],
-          page: document.location,
-          width: w,
-          height: h
-        }).then(resp => {
-          if (resp.data.status === 'OK') {
-            this.$store.dispatch(
-              'notify/CREATE_NOTIFY_MSG',
-              {
-                msg: 'Thank you for your feedback!',
-                msgType: 'success'
-              },
-              { root: true }
-            );
-          } else {
-            this.$store.dispatch(
-              'notify/CREATE_NOTIFY_MSG',
-              {
-                msg: 'Unable to process feedback',
-                msgType: 'danger'
-              },
-              { root: true }
-            );
+          type: val.value[0],
+          message: val.value[1],
+          location: document.location.toString(),
+          screen: screen
+        }).then(
+          resp => {
+            if (resp.data.status === 'OK') {
+              this.$store.dispatch(
+                'notify/CREATE_NOTIFY_MSG',
+                {
+                  msg: 'Thank you for your feedback!',
+                  msgType: 'success'
+                },
+                { root: true }
+              );
+            } else {
+              this.$store.dispatch(
+                'notify/CREATE_NOTIFY_MSG',
+                {
+                  msg: 'Unable to process feedback',
+                  msgType: 'danger'
+                },
+                { root: true }
+              );
+            }
+          },
+          err => {
+            if (err.response !== undefined && err.response.data !== undefined) {
+              this.$store.dispatch(
+                'notify/CREATE_NOTIFY_MSG',
+                {
+                  msg: 'Failed to process feedback: ' + err.response.data.msg,
+                  msgType: 'danger'
+                },
+                { root: true }
+              );
+            } else {
+              this.$store.dispatch(
+                'notify/CREATE_NOTIFY_MSG',
+                {
+                  msg: 'Server error processing feedback',
+                  msgType: 'danger'
+                },
+                { root: true }
+              );
+            }
           }
-        }, err => {
-          this.$store.dispatch(
-              'notify/CREATE_NOTIFY_MSG',
-              {
-                msg: 'Server error processing feedback',
-                msgType: 'danger'
-              },
-              { root: true }
-            );
-        });
+        );
       });
     },
     toggleSidebar() {

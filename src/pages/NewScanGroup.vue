@@ -5,7 +5,14 @@
           <h4 slot="header" class="card-title">New Scan Group</h4>
       
             <div class="row">
-              <label class="col-sm-2 col-form-label">GroupName</label>
+              <el-tooltip
+                    content="The name of this group of addresses and hosts"
+                    effect="light"
+                    :open-delay="150"
+                    placement="right"
+                  >
+              <label class="col-sm-2 col-form-label">Group Name</label>
+              </el-tooltip>
               <div class="col-sm-7">
                 <base-input
                   name="group_name"
@@ -19,7 +26,14 @@
             </div>
 
             <div class="row">
+              <el-tooltip
+                    content="Limit the number of concurrent addresses to be tested at the same time."
+                    effect="light"
+                    :open-delay="150"
+                    placement="right"
+                  >
               <label class="col-sm-2 col-form-label">Concurrent Requests</label>
+              </el-tooltip>
               <div class="col-sm-7">
                 <base-input
                   name="concurrent_requests"
@@ -33,7 +47,14 @@
             </div>
 
             <div class="row">
+              <el-tooltip
+                    content="Prepend these subdomain prefixes to all hostnames."
+                    effect="light"
+                    :open-delay="150"
+                    placement="right"
+                  >
               <label class="col-sm-2 col-form-label">Custom Sub Domains</label>
+              </el-tooltip>
               <div class="col-sm-7">
                 <base-text-area
                   name="custom_sub_names"
@@ -46,11 +67,18 @@
             </div>
 
             <div class="row">
+              <el-tooltip
+                    content="Attempt to find web servers on non-standard ports (only 80,443 will be tested by default)"
+                    effect="light"
+                    :open-delay="150"
+                    placement="right"
+                  >
               <label class="col-sm-2 col-form-label">Custom Ports</label>
+              </el-tooltip>
               <div class="col-sm-7">
                 <base-text-area
                   name="custom_ports"
-                  placeholder="80, 443"
+                  placeholder="8080, 4443"
                   valueType="integer"
                   v-model="model.custom_ports"
                   :error="getError('custom_ports')"

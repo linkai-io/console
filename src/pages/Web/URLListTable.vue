@@ -6,7 +6,7 @@
     <div class="row mt-5">
       <div class="col-12">
         <card card-body-classes="table-full-width">
-          <h4 slot="header" class="card-title">Response Data</h4>
+          <h4 slot="header" class="card-title">URL List</h4>
           <div class="row">
             <form class="form-horizontal col-md-8">
               <div class="row">
@@ -36,13 +36,10 @@
                     placement="top"
                   >
                     <base-input>
-                      <base-switch
-                        v-model="filter.latest_only"
-                        type="secondary"
-                      >
+                      <base-switch v-model="filter.latest_only" type="secondary">
                         <i class="tim-icons icon-check-2" slot="on"></i>
                         <i class="tim-icons icon-simple-remove" slot="off"></i>
-                    </base-switch>
+                      </base-switch>
                     </base-input>
                   </el-tooltip>
                 </div>
@@ -57,94 +54,6 @@
                     >Filter</base-button>
                   </base-input>
                 </div>
-                
-              </div>
-              <div class="row">
-                
-                <div class="col-md-2">
-                  <el-tooltip
-                    content="Only return responses that contain the provided header."
-                    effect="light"
-                    :open-delay="150"
-                    placement="bottom"
-                  >
-                  <base-input
-                    label="Contains header"
-                    type="text"
-                    v-model="filter.with_header"
-                    placeholder="content-security-policy"
-                  >
-                  </base-input>
-                  </el-tooltip>
-                </div>
-
-                <div class="col-md-2">
-                  <el-tooltip
-                    content="Only return responses that do not contain the provided header."
-                    effect="light"
-                    :open-delay="150"
-                    placement="bottom"
-                  >
-                  <base-input
-                    label="Does not contain header"
-                    type="text"
-                     v-model="filter.without_header"
-                    placeholder="x-some-header"
-                  >
-                  </base-input>
-                  </el-tooltip>
-                </div>
-
-                <div class="col-md-2">
-                  <el-tooltip
-                    content="Return responses that end with provided host (ex: example.com -> dev.example.com, www.example.com etc)"
-                    effect="light"
-                    :open-delay="150"
-                    placement="bottom"
-                  >
-                  <base-input
-                    label="Matches host"
-                    v-model="filter.matches_host"
-                    type="text"
-                    placeholder="example.com"
-                  >
-                  </base-input>
-                  </el-tooltip>
-                </div>
-
-                <div class="col-md-2">
-                  <el-tooltip
-                    content="Return responses for IP addresses matching provided IP (ex: 192.168.10 -> 192.168.10.1, 192.168.10.2 etc)"
-                    effect="light"
-                    :open-delay="150"
-                    placement="bottom"
-                  >
-                  <base-input
-                    label="Matches IP"
-                    v-model="filter.matches_ip"
-                    type="text"
-                    placeholder="192.168.10"
-                  >
-                  </base-input>
-                  </el-tooltip>
-                </div>
-
-                <div class="col-md-2">
-                  <el-tooltip
-                    content="Return responses that match the mime type exactly"
-                    effect="light"
-                    :open-delay="150"
-                    placement="bottom"
-                  >
-                  <base-input
-                    label="Filter by mime-type"
-                    type="text"
-                    v-model="filter.mime_type"
-                    placeholder="text/html"
-                  >
-                  </base-input>
-                  </el-tooltip>
-                </div>
               </div>
             </form>
 
@@ -158,24 +67,21 @@
                 :loading="updating"
                 @click.native="handleExport"
               >Export all</base-button>
-              
+
               <base-button
                 type="primary"
                 icon
                 round
                 :loading="updating"
                 @click.native="refreshTable"
-              ><i class="tim-icons icon-refresh-02"></i>            
+              >
+                <i class="tim-icons icon-refresh-02"></i>
               </base-button>
             </div>
           </div>
           <div class="col-sm-12">
             <!-- start table -->
-            <el-table
-              ref="responsesTable"
-              :data="tableData"
-              @selection-change="handleSelectionChange"
-            >
+            <el-table ref="urlTable" :data="tableData" @selection-change="handleSelectionChange">
               <el-table-column
                 v-for="column in tableColumns"
                 :key="column.label"
@@ -186,20 +92,31 @@
                 :label="column.label"
               >
                 <template slot-scope="scope">
-                  <div v-if="column.prop ==='url'">
-                    <a :href="formatWebLink(scope.row.url)">{{formatWebLink(scope.row.url)}}</a>
-                  </div>
-                  <div v-else-if="column.prop === 'raw_body_link'">
-                    <a :href="'/app/data/'+scope.row.raw_body_link">{{ scope.row.raw_body_hash }}</a>
-                  </div>
-                  <div v-else-if="column.prop === 'headers'">
-                    <ul v-for="(value, key, index) in scope.row.headers" v-bind:key="index">
-                      <li>{{key}}: {{value}}</li>
-                    </ul>
+                  <div v-if="column.prop ==='urls'">
+                    <el-table ref="requestedURLsTable" :data="scope.row.urls">
+                      <el-table-column
+                        v-for="requestColumn in requestColumns"
+                        :key="requestColumn.label"
+                        :min-width="requestColumn.minWidth"
+                        :prop="requestColumn.prop"
+                        sortable
+                        :label="requestColumn.label"
+                      >
+                        <template slot-scope="nestedScope">
+                          <div v-if="requestColumn.prop === 'url'">{{ nestedScope.row.url }}</div>
+                          <div
+                            v-else-if="requestColumn.prop === 'mime_type'"
+                          >{{ nestedScope.row.mime_type }}</div>
+                          <div v-else-if="requestColumn.prop === 'raw_body_link'">
+                            <a :href="'/app/data/'+nestedScope.row.raw_body_link">link</a>
+                          </div>
+                        </template>
+                      </el-table-column>
+                    </el-table>
                   </div>
                   <div
-                    v-else-if="column.prop === 'response_timestamp'"
-                  >{{ formatNSTime(scope.row.response_timestamp) }}</div>
+                    v-else-if="column.prop === 'url_request_timestamp'"
+                  >{{ formatNSTime(scope.row.url_request_timestamp) }}</div>
                   <div v-else>{{ scope.row[column.prop] }}</div>
                 </template>
               </el-table-column>
@@ -237,7 +154,6 @@ import { BaseSwitch } from 'src/components/index';
 import { mapGetters, mapState } from 'vuex';
 import API from 'src/api/api.js';
 import Fuse from 'fuse.js';
-import swal from 'sweetalert2';
 
 export default {
   components: {
@@ -285,12 +201,7 @@ export default {
     return {
       filter: {
         dateTimePicker: '',
-        latest_only: false,
-        matches_host: '',
-        matches_ip: '',
-        mime_type: '',
-        with_header: '',
-        without_header: ''
+        latest_only: false
       },
       pagination: {
         lastIndex: 0,
@@ -307,33 +218,30 @@ export default {
           minWidth: 60
         },
         {
-          prop: 'url',
-          label: 'URL',
-          minWidth: 100
+          prop: 'urls',
+          label: 'URLs',
+          minWidth: 180
         },
         {
-          prop: 'response_port',
-          label: 'Port',
-          minWidth: 25
-        },
-        {
-          prop: 'mime_type',
-          label: 'Response Type',
-          minWidth: 40
-        },
-        {
-          prop: 'headers',
-          label: 'Response Headers',
-          minWidth: 80
-        },
-        {
-          prop: 'raw_body_link',
-          label: 'Link to Data',
+          prop: 'url_request_timestamp',
+          label: 'Time Original URL Requested',
           minWidth: 50
+        }
+      ],
+      requestColumns: [
+        {
+          label: 'URL',
+          prop: 'url',
+          minWidth: 60
         },
         {
-          prop: 'response_timestamp',
-          label: 'Time Taken',
+          label: 'Mime Type',
+          prop: 'mime_type',
+          minWidth: 130
+        },
+        {
+          label: 'Raw Data',
+          prop: 'raw_body_link',
           minWidth: 50
         }
       ],
@@ -343,6 +251,9 @@ export default {
     };
   },
   methods: {
+    log(val) {
+      console.log(val);
+    },
     async getTableData(state) {
       if (state === undefined) {
         return;
@@ -355,36 +266,19 @@ export default {
       let params = {
         start: start,
         limit: limit,
-        latest_only: this.filter.latest_only 
+        latest_only: this.filter.latest_only
       };
-      
-      if (!Number.isNaN(this.pagination.sinceTimeTaken) && this.pagination.sinceTimeTaken !== 0) {
+
+      if (
+        !Number.isNaN(this.pagination.sinceTimeTaken) &&
+        this.pagination.sinceTimeTaken !== 0
+      ) {
         params.since_response_time = this.pagination.sinceTimeTaken;
-      }
-      
-      if (this.filter.matches_host !== '') {
-        params.matches_host=this.filter.matches_host;
-      }
-      
-      if (this.filter.matches_ip !== '') {
-        params.matches_ip=this.filter.matches_ip;
-      }
-
-      if (this.filter.mime_type !== '') {
-        params.mime_type = this.filter.mime_type;
-      }
-
-      if (this.filter.with_header !== '') {
-        params.with_header=this.filter.with_header;
-      }
-
-      if (this.filter.without_header !== '') {
-        params.without_header=this.filter.without_header;
       }
 
       try {
         let response = await API.get(
-          '/webdata/group/' + this.group_id + '/responses',
+          '/webdata/group/' + this.group_id + '/urls',
           {
             params: params
           }
@@ -456,7 +350,6 @@ export default {
     handleSelectionChange(val) {
       this.multipleSelection = val;
     },
-    
     handleExport() {
       let details = {
         group_id: this.group_id,
