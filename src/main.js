@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import DashboardPlugin from './plugins/dashboard-plugin';
+import VueScrollTo from 'vue-scrollto';
 import App from './App.vue';
 import API from './api/api.js';
 // router setup
@@ -10,6 +11,7 @@ import store from './store';
 
 // plugin setup
 Vue.use(DashboardPlugin);
+Vue.use(VueScrollTo);
 
 /* eslint-disable no-new */
 new Vue({

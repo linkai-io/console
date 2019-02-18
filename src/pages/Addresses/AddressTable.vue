@@ -50,6 +50,13 @@
               </base-button>
           </div>
           </div>
+          <!--- show address data -->
+          <div id="address_details">
+            <div v-if="addressSelected === true">
+              <address-card @clicked="onDetailsClick" :address="addressDetails"></address-card>
+            </div>
+          </div>
+          <!-- show table -->
           <div class="text-right col-sm-12 ml-auto">Showing {{ count }} of {{ total }} entries.</div>
           <div class="col-sm-12">
             <!-- start table -->
@@ -68,8 +75,7 @@
                 sortable
                 :label="column.label"
               ></el-table-column>
-
-              <el-table-column min-width="30" header-align="right" align="right" label="Actions">
+              <el-table-column min-width="50" header-align="right" align="right" label="Actions">
                 <div
                   slot-scope="{
                   row,
@@ -77,6 +83,22 @@
                 }"
                   class="text-right table-actions"
                 >
+                <el-tooltip
+                    content="Asset details"
+                    effect="light"
+                    :open-delay="150"
+                    placement="top"
+                  >
+                    <base-button
+                      type="info"
+                      icon
+                      size="sm"
+                      class="btn-link"
+                      @click.native="setAddressDetails(row)"
+                    >
+                      <i class="tim-icons icon-notes"></i>
+                  </base-button>
+                </el-tooltip>
                   <el-tooltip
                     :content="setIgnoreToolTip(row)"
                     effect="light"
@@ -137,14 +159,17 @@
 <script>
 import { Table, TableColumn, Select, Option } from 'element-ui';
 import InfiniteLoading from 'vue-infinite-loading';
+import { scroller } from 'vue-scrollto/src/scrollTo';
 import { unixNanoToMinDate } from 'src/data/time.js';
 import { mapGetters, mapState } from 'vuex';
+import AddressCard from 'src/pages/Addresses/AddressCard.vue';
 import API from 'src/api/api.js';
 import Fuse from 'fuse.js';
 import swal from 'sweetalert2';
 
 export default {
   components: {
+    AddressCard,
     InfiniteLoading,
     [Select.name]: Select,
     [Option.name]: Option,
@@ -184,6 +209,8 @@ export default {
   },
   data() {
     return {
+      addressSelected: false,
+      addressDetails: {},
       pagination: {
         lastIndex: 0,
         limit: 50,
@@ -239,14 +266,9 @@ export default {
           minWidth: 40
         },
         {
-          prop: 'is_hosted_service',
-          label: 'Hosted Service',
-          minWidth: 40
-        },
-        {
           prop: 'ns_record',
           label: 'NS Record',
-          minWidth: 30
+          minWidth: 40
         }
       ],
       tableData: [],
@@ -450,6 +472,16 @@ export default {
         this.$refs.addressTable.clearSelection();
       }
     },
+    setAddressDetails(row) {
+      this.addressSelected = true;
+      this.addressDetails = row;
+      let options =  {
+        container: 'body',
+        easing: 'ease-in',
+        offset: -60
+      }
+      this.$scrollTo('#address_details', options);
+    },
     handleSelectionChange(val) {
       console.log(val);
       this.multipleSelection = val;
@@ -560,6 +592,11 @@ export default {
       if (indexToDelete >= 0) {
         this.tableData.splice(indexToDelete, 1);
       }
+    },
+    onDetailsClick(value) {
+      console.log('closing details');
+      this.addressDetails = {};
+      this.addressSelected = false;
     }
   },
   mounted() {
