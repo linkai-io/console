@@ -226,6 +226,7 @@ export default {
           if (value === '') {
             return 'none';
           }
+          break;
         case 'ignored':
         case 'is_wildcard_domain':
         case 'is_hosted_service':

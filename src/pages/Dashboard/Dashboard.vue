@@ -7,6 +7,9 @@
       </div>
       <div class="card-body">
         <p>Welcome to the Hakken asset management and discovery system.</p>
+        <p></p>
+        <h3>How It Works</h3>
+        <p>Hakken is built around the concept of scan groups. Scan groups allow you to configure how a group of assets (hosts, ip addresses) will be analyzed.</p>
       </div>
     </card>
     <!-- Stats Cards -->
@@ -20,7 +23,7 @@
 
     <div class="col-lg-3 col-md-6">
       <router-link to="/groups/list">
-      <stats-card title="Review Group" type="info" icon="tim-icons icon-single-copy-04">
+      <stats-card title="Review Groups" type="info" icon="tim-icons icon-single-copy-04">
         <div slot="footer"></div>
       </stats-card>
       </router-link>

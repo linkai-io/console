@@ -1,5 +1,5 @@
 <template>
-  <div class="col-md-6">
+  <div class="col-md-8">
     <form class="form-horizontal">
       <card>
           <h4 slot="header" class="card-title">New Scan Group</h4>
