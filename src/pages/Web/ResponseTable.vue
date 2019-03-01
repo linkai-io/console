@@ -36,13 +36,10 @@
                     placement="top"
                   >
                     <base-input>
-                      <base-switch
-                        v-model="filter.latest_only"
-                        type="secondary"
-                      >
+                      <base-switch v-model="filter.latest_only" type="secondary">
                         <i class="tim-icons icon-check-2" slot="on"></i>
                         <i class="tim-icons icon-simple-remove" slot="off"></i>
-                    </base-switch>
+                      </base-switch>
                     </base-input>
                   </el-tooltip>
                 </div>
@@ -57,10 +54,8 @@
                     >Filter</base-button>
                   </base-input>
                 </div>
-                
               </div>
               <div class="row">
-                
                 <div class="col-md-2">
                   <el-tooltip
                     content="Only return responses that contain the provided header."
@@ -68,64 +63,60 @@
                     :open-delay="150"
                     placement="bottom"
                   >
-                  <base-input
-                    label="Contains header"
-                    type="text"
-                    v-model="filter.with_header"
-                    placeholder="content-security-policy"
-                  >
-                  </base-input>
+                    <base-input
+                      label="Contains header"
+                      type="text"
+                      v-model="filter.with_header"
+                      placeholder="content-security-policy"
+                    ></base-input>
                   </el-tooltip>
                 </div>
 
                 <div class="col-md-2">
                   <el-tooltip
-                    content="Only return responses that do not contain the provided header."
+                    content="Only return responses that do not contain the provided header"
                     effect="light"
                     :open-delay="150"
                     placement="bottom"
                   >
-                  <base-input
-                    label="Does not contain header"
-                    type="text"
-                     v-model="filter.without_header"
-                    placeholder="x-some-header"
-                  >
-                  </base-input>
+                    <base-input
+                      label="Does not contain header"
+                      type="text"
+                      v-model="filter.without_header"
+                      placeholder="x-some-header"
+                    ></base-input>
                   </el-tooltip>
                 </div>
 
                 <div class="col-md-2">
                   <el-tooltip
-                    content="Return responses that end with provided host (ex: example.com -> dev.example.com, www.example.com etc)"
+                    content="Return responses that match the provided host"
                     effect="light"
                     :open-delay="150"
                     placement="bottom"
                   >
-                  <base-input
-                    label="Matches host"
-                    v-model="filter.matches_host"
-                    type="text"
-                    placeholder="example.com"
-                  >
-                  </base-input>
+                    <base-input
+                      label="Matches host"
+                      v-model="filter.matches_host"
+                      type="text"
+                      placeholder="example.com"
+                    ></base-input>
                   </el-tooltip>
                 </div>
 
                 <div class="col-md-2">
                   <el-tooltip
-                    content="Return responses for IP addresses matching provided IP (ex: 192.168.10 -> 192.168.10.1, 192.168.10.2 etc)"
+                    content="Return responses for IP addresses matching the provided IP"
                     effect="light"
                     :open-delay="150"
                     placement="bottom"
                   >
-                  <base-input
-                    label="Matches IP"
-                    v-model="filter.matches_ip"
-                    type="text"
-                    placeholder="192.168.10"
-                  >
-                  </base-input>
+                    <base-input
+                      label="Matches IP"
+                      v-model="filter.matches_ip"
+                      type="text"
+                      placeholder="192.168.10"
+                    ></base-input>
                   </el-tooltip>
                 </div>
 
@@ -136,13 +127,12 @@
                     :open-delay="150"
                     placement="bottom"
                   >
-                  <base-input
-                    label="Filter by mime-type"
-                    type="text"
-                    v-model="filter.mime_type"
-                    placeholder="text/html"
-                  >
-                  </base-input>
+                    <base-input
+                      label="Filter by mime-type"
+                      type="text"
+                      v-model="filter.mime_type"
+                      placeholder="text/html"
+                    ></base-input>
                   </el-tooltip>
                 </div>
               </div>
@@ -158,14 +148,15 @@
                 :loading="updating"
                 @click.native="handleExport"
               >Export all</base-button>
-              
+
               <base-button
                 type="primary"
                 icon
                 round
                 :loading="updating"
                 @click.native="refreshTable"
-              ><i class="tim-icons icon-refresh-02"></i>            
+              >
+                <i class="tim-icons icon-refresh-02"></i>
               </base-button>
             </div>
           </div>
@@ -189,13 +180,19 @@
                   <div v-if="column.prop ==='url'">
                     <a :href="formatWebLink(scope.row.url)">{{formatWebLink(scope.row.url)}}</a>
                   </div>
+                  <div v-else-if="column.prop === 'load_host_address'">
+                    {{scope.row.load_host_address}} 
+                    <div v-if="scope.row.load_ip_address !== ''">
+                      ({{scope.row.load_ip_address}})
+                    </div>
+                  </div>
                   <div v-else-if="column.prop === 'raw_body_link'">
                     <a :href="'/app/data/'+scope.row.raw_body_link">{{ scope.row.raw_body_hash }}</a>
                   </div>
                   <div v-else-if="column.prop === 'headers'">
-                    <ul v-for="(value, key, index) in scope.row.headers" v-bind:key="index">
-                      <li>{{key}}: {{value}}</li>
-                    </ul>
+                    <div v-for="(value, key, index) in scope.row.headers" v-bind:key="index">
+                      {{key}}: {{value}}<br>
+                    </div>
                   </div>
                   <div
                     v-else-if="column.prop === 'response_timestamp'"
@@ -233,6 +230,7 @@ import {
 } from 'element-ui';
 import InfiniteLoading from 'vue-infinite-loading';
 import { unixNanoToMinDate } from 'src/data/time.js';
+import { formatWebLink } from 'src/data/formatters.js';
 import { BaseSwitch } from 'src/components/index';
 import { mapGetters, mapState } from 'vuex';
 import API from 'src/api/api.js';
@@ -288,6 +286,12 @@ export default {
         latest_only: false,
         matches_host: '',
         matches_ip: '',
+        matches_start_host: '',
+        matches_end_host: '',
+        matches_original_host: '',
+        matches_original_ip_address: '',
+        ends_original_host_address: '',
+        starts_original_host_address: '',
         mime_type: '',
         with_header: '',
         without_header: ''
@@ -302,7 +306,7 @@ export default {
       searchQuery: '',
       tableColumns: [
         {
-          prop: 'address_id_host_address',
+          prop: 'load_host_address',
           label: 'Original Host',
           minWidth: 60
         },
@@ -355,19 +359,30 @@ export default {
       let params = {
         start: start,
         limit: limit,
-        latest_only: this.filter.latest_only 
+        latest_only: this.filter.latest_only
       };
-      
-      if (!Number.isNaN(this.pagination.sinceTimeTaken) && this.pagination.sinceTimeTaken !== 0) {
-        params.since_response_time = this.pagination.sinceTimeTaken;
+
+      if (
+        !Number.isNaN(this.pagination.sinceTimeTaken) &&
+        this.pagination.sinceTimeTaken !== 0
+      ) {
+        params.after_request_time = this.pagination.sinceTimeTaken;
       }
-      
+
       if (this.filter.matches_host !== '') {
-        params.matches_host=this.filter.matches_host;
+        params.host_address = this.filter.matches_host;
       }
-      
+
       if (this.filter.matches_ip !== '') {
-        params.matches_ip=this.filter.matches_ip;
+        params.ip_address = this.filter.matches_ip;
+      }
+
+      if (this.filter.matches_start_host !== '') {
+        params.starts_host_address = this.filter.matches_start_host;
+      }
+
+      if (this.filter.matches_end_host !== '') {
+        params.ends_host_address = this.filter.matches_end_host;
       }
 
       if (this.filter.mime_type !== '') {
@@ -375,11 +390,11 @@ export default {
       }
 
       if (this.filter.with_header !== '') {
-        params.with_header=this.filter.with_header;
+        params.with_header = this.filter.with_header;
       }
 
       if (this.filter.without_header !== '') {
-        params.without_header=this.filter.without_header;
+        params.without_header = this.filter.without_header;
       }
 
       try {
@@ -403,15 +418,36 @@ export default {
         this.pagination.lastIndex = response.data.last_index;
         this.pagination.count = this.tableData.length;
         //this.pagination.total = response.data.total;
+      } catch (err) {
+        state.complete();
+
+        let msg = 'Error getting data';
+        if (err.data !== undefined && err.data.msg !== undefined) {
+          msg = err.data.msg;
+        }
+
+        this.$store.dispatch(
+          'notify/CREATE_NOTIFY_MSG',
+          {
+            msg: msg,
+            msgType: 'danger'
+          },
+          { root: true }
+        );
       } finally {
         this.loading = false;
       }
+    },
+    formatWebLink(value) {
+      return formatWebLink(value);
     },
     refreshTable() {
       // force reset
       this.pagination.lastIndex = 0;
       this.tableData = [];
-      this.getTableData(this.$refs.infiniteLoader.stateChanger);
+      let state = this.$refs.infiniteLoader.stateChanger;
+      state.reset();
+      this.getTableData(state);
     },
     filterResults() {
       try {
@@ -423,13 +459,6 @@ export default {
         console.log(e);
         this.pagination.sinceTimeTaken = 0;
       }
-    },
-    formatWebLink(value) {
-      // little sanity check here...
-      if (!value.startsWith('http')) {
-        return 'about:blank';
-      }
-      return value;
     },
     formatHeaders(value) {
       return value;
@@ -456,7 +485,7 @@ export default {
     handleSelectionChange(val) {
       this.multipleSelection = val;
     },
-    
+
     handleExport() {
       let details = {
         group_id: this.group_id,

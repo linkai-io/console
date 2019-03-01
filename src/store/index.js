@@ -6,6 +6,7 @@ import scangroup from './modules/scangroup';
 import addresses from './modules/addresses';
 import webdata from './modules/webdata';
 import user from './modules/user';
+import settings from './modules/settings';
 
 import createLogger from '../plugins/logger';
 
@@ -17,6 +18,7 @@ export default new Vuex.Store({
   modules: {
     auth,
     notify,
+    settings,
     scangroup,
     addresses,
     webdata,

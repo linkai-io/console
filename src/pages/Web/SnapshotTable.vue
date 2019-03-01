@@ -9,16 +9,16 @@
           <h4 slot="header" class="card-title">Response Data</h4>
 
           <div class="row">
-            <form class="form-horizontal col-md-8">
+            <form class="form-horizontal col-md-12 ">
               <div class="row">
-                <div class="col-md-4">
+                <div class="col-md-2 d-flex">
                   <el-tooltip
                     content="Return results captured after the supplied date/time."
                     effect="light"
                     :open-delay="150"
                     placement="top"
                   >
-                    <base-input>
+                    <base-input label="Time taken">
                       <el-date-picker
                         type="datetime"
                         placeholder="Filter since time taken"
@@ -28,8 +28,24 @@
                   </el-tooltip>
                 </div>
 
-                <div class="col-md-4">
-                  <base-input>
+                <div class="col-md-2 d-flex">
+                  <el-tooltip
+                    content="Only return responses that match the host name"
+                    effect="light"
+                    :open-delay="150"
+                    placement="bottom"
+                  >
+                    <base-input
+                      label="Matches host"
+                      v-model="filter.host_address"
+                      type="text"
+                      placeholder="example.com"
+                    ></base-input>
+                  </el-tooltip>
+                </div>
+
+                <div class="col-md-2 d-flex align-bottom">
+                  <base-input class="mt-3">
                     <base-button
                       type="secondary"
                       :round="true"
@@ -43,6 +59,7 @@
 
             <!-- end row -->
           </div>
+
           <div class="row">
             <div class="col-md-12 text-right">
               <base-button
@@ -79,7 +96,14 @@
                 :label="column.label"
               >
                 <template slot-scope="scope">
-                  <div v-if="column.prop ==='snapshot_link'">
+                  <div v-if="column.prop === 'host_address'">
+                    {{scope.row.host_address}}
+                    <div v-if="scope.row.ip_address !== ''">({{scope.row.ip_address}})</div>
+                  </div>
+                  <div v-else-if="column.prop === 'url'">
+                    <a :href="formatWebLink(scope.row.url)">{{ formatWebLink(scope.row.url)}}</a>
+                  </div>
+                  <div v-else-if="column.prop ==='snapshot_link'">
                     <img :src="'/app/data/'+scope.row.snapshot_link">
                   </div>
                   <div v-else-if="column.prop === 'serialized_dom_link'">
@@ -124,6 +148,7 @@ import {
 import InfiniteLoading from 'vue-infinite-loading';
 import { mapGetters, mapState } from 'vuex';
 import { unixNanoToMinDate } from 'src/data/time.js';
+import { formatWebLink } from 'src/data/formatters.js';
 import API from 'src/api/api.js';
 import Fuse from 'fuse.js';
 import swal from 'sweetalert2';
@@ -179,6 +204,9 @@ export default {
         sinceTimeTaken: 0,
         count: 0
       },
+      filter: {
+        host_address: ''
+      },
       searchQuery: '',
       tableColumns: [
         {
@@ -187,15 +215,21 @@ export default {
           minWidth: 60
         },
         {
-          prop: 'address_id_host_address',
+          prop: 'host_address',
           label: 'Host',
           minWidth: 60
         },
         {
-          prop: 'address_id_ip_address',
-          label: 'IP Address',
+          prop: 'url',
+          label: 'URL',
           minWidth: 60
         },
+        {
+          prop: 'response_port',
+          label: 'Port',
+          minWidth: 60
+        },
+
         {
           prop: 'serialized_dom_link',
           label: 'Link to HTML',
@@ -213,6 +247,9 @@ export default {
     };
   },
   methods: {
+    formatWebLink(value) {
+      return formatWebLink(value);
+    },
     filterSince() {
       try {
         let date = new Date(this.dateTimePicker);
@@ -228,7 +265,9 @@ export default {
       // force reset
       this.pagination.lastIndex = 0;
       this.tableData = [];
-      this.getTableData(this.$refs.infiniteLoader.stateChanger);
+      let state = this.$refs.infiniteLoader.stateChanger;
+      state.reset();
+      this.getTableData(state);
     },
     formatColumn(row, column, cellValue, index) {
       switch (column.property) {
@@ -257,7 +296,6 @@ export default {
       if (state === undefined) {
         return;
       }
-      console.log(state);
 
       this.loading = true;
       let limit = this.pagination.limit;
@@ -266,8 +304,11 @@ export default {
         start: start,
         limit: limit
       };
-      if (this.pagination.sinceTimeTaken !== 0) {
-        params.since_response_time = this.pagination.sinceTimeTaken;
+      if (!Number.isNaN(this.pagination.sinceTimeTaken) && this.pagination.sinceTimeTaken !== 0) {
+        params.after_response_time = this.pagination.sinceTimeTaken;
+      }
+      if (this.filter.host_address !== '') {
+        params.host_address = this.filter.host_address;
       }
       try {
         let response = await API.get(
@@ -290,6 +331,22 @@ export default {
         this.pagination.lastIndex = response.data.last_index;
         this.pagination.count = this.tableData.length;
         //this.pagination.total = response.data.total;
+      } catch (err) {
+        state.complete();
+
+        let msg = 'error getting data';
+        if (err.data !== undefined && err.data.msg !== undefined) {
+          msg = err.data.msg;
+        }
+
+        this.$store.dispatch(
+          'notify/CREATE_NOTIFY_MSG',
+          {
+            msg: msg,
+            msgType: 'danger'
+          },
+          { root: true }
+        );
       } finally {
         this.loading = false;
       }

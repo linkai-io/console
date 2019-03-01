@@ -125,6 +125,7 @@ export let barChartOptionsGradient = {
           suggestedMin: 60,
           suggestedMax: 125,
           padding: 20,
+
           fontColor: '#9e9e9e'
         }
       }
@@ -139,6 +140,7 @@ export let barChartOptionsGradient = {
         },
         ticks: {
           padding: 20,
+          autoSkip: false,
           fontColor: '#9e9e9e'
         }
       }
@@ -214,8 +216,8 @@ export let purpleChartOptions = {
           zeroLineColor: 'transparent'
         },
         ticks: {
-          suggestedMin: 60,
-          suggestedMax: 125,
+          suggestedMin: 10,
+          suggestedMax: 20,
           padding: 20,
           fontColor: '#9a9a9a'
         }
@@ -231,7 +233,11 @@ export let purpleChartOptions = {
           zeroLineColor: 'transparent'
         },
         ticks: {
-          padding: 20,
+          padding: 0,
+          maxRotation: 90,
+          autoSkip: false,
+          display: false,
+          labelOffset: 0,
           fontColor: '#9a9a9a'
         }
       }
@@ -369,7 +375,78 @@ export let barChartOptions = {
         },
         ticks: {
           padding: 20,
+          autoSkip: false,
+          display: true,
+          fontColor: '#9e9e9e',
+          callback: function(value, index, values) {
+            switch (value) {
+              case 'bigdata certificate transparency':
+                return 'cert transparency';
+              case 'dns brute forcer':
+                return 'brute forcer';
+              case 'dns mutator':
+                return 'mutator';
+              case 'ns query other':
+                return 'dns query';
+              case 'dns query ip to name':
+                return 'dns ip to name';
+              case 'ns query axfr':
+                return 'dns axfr';
+            }
+            return value;
+          }
+        }
+      }
+    ]
+  }
+};
+
+export let serverBarChartOptions = {
+  ...basicOptions,
+  tooltips: {
+    backgroundColor: '#f5f5f5',
+    titleFontColor: '#333',
+    bodyFontColor: '#666',
+    bodySpacing: 4,
+    xPadding: 12,
+    mode: 'nearest',
+    intersect: 0,
+    position: 'nearest'
+  },
+  scales: {
+    yAxes: [
+      {
+        gridLines: {
+          drawBorder: false,
+          color: 'rgba(255, 138, 118, .1)',
+          zeroLineColor: 'transparent'
+        },
+        ticks: {
+          suggestedMin: 60,
+          suggestedMax: 120,
+          padding: 20,
           fontColor: '#9e9e9e'
+        }
+      }
+    ],
+    xAxes: [
+      {
+        gridLines: {
+          drawBorder: false,
+          color: 'rgba(255, 138, 118, .1)',
+          zeroLineColor: 'transparent'
+        },
+        ticks: {
+          padding: 20,
+          autoSkip: false,
+          display: true,
+          fontColor: '#9e9e9e',
+          callback: function(value, index, values) {
+            if (value.length > 15) {
+              return value.substring(0, 12) + '...';
+            }
+            return value;
+          }
         }
       }
     ]

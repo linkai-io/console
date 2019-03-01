@@ -7,6 +7,137 @@
       <div class="col-12">
         <card card-body-classes="table-full-width">
           <h4 slot="header" class="card-title">Address Data</h4>
+          <div class="row">
+            <form class="form-horizontal col-md-10">
+              <div class="row">
+                <div class="col-md-4">
+                  <el-tooltip
+                    content="Return results since discovery date/time."
+                    effect="light"
+                    :open-delay="150"
+                    placement="top"
+                  >
+                    <base-input>
+                      <el-date-picker
+                        type="datetime"
+                        placeholder="Filter since discovered"
+                        v-model="filter.discoveredDateTimePicker"
+                      ></el-date-picker>
+                    </base-input>
+                  </el-tooltip>
+                </div>
+
+                <div class="col-md-4">
+                  <el-tooltip
+                    content="Return results since seen date/time."
+                    effect="light"
+                    :open-delay="150"
+                    placement="top"
+                  >
+                    <base-input>
+                      <el-date-picker
+                        type="datetime"
+                        placeholder="Filter since seen"
+                        v-model="filter.seenDateTimePicker"
+                      ></el-date-picker>
+                    </base-input>
+                  </el-tooltip>
+                </div>
+
+                <div class="col-md-4">
+                  <base-input>
+                    <base-button
+                      type="secondary"
+                      :round="true"
+                      :loading="updating"
+                      @click.native="filterResults"
+                    >Filter</base-button>
+                  </base-input>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-2">
+                  <el-tooltip
+                    content="Return responses that match the provided host"
+                    effect="light"
+                    :open-delay="150"
+                    placement="bottom"
+                  >
+                    <base-input
+                      label="Matches host"
+                      v-model="filter.host_address"
+                      type="text"
+                      placeholder="example.com"
+                    ></base-input>
+                  </el-tooltip>
+                </div>
+
+                <div class="col-md-2">
+                  <el-tooltip
+                    content="Return responses for IP addresses matching the provided IP"
+                    effect="light"
+                    :open-delay="150"
+                    placement="bottom"
+                  >
+                    <base-input
+                      label="Matches IP"
+                      v-model="filter.ip_address"
+                      type="text"
+                      placeholder="192.168.10.1"
+                    ></base-input>
+                  </el-tooltip>
+                </div>
+
+                <div class="col-md-2">
+                  <el-tooltip
+                    content="Starts with hostname"
+                    effect="light"
+                    :open-delay="150"
+                    placement="bottom"
+                  >
+                    <base-input
+                      label="Host starts with"
+                      type="text"
+                      v-model="filter.starts_host_address"
+                      placeholder="dev"
+                    ></base-input>
+                  </el-tooltip>
+                </div>
+
+                <div class="col-md-2">
+                  <el-tooltip
+                    content="Ends with hostname"
+                    effect="light"
+                    :open-delay="150"
+                    placement="bottom"
+                  >
+                    <base-input
+                      label="Ends with domain"
+                      type="text"
+                      v-model="filter.ends_host_address"
+                      placeholder="example.com"
+                    ></base-input>
+                  </el-tooltip>
+                </div>
+
+                <div class="col-md-2">
+                  <el-tooltip
+                    content="Return responses have a confidence level at or above"
+                    effect="light"
+                    :open-delay="150"
+                    placement="bottom"
+                  >
+                    <base-input
+                      label="Above confidence"
+                      type="text"
+                      v-model="filter.above_confidence"
+                      placeholder="0"
+                    ></base-input>
+                  </el-tooltip>
+                </div>
+              </div>
+            </form>
+          </div>
           <div class="col-sm-12">
             <base-button
               type="primary"
@@ -33,22 +164,23 @@
               @click.native="handleMultiExport"
             >Export selected</base-button>
 
-          <div class="col-md-12 text-right">
-            <base-button
-              type="secondary"
-              :round="true"
-              :loading="updating"
-              @click.native="handleExport"
-            >Export all</base-button>
-            <base-button
+            <div class="col-md-12 text-right">
+              <base-button
+                type="secondary"
+                :round="true"
+                :loading="updating"
+                @click.native="handleExport"
+              >Export all</base-button>
+              <base-button
                 type="primary"
                 icon
                 round
                 :loading="updating"
                 @click.native="refreshTable"
-              ><i class="tim-icons icon-refresh-02"></i>            
+              >
+                <i class="tim-icons icon-refresh-02"></i>
               </base-button>
-          </div>
+            </div>
           </div>
           <!--- show address data -->
           <div id="address_details">
@@ -83,7 +215,7 @@
                 }"
                   class="text-right table-actions"
                 >
-                <el-tooltip
+                  <el-tooltip
                     content="Asset details"
                     effect="light"
                     :open-delay="150"
@@ -97,8 +229,8 @@
                       @click.native="setAddressDetails(row)"
                     >
                       <i class="tim-icons icon-notes"></i>
-                  </base-button>
-                </el-tooltip>
+                    </base-button>
+                  </el-tooltip>
                   <el-tooltip
                     :content="setIgnoreToolTip(row)"
                     effect="light"
@@ -145,9 +277,7 @@
                 >
                   <div slot="no-more">No more addresses</div>
                 </infinite-loading>
-                
               </template>
-              
             </el-table>
             Showing {{ count }} of {{ total }} entries.
           </div>
@@ -157,11 +287,20 @@
   </div>
 </template>
 <script>
-import { Table, TableColumn, Select, Option } from 'element-ui';
+import {
+  TimeSelect,
+  DatePicker,
+  Table,
+  TableColumn,
+  Select,
+  Option
+} from 'element-ui';
 import InfiniteLoading from 'vue-infinite-loading';
 import { scroller } from 'vue-scrollto/src/scrollTo';
 import { unixNanoToMinDate } from 'src/data/time.js';
 import { mapGetters, mapState } from 'vuex';
+import { formatNSRecord } from 'src/data/formatters.js';
+
 import AddressCard from 'src/pages/Addresses/AddressCard.vue';
 import API from 'src/api/api.js';
 import Fuse from 'fuse.js';
@@ -170,6 +309,8 @@ import swal from 'sweetalert2';
 export default {
   components: {
     AddressCard,
+    [DatePicker.name]: DatePicker,
+    [TimeSelect.name]: TimeSelect,
     InfiniteLoading,
     [Select.name]: Select,
     [Option.name]: Option,
@@ -215,7 +356,18 @@ export default {
         lastIndex: 0,
         limit: 50,
         total: 0,
-        count: 0
+        count: 0,
+        discoveredDateTimePicker: 0,
+        seenDateTimePicker: 0
+      },
+      filter: {
+        discoveredDateTimePicker: '',
+        seenDateTimePicker: '',
+        host_address: '',
+        ip_address: '',
+        starts_host_address: '',
+        ends_host_address: '',
+        above_confidence: ''
       },
       searchQuery: '',
       propsToSearch: [
@@ -281,12 +433,29 @@ export default {
       // force reset
       this.pagination.lastIndex = 0;
       this.tableData = [];
-      this.getTableData(this.$refs.infiniteLoader.stateChanger);
+      let state = this.$refs.infiniteLoader.stateChanger;
+      state.reset();
+      this.getTableData(state);
+    },
+    filterResults() {
+      try {
+        let discoverDate = new Date(this.filter.discoveredDateTimePicker);
+        let seenDate = new Date(this.filter.seenDateTimePicker);
+        this.pagination.discoveredDateTimePicker =
+          discoverDate.getTime() * 1000000; // 1000000 (ns)
+        this.pagination.seenDateTimePicker = seenDate.getTime() * 1000000; // 1000000 (ns)
+        // force reset
+        this.refreshTable();
+      } catch (e) {
+        console.log(e);
+        this.pagination.discoveredDateTimePicker = 0;
+        his.pagination.seenDateTimePicker = 0;
+      }
     },
     formatColumn(row, column, cellValue, index) {
       switch (column.property) {
         case 'ns_record':
-          return this.formatNSRecord(cellValue);
+          return formatNSRecord(cellValue);
         case 'ignored':
         case 'is_hosted_service':
           return cellValue === true ? 'yes' : 'no';
@@ -298,164 +467,6 @@ export default {
           return cellValue.replace(/_/g, ' ');
       }
       return cellValue;
-    },
-    formatNSRecord(record) {
-      switch (record) {
-        case 0: 
-          return 'NA';
-        case 1:
-          return 'A';
-        case 2:
-          return 'NS';
-        case 3:
-          return 'MD';
-        case 4:
-          return 'MF';
-        case 5:
-          return 'CNAME';
-        case 6:
-          return 'SOA';
-        case 7:
-          return 'MB';
-        case 8:
-          return 'MG';
-        case 9:
-          return 'MR';
-        case 10:
-          return 'NULL';
-        case 12:
-          return 'PTR';
-        case 13:
-          return 'HINFO';
-        case 14:
-          return 'MINFO';
-        case 15:
-          return 'MX';
-        case 16:
-          return 'TXT';
-        case 17:
-          return 'RP';
-        case 18:
-          return 'AFSDB';
-        case 19:
-          return 'X25';
-        case 20:
-          return 'ISDN';
-        case 21:
-          return 'RT';
-        case 23:
-          return 'NSAPPTR';
-        case 24:
-          return 'SIG';
-        case 25:
-          return 'KEY';
-        case 26:
-          return 'PX';
-        case 27:
-          return 'GPOS';
-        case 28:
-          return 'AAAA';
-        case 29:
-          return 'LOC';
-        case 30:
-          return 'NXT';
-        case 31:
-          return 'EID';
-        case 32:
-          return 'NIMLOC';
-        case 33:
-          return 'SRV';
-        case 34:
-          return 'ATMA';
-        case 35:
-          return 'NAPTR';
-        case 36:
-          return 'KX';
-        case 37:
-          return 'CERT';
-        case 39:
-          return 'DNAME';
-        case 41:
-          return 'OPT';
-        case 43:
-          return 'DS';
-        case 44:
-          return 'SSHFP';
-        case 46:
-          return 'RRSIG';
-        case 47:
-          return 'NSEC';
-        case 48:
-          return 'DNSKEY';
-        case 49:
-          return 'DHCID';
-        case 50:
-          return 'NSEC3';
-        case 51:
-          return 'NSEC3PARAM';
-        case 52:
-          return 'TLSA';
-        case 53:
-          return 'SMIMEA';
-        case 55:
-          return 'HIP';
-        case 56:
-          return 'NINFO';
-        case 57:
-          return 'RKEY';
-        case 58:
-          return 'TALINK';
-        case 59:
-          return 'CDS';
-        case 60:
-          return 'CDNSKEY';
-        case 61:
-          return 'OPENPGPKEY';
-        case 62:
-          return 'CSYNC';
-        case 99:
-          return 'SPF';
-        case 100:
-          return 'UINFO';
-        case 101:
-          return 'UID';
-        case 102:
-          return 'GID';
-        case 103:
-          return 'UNSPEC';
-        case 104:
-          return 'NID';
-        case 105:
-          return 'L32';
-        case 106:
-          return 'L64';
-        case 107:
-          return 'LP';
-        case 108:
-          return 'EUI48';
-        case 109:
-          return 'EUI64';
-        case 256:
-          return 'URI';
-        case 257:
-          return 'CAA';
-        case 258:
-          return 'AVC';
-        case 249:
-          return 'TKEY';
-        case 250:
-          return 'TSIG';
-        case 251:
-          return 'IXFR';
-        case 252:
-          return 'AXFR';
-        case 253:
-          return 'MAILB';
-        case 254:
-          return 'MAILA';
-        case 255:
-          return 'ANY';
-      }
     },
     setIgnoreIcon(row) {
       return !row.ignored;
@@ -475,11 +486,11 @@ export default {
     setAddressDetails(row) {
       this.addressSelected = true;
       this.addressDetails = row;
-      let options =  {
+      let options = {
         container: 'body',
         easing: 'ease-in',
         offset: -60
-      }
+      };
       this.$scrollTo('#address_details', options);
     },
     handleSelectionChange(val) {
@@ -487,24 +498,61 @@ export default {
       this.multipleSelection = val;
     },
     async getTableData(state) {
+      console.log(state);
       if (state === undefined) {
         return;
       }
-      console.log(state);
 
       this.loading = true;
-      let limit = this.pagination.limit;
-      let start = this.pagination.lastIndex;
+      let params = {
+        start: this.pagination.lastIndex,
+        limit: this.pagination.limit
+      };
+      if (
+        !Number.isNaN(this.pagination.discoveredDateTimePicker) &&
+        this.pagination.discoveredDateTimePicker !== 0
+      ) {
+        params.after_discovered = this.pagination.discoveredDateTimePicker;
+      }
+
+      if (
+        !Number.isNaN(this.pagination.seenDateTimePicker) &&
+        this.pagination.seenDateTimePicker !== 0
+      ) {
+        params.after_seen = this.pagination.seenDateTimePicker;
+      }
+
+      if (this.filter.host_address !== '') {
+        params.host_address = this.filter.host_address;
+      }
+
+      if (this.filter.ip_address !== '') {
+        params.ip_address = this.filter.ip_address;
+      }
+
+      if (this.filter.starts_host_address !== '') {
+        params.starts_host_address = this.filter.starts_host_address;
+      }
+
+      if (this.filter.ends_host_address !== '') {
+        params.ends_host_address = this.filter.ends_host_address;
+      }
+
+      if (this.filter.above_confidence !== '') {
+        params.above_confidence = this.filter.above_confidence;
+      }
+
       try {
         let response = await API.get('/address/group/' + this.group_id, {
-          params: {
-            start: start,
-            limit: limit
-          }
+          params: params
         });
-        console.log(response.data);
-        if (response.data.addresses == null || response.data.addresses.length === 0) {
+
+        if (
+          response.data.addresses == null ||
+          response.data.addresses.length === 0
+        ) {
           state.complete();
+          console.log('complete');
           return;
         }
         this.tableData.push(...response.data.addresses);
@@ -513,6 +561,23 @@ export default {
         this.pagination.lastIndex = response.data.last_index;
         this.pagination.count = this.tableData.length;
         this.pagination.total = response.data.total;
+      } catch (err) {
+        console.log(err);
+        state.complete();
+
+        let msg = 'error getting data';
+        if (err.data !== undefined && err.data.msg !== undefined) {
+          msg = err.data.msg;
+        }
+
+        this.$store.dispatch(
+          'notify/CREATE_NOTIFY_MSG',
+          {
+            msg: msg,
+            msgType: 'danger'
+          },
+          { root: true }
+        );
       } finally {
         this.loading = false;
       }
@@ -609,7 +674,7 @@ export default {
   created() {},
   watch: {
     isUpdating(val, oldValue) {
-      console.log("new: " + val + " old: " + oldValue);
+      console.log('new: ' + val + ' old: ' + oldValue);
       // reset the table data after we delete/ignore/unignore values
       if (val === false && oldValue === true) {
         this.pagination.lastIndex = 0;

@@ -27,7 +27,7 @@
 
             <div class="row">
               <el-tooltip
-                    content="Limit the number of concurrent addresses to be tested at the same time."
+                    content="Limit the number of concurrent addresses to be tested at the same time. NOTICE: During alpha this is limited to 5 per scan group"
                     effect="light"
                     :open-delay="150"
                     placement="right"
@@ -122,7 +122,7 @@ export default {
         group_name: '',
         custom_sub_names: [],
         custom_ports: [],
-        concurrent_requests: 15
+        concurrent_requests: 5 // alpha restrictions
       },
       modelValidations: {
         group_name: {
@@ -132,7 +132,7 @@ export default {
         concurrent_requests: {
           required: true,
           min_value: 1,
-          max_value: 25
+          max_value: 5 // alpha restrictions
         }
       }
     };

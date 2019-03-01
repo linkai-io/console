@@ -51,7 +51,7 @@ const actions = {
     );
   },
   GET_GROUP_STATS({ dispatch, commit }) {
-    commit('SET_IS_LOADING', true);
+    commit('SET_IS_LOADING_STATS', true);
     API.get('/scangroup/groups/stats').then(
       resp => {
         commit('SET_IS_LOADING_STATS', false);

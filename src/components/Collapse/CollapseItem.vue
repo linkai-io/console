@@ -75,6 +75,7 @@ export default {
         this.deactivateAll();
       }
       this.active = !wasActive;
+      this.$emit('activate', this.active);
     }
   },
   mounted() {

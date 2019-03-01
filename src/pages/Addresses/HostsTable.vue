@@ -147,6 +147,7 @@ import { Table, TableColumn, Select, Option } from 'element-ui';
 import InfiniteLoading from 'vue-infinite-loading';
 import { unixNanoToMinDate } from 'src/data/time.js';
 import { mapGetters, mapState } from 'vuex';
+import { formatNSRecord } from 'src/data/formatters.js';
 import API from 'src/api/api.js';
 import Fuse from 'fuse.js';
 
@@ -278,7 +279,7 @@ export default {
     formatColumn(row, column, cellValue, index) {
       switch (column.property) {
         case 'ns_record':
-          return this.formatNSRecord(cellValue);
+          return formatNSRecord(cellValue);
         case 'ignored':
         case 'is_hosted_service':
           return cellValue === true ? 'yes' : 'no';

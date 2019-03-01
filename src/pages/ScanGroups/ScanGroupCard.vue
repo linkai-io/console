@@ -89,19 +89,50 @@
           </div>
           <!-- activity details -->
           <div class="row">
-            <card class="col-md-12">
-              <h5 slot="header" class="card-title">Group Activity</h5>
-              <div class="card-body">
+            <card class="col-md-11 mt-4 mx-auto bg-dark">
+              <h5 slot="header" class="card-title">
                 <div class="row">
-                  <div class="col-md-6">
-                    <p>Addresses In Queue: {{ batchSize }}</p>
-                    <p>Queue Started: {{ batchStart }}</p>
+                  <div class="col-md-8">Group Activity</div>
+                  <div class="col-md-4 text-right">
+                    <label class>Last Updated: {{ lastUpdatedActivity }}</label>
+                    <base-button
+                      type="danger"
+                      icon
+                      size="sm"
+                      @click="refreshActivity"
+                      class="btn-link"
+                    >
+                      <i class="tim-icons icon-refresh-02"></i>
+                    </base-button>
                   </div>
-                  <div class="col-md-6">
-                    <p>Addresses Undergoing Analysis: {{ activeAddresses }}</p>
-                    <p>Queue Ended: {{ batchEnd }}</p>
-                    <p>Last Updated: {{ lastUpdatedActivity }}</p>
+                </div>
+              </h5>
+
+              <div class="card-body mt-0">
+                <div class="row mt-0">
+                  <div class="col-md-5">
+                    <div class="row">
+                      <label class="col-sm-6 col-form-label">In Queue:</label>
+                      <p class="col-sm-6 form-control-static mt-2 text-left">{{ batchSize }}</p>
+                    </div>
+                    <div class="row">
+                      <label class="col-sm-6 col-form-label">Queue Started:</label>
+                      <p class="col-sm-6 form-control-static mt-2 text-left">{{ batchStart }}</p>
+                    </div>
                   </div>
+                  <div class="col-md-7">
+                    <div class="row">
+                      <label class="col-sm-6 col-form-label">Undergoing Analysis:</label>
+                      <p class="col-sm-6 form-control-static mt-2 text-left">{{ activeAddresses }}</p>
+                    </div>
+                    <div class="row">
+                      <label class="col-sm-6 col-form-label">Queue Ended:</label>
+                      <p class="col-sm-6 form-control-static mt-2 text-left">{{ batchEnd }}</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-12 md-auto"></div>
                 </div>
               </div>
             </card>
@@ -205,7 +236,7 @@
         :show-close="true"
       >
         <h4 slot="header" class="title title-up">Add Addresses to the group</h4>
-        <p>Upload a list of ip addresses, host addresses or CIDR blocks for initial analysis.</p>
+        <p>Upload a list of ip addresses, host addresses or CIDR blocks for initial analysis. Each asset (or cidr range) must be on it's own line of the text file</p>
         <p>
           <text-file-upload type="addresses" @change="onFileChange"></text-file-upload>
         </p>
@@ -270,7 +301,7 @@ export default {
         concurrent_requests: {
           required: true,
           min_value: 1,
-          max_value: 25
+          max_value: 5
         }
       }
     };
@@ -280,13 +311,6 @@ export default {
     ...mapState('addresses', ['isUploading']),
     ...mapGetters('addresses', ['addrCounts', 'getCountByID']),
     ...mapGetters('scangroup', ['isUpdating', 'groupStats']),
-    /*
-    <p>Addresses Undergoing Analysis: {{ activeAddresses }}</p>
-                <p>Addresses In Queue: {{ batchSize }}</p>
-                <p>Queue Started: {{ batchStart }}</p>
-                <p>Queue Ended: {{ batchEnd }}</p>
-                <p>Last Updated: {{ lastUpdatedActivity }}</p>
-    */
     activeAddresses: function() {
       let stats = this.groupStats[this.group.group_id];
       if (stats !== undefined) {
@@ -326,7 +350,7 @@ export default {
       if (stats !== undefined) {
         let end = stats.batch_end;
         if (end === 0) {
-          return 'In Progress';
+          return 'Analysis in Progress';
         }
         if (end !== undefined && !Number.isNaN(end)) {
           return unixNanoToMinDate(end);
@@ -351,6 +375,9 @@ export default {
     }
   },
   methods: {
+    refreshActivity() {
+      this.$store.dispatch('scangroup/GET_GROUP_STATS');
+    },
     getError(fieldName) {
       return this.errors.first(fieldName);
     },

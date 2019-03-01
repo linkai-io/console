@@ -48,7 +48,7 @@ import {
 } from 'src/components/index';
 import { mapState, mapGetters } from 'vuex';
 import { unixNanoToMinDate } from 'src/data/time.js';
-import { formatNSRecord } from 'src/data/addresses.js';
+import { formatNSRecord } from 'src/data/formatters.js';
 
 export default {
   components: {

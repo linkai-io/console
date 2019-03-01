@@ -57,10 +57,10 @@
                 round
                 :loading="updating"
                 @click.native="refreshTable"
-              ><i class="tim-icons icon-refresh-02"></i>            
+              >
+                <i class="tim-icons icon-refresh-02"></i>
               </base-button>
             </div>
-            
           </div>
           <div class="col-sm-12">
             <!-- start table -->
@@ -79,7 +79,10 @@
                 :label="column.label"
               >
                 <template slot-scope="scope">
-                  <div v-if="column.prop === 'validFrom'">{{ formatUnixTime(scope.row.validFrom) }}</div>
+                  <div v-if="column.prop === 'host_address'"> {{ scope.row.host_address }}
+                      <div v-if="scope.row.ip_address !== ''"> - ({{scope.row.ip_address}})</div>
+                  </div>
+                  <div v-else-if="column.prop === 'validFrom'">{{ formatUnixTime(scope.row.validFrom) }}</div>
                   <div v-else-if="column.prop === 'validTo'">{{ formatUnixTime(scope.row.validTo) }}</div>
                   <div
                     v-else-if="column.prop === 'response_timestamp'"
@@ -230,7 +233,9 @@ export default {
     refreshTable() {
       this.pagination.lastIndex = 0;
       this.tableData = [];
-      this.getTableData(this.$refs.infiniteLoader.stateChanger);
+      let state = this.$refs.infiniteLoader.stateChanger;
+      state.reset();
+      this.getTableData(state);
     },
     filterSince() {
       //let date =
@@ -250,15 +255,7 @@ export default {
     formatUnixTime(value) {
       return unixTimeToMinDate(value);
     },
-    formatWebLink(value) {
-      // little sanity check here...
-      if (!value.startsWith('http')) {
-        return 'about:blank';
-      }
-      return value;
-    },
     formatHeaders(value) {
-      console.log(value);
       return value;
     },
     formatColumn(row, column, cellValue, index) {
@@ -285,7 +282,6 @@ export default {
       if (state === undefined) {
         return;
       }
-      console.log(state);
 
       this.loading = true;
       let limit = this.pagination.limit;
@@ -318,6 +314,22 @@ export default {
         this.pagination.lastIndex = response.data.last_index;
         this.pagination.count = this.tableData.length;
         //this.pagination.total = response.data.total;
+      } catch (err) {
+        state.complete();
+
+        let msg = 'error getting data';
+        if (err.data !== undefined && err.data.msg !== undefined) {
+          msg = err.data.msg;
+        }
+
+        this.$store.dispatch(
+          'notify/CREATE_NOTIFY_MSG',
+          {
+            msg: msg,
+            msgType: 'danger'
+          },
+          { root: true }
+        );
       } finally {
         this.loading = false;
       }

@@ -1,3 +1,11 @@
+export function formatWebLink(value) {
+  // little sanity check here...
+  if (!value.startsWith('http')) {
+    return 'about:blank';
+  }
+  return value;
+}
+
 export function formatNSRecord(record) {
   switch (record) {
     case 0:
