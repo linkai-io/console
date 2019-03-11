@@ -359,8 +359,8 @@ export let barChartOptions = {
           zeroLineColor: 'transparent'
         },
         ticks: {
-          suggestedMin: 60,
-          suggestedMax: 120,
+          suggestedMin: 10,
+          suggestedMax: 50,
           padding: 20,
           fontColor: '#9e9e9e'
         }
@@ -422,8 +422,8 @@ export let serverBarChartOptions = {
           zeroLineColor: 'transparent'
         },
         ticks: {
-          suggestedMin: 60,
-          suggestedMax: 120,
+          suggestedMin: 10,
+          suggestedMax: 50,
           padding: 20,
           fontColor: '#9e9e9e'
         }

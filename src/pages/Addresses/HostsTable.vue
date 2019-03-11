@@ -42,7 +42,6 @@
                 @click.native="handleExport"
               >Export all</base-button>
               -->
-
               <base-button
                 type="primary"
                 icon
@@ -64,18 +63,19 @@
                 :key="column.label"
                 :min-width="column.minWidth"
                 :prop="column.prop"
-                
                 sortable
                 :label="column.label"
               >
                 <template slot-scope="scope">
                   <div v-if="column.prop ==='ip_addresses'">
-                    <ul>
-                      <li v-for="(ip_address) in scope.row.ip_addresses">{{ip_address}}</li>
-                    </ul>
+                    <collapse accordion >
+                      <collapse-item :title="'('+scope.row.ip_addresses.length+')'">
+                        <div v-for="(ip_address) in scope.row.ip_addresses">{{ip_address}}</div>
+                      </collapse-item>
+                    </collapse>
                   </div>
-                  <div v-else-if="column.prop === 'etld'"> {{ scope.row.etld }}</div>
-                  <div v-else-if="column.prop === 'host_address'"> {{ scope.row.host_address }}</div>
+                  <div v-else-if="column.prop === 'etld'">{{ scope.row.etld }}</div>
+                  <div v-else-if="column.prop === 'host_address'">{{ scope.row.host_address }}</div>
                 </template>
               </el-table-column>
 
@@ -143,17 +143,20 @@
   </div>
 </template>
 <script>
-import { Table, TableColumn, Select, Option } from 'element-ui';
+import { Table, TableColumn, Select, Option, } from 'element-ui';
+//import { Collapse, CollapseItem } from 'src/components';
 import InfiniteLoading from 'vue-infinite-loading';
+import {Collapse, CollapseItem} from 'src/components'
 import { unixNanoToMinDate } from 'src/data/time.js';
 import { mapGetters, mapState } from 'vuex';
 import { formatNSRecord } from 'src/data/formatters.js';
 import API from 'src/api/api.js';
 import Fuse from 'fuse.js';
-
 export default {
   components: {
     InfiniteLoading,
+    Collapse,
+    CollapseItem,
     [Select.name]: Select,
     [Option.name]: Option,
     [Table.name]: Table,
@@ -243,21 +246,20 @@ export default {
       this.loading = true;
       let limit = this.pagination.limit;
       let start = this.pagination.lastIndex;
+
       try {
         let response = await API.get(
           '/address/group/' + this.group_id + '/hosts',
           {
             params: {
               start: start,
-              limit: limit
+              limit: limit,
+              above_confidence: 99
             }
           }
         );
         console.log(response.data);
-        if (
-          response.data.hosts == null ||
-          response.data.hosts.length === 0
-        ) {
+        if (response.data.hosts == null || response.data.hosts.length === 0) {
           state.complete();
           return;
         }
@@ -311,7 +313,7 @@ export default {
     handleSelectionChange(val) {
       this.multipleSelection = val;
     },
-    
+
     handleIgnore(row) {
       console.log(row);
       let ignore_value = false;
@@ -421,7 +423,8 @@ export default {
   }
 };
 </script>
-<style>
+<style lang="scss" scoped>
+
 .pagination-select,
 .search-input {
   width: 200px;

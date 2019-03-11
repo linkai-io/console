@@ -52,7 +52,13 @@ const getters = {
     state.addressStats
       .map(group => group.discovered_by)
       .forEach(v => {
+        if (v === null || v === undefined) {
+          return;
+        }
         Object.keys(v).forEach(o => {
+          if (o === null || o === undefined) {
+            return;
+          }
           if (sum[o] === undefined) {
             sum[o] = 0;
           }
@@ -77,13 +83,15 @@ function mergeAggregates(stats, key) {
   let times = [];
   let counts = [];
   for (let i = 0; i < stats.length; i++) {
-    if (stats[i].aggregates[key] === undefined) {
+    if (
+      stats[i].aggregates === null ||
+      stats[i].aggregates[key] === undefined ||
+      stats[i].aggregates[key] === null
+    ) {
       continue;
     }
-    console.log(stats[i].aggregates[key]);
     times = times.concat(
       stats[i].aggregates[key].time.map(val => {
-        console.log(val);
         return unixNanoToMinMonthDay(val);
       })
     );
@@ -100,7 +108,6 @@ const actions = {
       resp => {
         commit('SET_LOADING_STATS', false);
         if (resp.data.status === 'OK') {
-          console.log(resp.data);
           commit('SET_STATS', resp.data.stats);
         }
       },

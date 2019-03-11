@@ -106,10 +106,21 @@
                   <div v-else-if="column.prop ==='snapshot_link'">
                     <img :src="'/app/data/'+scope.row.snapshot_link">
                   </div>
-                  <div v-else-if="column.prop === 'serialized_dom_link'">
+                  <div v-else-if="column.prop ==='technologies'">
+                     <tech-data v-bind="techDataForRow(scope.row)"></tech-data>
+                  </div>
+
+                  <div v-else-if="column.prop === 'actions'">
+                    <el-tooltip
+                    content="Download Serialized HTML"
+                    effect="light"
+                    :open-delay="150"
+                    placement="top"
+                  >
                     <a
                       :href="'/app/data/'+scope.row.serialized_dom_link"
-                    >{{ scope.row.serialized_dom_hash }}</a>
+                    ><i class="tim-icons icon-cloud-download-93"></i></a>
+                    </el-tooltip>
                   </div>
                   <div
                     v-else-if="column.prop === 'response_timestamp'"
@@ -145,6 +156,7 @@ import {
   Select,
   Option
 } from 'element-ui';
+import TechData from 'src/pages/Web/TechData.vue';
 import InfiniteLoading from 'vue-infinite-loading';
 import { mapGetters, mapState } from 'vuex';
 import { unixNanoToMinDate } from 'src/data/time.js';
@@ -155,6 +167,7 @@ import swal from 'sweetalert2';
 
 export default {
   components: {
+    TechData,
     InfiniteLoading,
     [DatePicker.name]: DatePicker,
     [TimeSelect.name]: TimeSelect,
@@ -227,18 +240,22 @@ export default {
         {
           prop: 'response_port',
           label: 'Port',
-          minWidth: 60
+          minWidth: 30
         },
-
         {
-          prop: 'serialized_dom_link',
-          label: 'Link to HTML',
-          minWidth: 50
+          prop: 'technologies',
+          label: 'Technologies',
+          minWidth: 70
         },
         {
           prop: 'response_timestamp',
           label: 'Time Taken',
           minWidth: 50
+        },
+        {
+          prop: 'actions',
+          label: 'Actions',
+          minWidth: 20
         }
       ],
       tableData: [],
@@ -249,6 +266,17 @@ export default {
   methods: {
     formatWebLink(value) {
       return formatWebLink(value);
+    },
+    techDataForRow(row) {
+      return {tech_data: {
+          tech_categories: row.tech_categories,
+          tech_names: row.tech_names,
+          tech_versions: row.tech_versions,
+          tech_match_locations: row.tech_match_locations,
+          tech_match_data: row.tech_match_data,
+          tech_icons: row.tech_icons,
+          tech_websites: row.tech_websites}
+      };
     },
     filterSince() {
       try {

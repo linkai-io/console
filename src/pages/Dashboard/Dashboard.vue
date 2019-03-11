@@ -387,8 +387,6 @@ export default {
         ],
         labels: labels[index]
       };
-      console.log(labels[index]);
-      console.log(this.bigLineChart.allData[index]);
       this.$refs.bigChart.updateGradients(chartData);
       this.bigLineChart.chartData = chartData;
       this.bigLineChart.activeIndex = index;

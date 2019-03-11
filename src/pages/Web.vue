@@ -26,8 +26,8 @@
           <div class="row">
           <div class="col-sm">
             <router-link :to="'/webdata/sites/'+ value.group_id">
-            <stats-card title="Web Sites" type="info" class="results-card" icon="tim-icons icon-components">
-              <div slot="footer">Snapshots of the top page of your assets along with the HTML</div>
+            <stats-card title="Web Sites &amp; Technology" type="info" class="results-card" icon="tim-icons icon-components">
+              <div slot="footer">Technology and Snapshots of the top page of your assets</div>
             </stats-card>
             </router-link>
           </div>

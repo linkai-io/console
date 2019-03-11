@@ -90,9 +90,7 @@ function hasElement(className) {
 }
 
 function initScrollbar(className) {
-  console.log('initScrollbar: ' + className);
   if (hasElement(className)) {
-    console.log('initing: ' + className);
     new PerfectScrollbar(`.${className}`);
   } else {
     if (className === undefined) {
@@ -100,7 +98,6 @@ function initScrollbar(className) {
     }
     // try to init it later in case this component is loaded async
     setTimeout(() => {
-      console.log('initing later: ' + className);
       initScrollbar(className);
     }, 100);
   }
@@ -168,8 +165,7 @@ export default {
         if (val.dismiss !== undefined) {
           return;
         }
-        console.log(val);
-        console.log(val.value);
+
         let w = Math.max(
           document.documentElement.clientWidth,
           window.innerWidth || 0

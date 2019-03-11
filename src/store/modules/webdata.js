@@ -55,7 +55,6 @@ const actions = {
       resp => {
         commit('SET_LOADING_STATS', false);
         if (resp.data.status === 'OK') {
-          console.log(resp.data);
           commit('SET_STATS', resp.data.stats);
         }
       },

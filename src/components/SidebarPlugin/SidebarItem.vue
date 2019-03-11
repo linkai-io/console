@@ -154,7 +154,7 @@ export default {
       const matches = name.match(/\b(\w)/g);
       return matches.join('');
     },
-    linkClick() {
+    linkClick(e) {
       if (this.defer) {
         this.$emit('click', e);
       } else {
