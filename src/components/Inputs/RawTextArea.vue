@@ -104,10 +104,10 @@ export default {
   },
   methods: {
     onInput(evt) {
-      //if (!this.touched) {
-      //  this.touched = true;
-     // }
-     this.$emit('input', evt.target.value);
+      if (!this.touched) {
+        this.touched = true;
+      }
+      this.$emit('input', evt.target.value);
     },
     onFocus() {
       this.focused = true;
