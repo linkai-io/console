@@ -26,7 +26,8 @@ const getters = {
     }
     let len = all[1].length;
     let sum = 0;
-    all[1].splice(len - 8, len).forEach(v => (sum += v));
+    let assetsPerDay = 8; // 3h * 8 = 24
+    all[1].splice(0, assetsPerDay).forEach(v => (sum += v));
     return sum;
   },
   totalTrihourlyDiscovered() {

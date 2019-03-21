@@ -302,7 +302,7 @@ export default {
       }
       let len = this.totalWebServerTypes[0].length;
       return len > 10
-        ? this.totalWebServerTypes[0].splice(10, len)
+        ? this.totalWebServerTypes[0].splice(0, 10)
         : this.totalWebServerTypes[0];
     },
     serverCounts() {
@@ -311,7 +311,7 @@ export default {
       }
       let len = this.totalWebServerTypes[1].length;
       return len > 10
-        ? this.totalWebServerTypes[1].splice(10, len)
+        ? this.totalWebServerTypes[1].splice(0, 10)
         : this.totalWebServerTypes[1];
     }
   },
