@@ -9,7 +9,8 @@ const state = {
 
 // getters
 const getters = {
-  tokenData: state => state.tokenData
+  tokenData: state => state.tokenData,
+  subscriptionID: state => state.tokenData.subscription_id
 };
 
 // actions
@@ -31,6 +32,12 @@ const mutations = {
     //sessionStorage.removeItem('expires');
     state.tokenData.rtk = sessionStorage.getItem('rtk');
     //sessionStorage.removeItem('rtk');
+    let subscription_id = sessionStorage.getItem('subscription_id');
+    if (subscription_id === null) {
+      state.tokenData.subscription_id = '101';
+    } else {
+      state.tokenData.subscription_id = subscription_id;
+    }
   }
 };
 

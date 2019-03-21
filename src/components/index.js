@@ -4,6 +4,7 @@ import IconCheckbox from './Inputs/IconCheckbox.vue';
 import BaseRadio from './Inputs/BaseRadio.vue';
 import BaseInput from './Inputs/BaseInput.vue';
 import BaseTextArea from './Inputs/BaseTextArea.vue';
+import RawTextArea from './Inputs/RawTextArea.vue';
 import TagsInput from './Inputs/TagsInput.vue';
 import BaseSwitch from './BaseSwitch.vue';
 import Badge from './Badge';
@@ -53,6 +54,7 @@ export {
   BaseRadio,
   BaseInput,
   BaseTextArea,
+  RawTextArea,
   TagsInput,
   Card,
   StatsCard,

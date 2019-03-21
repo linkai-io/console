@@ -93,12 +93,17 @@
                 @click.native.prevent="validate"
                 type="primary"
                 :loading="isCreating"
+                :disabled="!canCreate"
                 class="mb-3" 
                 size="md">
                 Create
               </base-button>
             </div>
-
+          
+          <base-alert v-if="!canCreate" type="default" dismissible icon="tim-icons icon-alert-circle-exc">
+            The maximum number of scan groups for this pricing plan has been reached.
+          </base-alert>
+          
           <base-alert v-if="groupCreated" type="success" dismissible icon="tim-icons icon-bell-55">
             Group created, go to <router-link to="/groups/list" class="alert-link">scan group list</router-link> to configure now
           </base-alert>
@@ -107,9 +112,9 @@
   </div>
 </template>
 <script>
-import { BaseAlert, } from 'src/components';
+import { BaseAlert } from 'src/components';
 import { BaseTextArea } from 'src/components/index';
-import { mapState } from 'vuex';
+import { mapState, mapGetters } from 'vuex';
 
 export default {
   components: {
@@ -138,7 +143,19 @@ export default {
     };
   },
   computed: {
-    ...mapState('scangroup', ['isCreating', 'creationMsg', 'groupCreated'])
+    ...mapState('scangroup', ['isCreating', 'creationMsg', 'groupCreated']),
+    ...mapGetters('auth', ['subscriptionID']),
+    ...mapGetters('scangroup', ['groups']),
+    canCreate: function() {
+      console.log( Object.entries(this.groups).length);
+      switch (this.subscriptionID) {
+        case '101':
+          return Object.entries(this.groups).length >= 1 ? false : true;
+          case '102':
+          return Object.entries(this.groups).length >= 3 ? false : true;
+      }
+      return true;
+    }
   },
   methods: {
     created() {},

@@ -144,20 +144,20 @@ const actions = {
 
 function handleError(commit, dispatch, err) {
   commit('SET_IS_UPLOADING', false);
-  if (err.data !== undefined) {
-    dispatch(
-      'notify/CREATE_NOTIFY_MSG',
-      {
-        msg: err.data.msg,
-        msgType: 'danger'
-      },
-      { root: true }
-    );
-  } else if (err.response !== undefined && err.response.data !== undefined) {
+  if (err.response !== undefined && err.response.data !== undefined) {
     dispatch(
       'notify/CREATE_NOTIFY_MSG',
       {
         msg: 'Failed to upload to group: ' + err.response.data.msg,
+        msgType: 'danger'
+      },
+      { root: true }
+    );
+  } else if (err.data !== undefined) {
+    dispatch(
+      'notify/CREATE_NOTIFY_MSG',
+      {
+        msg: err.data.msg,
         msgType: 'danger'
       },
       { root: true }
