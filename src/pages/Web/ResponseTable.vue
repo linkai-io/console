@@ -447,7 +447,6 @@ export default {
       this.tableData = [];
       let state = this.$refs.infiniteLoader.stateChanger;
       state.reset();
-      this.getTableData(state);
     },
     filterResults() {
       try {

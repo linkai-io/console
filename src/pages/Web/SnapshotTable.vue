@@ -295,7 +295,6 @@ export default {
       this.tableData = [];
       let state = this.$refs.infiniteLoader.stateChanger;
       state.reset();
-      this.getTableData(state);
     },
     formatColumn(row, column, cellValue, index) {
       switch (column.property) {

@@ -435,21 +435,19 @@ export default {
       this.tableData = [];
       let state = this.$refs.infiniteLoader.stateChanger;
       state.reset();
-      this.getTableData(state);
     },
     filterResults() {
       try {
         let discoverDate = new Date(this.filter.discoveredDateTimePicker);
         let seenDate = new Date(this.filter.seenDateTimePicker);
-        this.pagination.discoveredDateTimePicker =
-          discoverDate.getTime() * 1000000; // 1000000 (ns)
+        this.pagination.discoveredDateTimePicker = discoverDate.getTime() * 1000000; // 1000000 (ns)
         this.pagination.seenDateTimePicker = seenDate.getTime() * 1000000; // 1000000 (ns)
         // force reset
         this.refreshTable();
       } catch (e) {
         console.log(e);
         this.pagination.discoveredDateTimePicker = 0;
-        his.pagination.seenDateTimePicker = 0;
+        this.pagination.seenDateTimePicker = 0;
       }
     },
     formatColumn(row, column, cellValue, index) {
@@ -494,7 +492,6 @@ export default {
       this.$scrollTo('#address_details', options);
     },
     handleSelectionChange(val) {
-      console.log(val);
       this.multipleSelection = val;
     },
     async getTableData(state) {
@@ -552,7 +549,6 @@ export default {
           response.data.addresses.length === 0
         ) {
           state.complete();
-          console.log('complete');
           return;
         }
         this.tableData.push(...response.data.addresses);

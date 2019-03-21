@@ -87,7 +87,7 @@ export default {
           return 'in an HTML script tag';
         case 'meta':
           return 'in an HTML meta tag';
-        case 'headers':
+        case 'header':
           return 'in the response headers';
         case 'javascript':
           return 'by executing javascript';
