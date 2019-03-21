@@ -219,6 +219,37 @@ const actions = {
         }
       },
       err => {
+        if (
+          err.response.data !== undefined &&
+          err.response.data.errors !== undefined
+        ) {
+          commit('SET_IS_UPLOADING', false);
+
+          let errorText = '';
+
+          for (let i = 0; i < err.response.data.errors.length; i++) {
+            let parserError = err.response.data.errors[i];
+            errorText +=
+              'line number: ' +
+              parserError.line_number +
+              ' line:' +
+              parserError.line +
+              ' error: ' +
+              parserError.error +
+              '\n';
+          }
+          dispatch(
+            'notify/CREATE_NOTIFY_MSG',
+            {
+              msg: 'Failed to upload to group: ' + errorText,
+              msgType: 'danger',
+              msgTimeout: 8000
+            },
+            { root: true }
+          );
+          return;
+        }
+
         handleError(commit, dispatch, err);
       }
     );
@@ -241,7 +272,8 @@ function handleError(commit, dispatch, err) {
       'notify/CREATE_NOTIFY_MSG',
       {
         msg: 'Failed to upload to group: ' + err.response.data.msg,
-        msgType: 'danger'
+        msgType: 'danger',
+        msgTimeout: 8000
       },
       { root: true }
     );

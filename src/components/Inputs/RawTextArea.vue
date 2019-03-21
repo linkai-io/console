@@ -43,7 +43,7 @@
 <script>
 export default {
   inheritAttrs: false,
-  name: 'base-text-area',
+  name: 'raw-text-area',
   props: {
     required: Boolean,
     label: {
@@ -56,13 +56,8 @@ export default {
       default: ''
     },
     value: {
-      type: [Array],
-      description: 'Input value'
-    },
-    valueType: {
       type: String,
-      description: 'Array value type (string, integer)',
-      default: 'string'
+      description: 'Input value'
     },
     addonRightIcon: {
       type: String,
@@ -75,7 +70,7 @@ export default {
     rows: {
       type: String,
       description: 'Number of rows to display',
-      default: "7"
+      default: '7'
     }
   },
   model: {
@@ -112,7 +107,7 @@ export default {
       if (!this.touched) {
         this.touched = true;
       }
-      this.$emit('input', evt.target.value.split(/[\n,]+/).map(e => e.trim()));      
+      this.$emit('input', evt.target.value);
     },
     onFocus() {
       this.focused = true;

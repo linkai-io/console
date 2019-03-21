@@ -4,17 +4,38 @@
       <form class="form-horizontal">
         <card>
           <div class="row">
-            <base-alert type="info" icon="tim-icons icon-bell-55" v-if="addrCount === 0">
+            <base-alert type="default" icon="tim-icons icon-bell-55" v-if="addrCount === 0">
               <div class="col-md-auto">
-                <span>This scan group does not have any addresses associated with it, upload the initial addresses for this group.</span>
+                <span>This scan group does not have any addresses associated with it, either type in or upload the initial addresses for this group.</span>
               </div>
 
-              <div class="col-sm">
-                <base-button
-                  type="primary"
-                  :loading="isUploading"
-                  @click.native="modals.upload = true;"
-                >Upload</base-button>
+              <div class="row">
+                <label class="col-sm-2 col-form-label">Add Hosts</label>
+                <div class="col-sm-7">
+                  <raw-text-area
+                    name="text_hosts"
+                    v-model="text_addresses"
+                    rows="10"
+                  ></raw-text-area>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-sm">
+                  <base-button
+                    type="primary"
+                    :loading="isUploading"
+                    :disabled="text_addresses === ''"
+                    @click.native="modals.text_upload = true;"
+                  >Add Hosts</base-button>
+                </div>
+                <div class="col-sm">
+                  <base-button
+                    type="primary"
+                    :loading="isUploading"
+                    @click.native="modals.upload = true;"
+                  >Upload</base-button>
+                </div>
+                
               </div>
             </base-alert>
           </div>
@@ -116,7 +137,7 @@
                       <p class="col-sm-6 form-control-static mt-2 text-left">{{ batchSize }}</p>
                     </div>
                     <div class="row">
-                      <label class="col-sm-6 col-form-label">Queue Started:</label>
+                      <label class="col-sm-6 col-form-label">Batch Started:</label>
                       <p class="col-sm-6 form-control-static mt-2 text-left">{{ batchStart }}</p>
                     </div>
                   </div>
@@ -126,7 +147,7 @@
                       <p class="col-sm-6 form-control-static mt-2 text-left">{{ activeAddresses }}</p>
                     </div>
                     <div class="row">
-                      <label class="col-sm-6 col-form-label">Queue Ended:</label>
+                      <label class="col-sm-6 col-form-label">Batch Ended:</label>
                       <p class="col-sm-6 form-control-static mt-2 text-left">{{ batchEnd }}</p>
                     </div>
                   </div>
@@ -167,7 +188,7 @@
             <div class="col-md-4">
               <base-button
                 type="danger"
-                :loading="isUpdating"
+                :loading="deleteDisabled"
                 @click.native="modals.delete = true;"
               >Delete</base-button>
             </div>
@@ -246,6 +267,28 @@
           <base-button type="danger" @click.native="modals.upload = false;">Close</base-button>
         </template>
       </modal>
+
+      <!-- text upload modal -->
+      <modal
+        :show.sync="modals.text_upload"
+        class="modal-primary"
+        :show-close="true"
+        headerClasses="justify-content-center"
+        type="mini"
+      >
+        <div slot="header" class="modal-profile">
+          <i class="tim-icons icon-cloud-upload-94"></i>
+        </div>
+        <p>Are you sure you want to upload these addresses? Depending on price plan you may not be able to delete this group.</p>
+        <br>
+        <div class="justify-content-left" v-for="(addr, index) in text_addresses.split('\n')" v-bind:key="index">
+          <li>{{ addr }}</li>
+        </div>
+        <template slot="footer">
+          <base-button type="secondary" @click.native="uploadTextAddresses">Upload</base-button>
+          <base-button type="secondary" link @click.native="modals.text_upload = false;">Close</base-button>
+        </template>
+      </modal>
     </div>
   </div>
 </template>
@@ -255,6 +298,7 @@ import {
   TextFileUpload,
   BaseSwitch,
   BaseTextArea,
+  RawTextArea,
   Modal
 } from 'src/components/index';
 import { mapState, mapGetters } from 'vuex';
@@ -266,7 +310,8 @@ export default {
     Modal,
     BaseAlert,
     BaseSwitch,
-    BaseTextArea
+    BaseTextArea,
+    RawTextArea
   },
   props: {
     group: {
@@ -278,12 +323,14 @@ export default {
   },
   data() {
     return {
+      text_addresses: '',
       file: null,
       modals: {
         pause: false,
         resume: false,
         delete: false,
-        upload: false
+        upload: false,
+        text_upload: false,
       },
       model: {
         group_name: this.group.group_name,
@@ -311,6 +358,18 @@ export default {
     ...mapState('addresses', ['isUploading']),
     ...mapGetters('addresses', ['addrCounts', 'getCountByID']),
     ...mapGetters('scangroup', ['isUpdating', 'groupStats']),
+    ...mapGetters('auth', ['subscriptionID']),
+    deleteDisabled: function() {
+      if (this.isUpdating) {
+        return true;
+      }
+      switch (this.subscriptionID) {
+        case '101':
+          return true;
+          break;
+      }
+      return false;
+    },
     activeAddresses: function() {
       let stats = this.groupStats[this.group.group_id];
       if (stats !== undefined) {
@@ -364,7 +423,7 @@ export default {
     },
     modifiedAt: function() {
       return unixNanoToDate(this.group.modified_time);
-    },
+    }, 
     status: function() {
       return this.group.paused === false;
     },
@@ -375,6 +434,16 @@ export default {
     }
   },
   methods: {
+    uploadTextAddresses() {
+      this.modals.text_upload = false;
+      let details = {
+        group_id: this.group.group_id,
+        addresses: this.text_addresses
+      };
+      console.log(details.addresses);
+      this.$store.dispatch('addresses/UPLOAD_ADDRESSES', details);
+
+    },
     refreshActivity() {
       this.$store.dispatch('scangroup/GET_GROUP_STATS');
     },

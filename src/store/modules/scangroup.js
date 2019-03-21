@@ -144,11 +144,11 @@ const actions = {
       err => {
         commit('SET_IS_UPDATING', false);
 
-        if (err.data !== undefined) {
+        if (err.response !== undefined && err.response.data !== undefined) {
           dispatch(
             'notify/CREATE_NOTIFY_MSG',
             {
-              msg: err.data.msg,
+              msg: err.response.data.msg,
               msgType: 'danger'
             },
             { root: true }
@@ -203,11 +203,11 @@ const actions = {
       err => {
         commit('SET_IS_UPDATING', false);
 
-        if (err.data !== undefined) {
+        if (err.response !== undefined && err.response.data !== undefined) {
           dispatch(
             'notify/CREATE_NOTIFY_MSG',
             {
-              msg: err.data.msg,
+              msg: err.response.data.msg,
               msgType: 'danger'
             },
             { root: true }
@@ -246,13 +246,12 @@ const actions = {
       },
       err => {
         commit('SET_IS_UPDATING', false);
-
-        if (err.data !== undefined) {
+        if (err.response !== undefined && err.response.data !== undefined) {
           dispatch(
             'notify/CREATE_NOTIFY_MSG',
             {
-              msg: err.data.msg,
-              msgType: 'success'
+              msg: err.response.data.msg,
+              msgType: 'danger'
             },
             { root: true }
           );

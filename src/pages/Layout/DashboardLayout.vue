@@ -128,7 +128,7 @@ export default {
   },
   computed: {
     ...mapState('notify', ['notifyMsg', 'notifyMsgType']),
-    ...mapGetters('notify', ['getMsg', 'getMsgType']),
+    ...mapGetters('notify', ['getMsg', 'getMsgType', 'getMsgTimeout']),
     ...mapGetters('scangroup', ['groups', 'groupStats'])
   },
   methods: {
@@ -259,7 +259,7 @@ export default {
 
       this.$notify({
         message: msg,
-        timeout: 4000,
+        timeout: this.getMsgTimeout,
         icon: 'tim-icons icon-bell-55',
         horizontalAlign: 'center',
         verticalAlign: 'top',
