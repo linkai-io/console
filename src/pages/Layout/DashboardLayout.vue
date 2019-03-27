@@ -15,6 +15,13 @@
             path: '/dashboard'
           }"
         ></sidebar-item>
+        
+        <sidebar-item
+          :link="{ 
+            name: $t('sidebar.settings'), 
+            icon: 'tim-icons icon-settings',
+            path: '/settings' }"
+        ></sidebar-item>
 
         <sidebar-item
           :link="{ 
@@ -248,6 +255,7 @@ export default {
   created() {
     this.$store.dispatch('scangroup/GET_GROUPS');
     this.$store.dispatch('scangroup/GET_GROUP_STATS');
+    this.$store.dispatch('event/GET_EVENTS');
   },
   mounted() {
     initScrollbar('sidebar-wrapper');
