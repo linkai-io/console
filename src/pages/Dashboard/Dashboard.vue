@@ -87,7 +87,7 @@
       <div class="col-lg-12 col-md-12 d-flex">
         <card type="notifications" :header-classes="'text-right'">
           <template slot="header">
-            <h6 class="title d-inline">Notifications ({{5}})</h6>
+            <h6 class="title d-inline">Notifications ({{events.length}})</h6>
             <p class="card-category d-inline"></p>
             <base-dropdown
               menu-on-right
@@ -96,8 +96,8 @@
               class="float-right"
             >
               <i slot="title" class="tim-icons icon-settings-gear-63"></i>
-              <a class="dropdown-item" href="#pablo">Mark selected as read</a>
-              <a class="dropdown-item" href="#pablo">Mark all as read</a>
+              <a class="dropdown-item" @click="sendOnlyMarkedRead">Mark selected as read</a>
+              <a class="dropdown-item" @click="sendAllRead">Mark all as read</a>
             </base-dropdown>
           </template>
           <div class="table-full-width table-responsive table-notifications">
@@ -291,6 +291,7 @@ export default {
     };
   },
   computed: {
+    ...mapGetters('event', ['events']),
     ...mapGetters('settings', ['shouldShowHome']),
     ...mapGetters('addresses', [
       'isLoadingAddressStats',
@@ -350,7 +351,7 @@ export default {
       }
       let len = this.totalWebServerTypes[0].length;
       return len > 10
-        ? this.totalWebServerTypes[0].splice(0, 10)
+        ? this.totalWebServerTypes[0].slice().splice(0, 10)
         : this.totalWebServerTypes[0];
     },
     serverCounts() {
@@ -359,11 +360,17 @@ export default {
       }
       let len = this.totalWebServerTypes[1].length;
       return len > 10
-        ? this.totalWebServerTypes[1].splice(0, 10)
+        ? this.totalWebServerTypes[1].slice().splice(0, 10)
         : this.totalWebServerTypes[1];
     }
   },
   methods: {
+    sendAllRead() {
+      this.$store.dispatch('event/MARK_READ', 'all');
+    },
+    sendOnlyMarkedRead() {
+      this.$store.dispatch('event/MARK_READ');
+    },
     onClickShowHome(val) {
       this.$store.dispatch('settings/UPDATE_SHOW_HOME', val);
     },
