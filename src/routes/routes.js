@@ -41,6 +41,9 @@ const URLListTable = () =>
 const CertificateTable = () =>
   import(/* webpackChunkName: "pages" */ 'src/pages/Web/CertificateTable.vue');
 
+const Settings = () =>
+  import(/* webpackChunkName: "pages" */ 'src/pages/Events/EventSettings.vue');
+
 const routes = [
   {
     path: '/',
@@ -57,6 +60,11 @@ const routes = [
         path: 'dashboard',
         name: 'Dashboard',
         components: { default: Dashboard }
+      },
+      {
+        path: 'settings',
+        name: 'Settings',
+        components: { default: Settings }
       },
       {
         path: 'user',

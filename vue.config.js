@@ -36,6 +36,10 @@ module.exports = {
         '/webdata/': {
           target: 'http://localhost:3000/',
           logLevel: 'debug'
+        },
+        '/event/': {
+          target: 'http://localhost:3000/',
+          logLevel: 'debug'
         }
       }
     }

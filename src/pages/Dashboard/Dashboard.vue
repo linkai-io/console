@@ -31,6 +31,8 @@
       </collapse>
     </card>
 
+    
+    <!-- stat cards -->
     <div class="row">
       <div class="col-lg-3 col-md-3 d-flex">
         <stats-card
@@ -80,7 +82,31 @@
         </stats-card>
       </div>
     </div>
-
+    <!-- notifications table -->
+    <div class="row">
+      <div class="col-lg-12 col-md-12 d-flex">
+        <card type="notifications" :header-classes="'text-right'">
+          <template slot="header">
+            <h6 class="title d-inline">Notifications ({{events.length}})</h6>
+            <p class="card-category d-inline"></p>
+            <base-dropdown
+              menu-on-right
+              tag="div"
+              title-classes="btn btn-link btn-icon"
+              class="float-right"
+            >
+              <i slot="title" class="tim-icons icon-settings-gear-63"></i>
+              <a class="dropdown-item" @click="sendOnlyMarkedRead">Mark selected as read</a>
+              <a class="dropdown-item" @click="sendAllRead">Mark all as read</a>
+            </base-dropdown>
+          </template>
+          <div class="table-full-width table-responsive table-notifications">
+            <event-notifications></event-notifications>
+          </div>
+        </card>
+      </div>
+    </div>
+    <!-- big line charts -->
     <div class="row">
       <div class="col-12">
         <card type="chart">
@@ -125,7 +151,7 @@
         </card>
       </div>
     </div>
-
+    <!-- small bar charts -->
     <div class="row">
       <div class="col-md-6 mr-auto">
         <card class="card-chart" no-footer-line>
@@ -176,12 +202,34 @@ import BarChart from '@/components/Charts/BarChart';
 import PieChart from 'src/components/Charts/PieChart';
 import * as chartConfigs from '@/components/Charts/config';
 import StatsCard from 'src/components/Cards/StatsCard';
+import EventNotifications from 'src/pages/Events/EventNotifications.vue';
 import { mapGetters } from 'vuex';
 import { Collapse, CollapseItem } from 'src/components';
 import config from '@/config';
+import PerfectScrollbar from 'perfect-scrollbar';
+import 'perfect-scrollbar/css/perfect-scrollbar.css';
+
+function hasElement(className) {
+  return document.getElementsByClassName(className).length > 0;
+}
+
+function initScrollbar(className) {
+  if (hasElement(className)) {
+    new PerfectScrollbar(`.${className}`);
+  } else {
+    if (className === undefined) {
+      return;
+    }
+    // try to init it later in case this component is loaded async
+    setTimeout(() => {
+      initScrollbar(className);
+    }, 100);
+  }
+}
 
 export default {
   components: {
+    EventNotifications,
     LineChart,
     BarChart,
     PieChart,
@@ -243,6 +291,7 @@ export default {
     };
   },
   computed: {
+    ...mapGetters('event', ['events']),
     ...mapGetters('settings', ['shouldShowHome']),
     ...mapGetters('addresses', [
       'isLoadingAddressStats',
@@ -302,7 +351,7 @@ export default {
       }
       let len = this.totalWebServerTypes[0].length;
       return len > 10
-        ? this.totalWebServerTypes[0].splice(0, 10)
+        ? this.totalWebServerTypes[0].slice().splice(0, 10)
         : this.totalWebServerTypes[0];
     },
     serverCounts() {
@@ -311,11 +360,17 @@ export default {
       }
       let len = this.totalWebServerTypes[1].length;
       return len > 10
-        ? this.totalWebServerTypes[1].splice(0, 10)
+        ? this.totalWebServerTypes[1].slice().splice(0, 10)
         : this.totalWebServerTypes[1];
     }
   },
   methods: {
+    sendAllRead() {
+      this.$store.dispatch('event/MARK_READ', 'all');
+    },
+    sendOnlyMarkedRead() {
+      this.$store.dispatch('event/MARK_READ');
+    },
     onClickShowHome(val) {
       this.$store.dispatch('settings/UPDATE_SHOW_HOME', val);
     },
@@ -406,8 +461,8 @@ export default {
     }
   },
   created() {},
-
   mounted() {
+    initScrollbar('table-notifications');
     this.$store.dispatch('settings/INIT');
     this.$store.dispatch('addresses/LOAD_ADDRESS_STATS');
     this.$store.dispatch('webdata/LOAD_WEB_STATS');

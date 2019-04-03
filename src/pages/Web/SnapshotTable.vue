@@ -9,7 +9,7 @@
           <h4 slot="header" class="card-title">Response Data</h4>
 
           <div class="row">
-            <form class="form-horizontal col-md-12 ">
+            <form class="form-horizontal col-md-12">
               <div class="row">
                 <div class="col-md-2 d-flex">
                   <el-tooltip
@@ -107,19 +107,19 @@
                     <img :src="'/app/data/'+scope.row.snapshot_link">
                   </div>
                   <div v-else-if="column.prop ==='technologies'">
-                     <tech-data v-bind="techDataForRow(scope.row)"></tech-data>
+                    <tech-data v-bind="techDataForRow(scope.row)"></tech-data>
                   </div>
 
                   <div v-else-if="column.prop === 'actions'">
                     <el-tooltip
-                    content="Download Serialized HTML"
-                    effect="light"
-                    :open-delay="150"
-                    placement="top"
-                  >
-                    <a
-                      :href="'/app/data/'+scope.row.serialized_dom_link"
-                    ><i class="tim-icons icon-cloud-download-93"></i></a>
+                      content="Download Serialized HTML"
+                      effect="light"
+                      :open-delay="150"
+                      placement="top"
+                    >
+                      <a :href="'/app/data/'+scope.row.serialized_dom_link">
+                        <i class="tim-icons icon-cloud-download-93"></i>
+                      </a>
                     </el-tooltip>
                   </div>
                   <div
@@ -163,7 +163,6 @@ import { unixNanoToMinDate } from 'src/data/time.js';
 import { formatWebLink } from 'src/data/formatters.js';
 import API from 'src/api/api.js';
 import Fuse from 'fuse.js';
-import swal from 'sweetalert2';
 
 export default {
   components: {
@@ -268,14 +267,16 @@ export default {
       return formatWebLink(value);
     },
     techDataForRow(row) {
-      return {tech_data: {
+      return {
+        tech_data: {
           tech_categories: row.tech_categories,
           tech_names: row.tech_names,
           tech_versions: row.tech_versions,
           tech_match_locations: row.tech_match_locations,
           tech_match_data: row.tech_match_data,
           tech_icons: row.tech_icons,
-          tech_websites: row.tech_websites}
+          tech_websites: row.tech_websites
+        }
       };
     },
     filterSince() {
@@ -285,7 +286,6 @@ export default {
         // force reset
         this.refreshTable();
       } catch (e) {
-        console.log(e);
         this.pagination.sinceTimeTaken = 0;
       }
     },
@@ -296,7 +296,7 @@ export default {
       let state = this.$refs.infiniteLoader.stateChanger;
       state.reset();
     },
-    formatColumn(row, column, cellValue, index) {
+    formatColumn(row, column, cellValue) {
       switch (column.property) {
         case 'response_timestamp':
           return this.formatTime(cellValue);
@@ -331,7 +331,10 @@ export default {
         start: start,
         limit: limit
       };
-      if (!Number.isNaN(this.pagination.sinceTimeTaken) && this.pagination.sinceTimeTaken !== 0) {
+      if (
+        !Number.isNaN(this.pagination.sinceTimeTaken) &&
+        this.pagination.sinceTimeTaken !== 0
+      ) {
         params.after_response_time = this.pagination.sinceTimeTaken;
       }
       if (this.filter.host_address !== '') {
