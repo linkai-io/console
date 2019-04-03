@@ -12,6 +12,7 @@
   </base-table>
 </template>
 <script>
+import moment from 'moment';
 import { BaseTable } from '@/components';
 import { mapGetters } from 'vuex';
 import { unixNanoToMinMonthDay } from '../../data/time.js';
@@ -26,7 +27,10 @@ export default {
   },
   methods: {
     markRead(id, value) {
-      this.$store.dispatch('event/ADD_READ', {id: id.notification_id, value: value});
+      this.$store.dispatch('event/ADD_READ', {
+        id: id.notification_id,
+        value: value
+      });
     },
     formatTitle(row) {
       switch (row.type_id) {
@@ -72,7 +76,7 @@ export default {
         case 11:
           return row.data.join(', ');
         case 100:
-          if (row.data.length % 2 != 0) {
+          if (row.data.length % 2 !== 0) {
             return 'unknown data returned';
           }
           for (let i = 0; i < row.data.length; i += 2) {
@@ -86,17 +90,19 @@ export default {
         case 103:
           break;
         case 150:
-          if (row.data.length % 3 != 0) {
+          if (row.data.length % 3 !== 0) {
             return 'unknown data returned';
           }
+
           for (let i = 0; i < row.data.length; i += 3) {
+            let then = moment(row.data[i + 2], 'sec');
             val +=
               'Host ' +
               row.data[i] +
               ' on port ' +
               row.data[i + 1] +
               ' expires in ' +
-              row.data[i + 2];
+              this.formatTimeDifference(then);
           }
           return val;
         case 151:
@@ -110,6 +116,26 @@ export default {
         return '';
       }
       return row.data.join(', ');
+    },
+    formatTimeDifference(then) {
+      var duration = moment.duration(then.diff(moment()));
+
+      //Get Days and subtract from duration
+      var days = duration.asDays();
+      duration.subtract(moment.duration(days, 'days'));
+
+      //Get hours and subtract from duration
+      var hours = duration.hours();
+      duration.subtract(moment.duration(hours, 'hours'));
+
+      let difference = '';
+      if (days > 0) {
+        difference += days + ' days ';
+      }
+      if (hours > 0) {
+        difference += hours + " hours";
+      }
+      return difference;
     }
   },
   data() {

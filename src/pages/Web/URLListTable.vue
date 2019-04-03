@@ -92,10 +92,8 @@
               >
                 <template slot-scope="scope">
                   <div v-if="column.prop ==='host_address'">
-                    {{scope.row.host_address}} 
-                    <div v-if="scope.row.ip_address !== ''">
-                      ({{scope.row.ip_address}})
-                    </div>
+                    {{scope.row.host_address}}
+                    <div v-if="scope.row.ip_address !== ''">({{scope.row.ip_address}})</div>
                   </div>
                   <div v-else-if="column.prop ==='urls'">
                     <el-table ref="requestedURLsTable" :data="scope.row.urls">
@@ -113,7 +111,9 @@
                             v-else-if="requestColumn.prop === 'mime_type'"
                           >{{ nestedScope.row.mime_type }}</div>
                           <div v-else-if="requestColumn.prop === 'raw_body_link'">
-                            <a :href="'/app/data/'+nestedScope.row.raw_body_link"><i class="tim-icons icon-cloud-download-93"></i></a>
+                            <a :href="'/app/data/'+nestedScope.row.raw_body_link">
+                              <i class="tim-icons icon-cloud-download-93"></i>
+                            </a>
                           </div>
                         </template>
                       </el-table-column>
@@ -304,7 +304,7 @@ export default {
         //this.pagination.total = response.data.total;
       } catch (err) {
         state.complete();
-        
+
         let msg = 'error getting data';
         if (err.data !== undefined && err.data.msg !== undefined) {
           msg = err.data.msg;

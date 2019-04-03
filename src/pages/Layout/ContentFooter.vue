@@ -3,19 +3,10 @@
     <div class="container-fluid">
       <ul class="nav">
         <li class="nav-item">
-          <a
-            href="https://linkai.io"
-            target="_blank"
-            rel="noopener"
-            class="nav-link"
-          >
-            linkai.io
-          </a>
+          <a href="https://linkai.io" target="_blank" rel="noopener" class="nav-link">linkai.io</a>
         </li>
       </ul>
-      <div class="copyright">
-        &copy; {{ year }} linkai
-      </div>
+      <div class="copyright">&copy; {{ year }} linkai</div>
     </div>
   </footer>
 </template>
