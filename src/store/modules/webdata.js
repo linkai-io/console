@@ -23,6 +23,12 @@ const getters = {
   totalCertsThirty: state => sumFields(state.webDataStats, 'expiring_certs_30'),
   totalUniqueWebServers: state =>
     sumFields(state.webDataStats, 'unique_web_servers'),
+  webServerTypesByID: state => group_id => {
+    return findStatByID(state.webDataStats, group_id, 'server_types');
+  },
+  webServerTypeCountsByID: state => group_id => {
+    return findStatByID(state.webDataStats, group_id, 'server_counts');
+  },
   totalWebServerTypes() {
     let sum = {};
     state.webDataStats
@@ -38,6 +44,15 @@ const getters = {
     return [Object.keys(sum), Object.values(sum)];
   }
 };
+
+function findStatByID(stats, group_id, key) {
+  for (let i = 0; i < stats.length; i++) {
+    if (stats[i].group_id == group_id) {
+      return stats[i][key];
+    }
+  }
+  return [];
+}
 
 function sumFields(stats, key) {
   if (stats.length === 0) {

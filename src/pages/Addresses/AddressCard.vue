@@ -205,8 +205,6 @@ export default {
       this.$emit('clicked', 'close');
     },
     log(data) {
-      console.log('LOGGING:');
-      console.log(data);
     },
     getError(fieldName) {
       return this.errors.first(fieldName);

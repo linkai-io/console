@@ -17,6 +17,9 @@ const state = {
 const getters = {
   isLoadingAddressStats: state => state.isLoadingStats,
   addrStats: state => state.addressStats,
+  addrGroupIDs: state => {
+    return state.addressStats.map(v => v.group_id);
+  },
   totalConfident: state =>
     state.addressStats.reduce((acc, group) => acc + group.confident_total, 0),
   totalAssetsDay() {
@@ -30,15 +33,36 @@ const getters = {
     all[1].splice(0, assetsPerDay).forEach(v => (sum += v));
     return sum;
   },
-  totalTrihourlyDiscovered() {
-    return mergeAggregates(state.addressStats, 'discovery_trihourly');
+  discoveredByID: state => group_id => {
+    return findStatByID(state.addressStats, group_id, 'discovered_by');
   },
-  totalTrihourlySeen() {
-    return mergeAggregates(state.addressStats, 'seen_trihourly');
+  discoveredByCountByID: state => group_id => {
+    return findStatByID(state.addressStats, group_id, 'discovered_by_count');
   },
-  totalTrihourlyScanned() {
-    return mergeAggregates(state.addressStats, 'scanned_trihourly');
+  // aggregates
+  discoveryTrihourlyTimeByID: state => group_id => {
+    return findAggTimeByID(state.addressStats, group_id, 'discovery_trihourly');
   },
+  discoveryTrihourlyCountByID: state => group_id => {
+    return findAggCountByID(
+      state.addressStats,
+      group_id,
+      'discovery_trihourly'
+    );
+  },
+  seenTrihourlyTimeByID: state => group_id => {
+    return findAggTimeByID(state.addressStats, group_id, 'seen_trihourly');
+  },
+  seenTrihourlyCountByID: state => group_id => {
+    return findAggCountByID(state.addressStats, group_id, 'seen_trihourly');
+  },
+  scannedTrihourlyTimeByID: state => group_id => {
+    return findAggTimeByID(state.addressStats, group_id, 'scanned_trihourly');
+  },
+  scannedTrihourlyCountByID: state => group_id => {
+    return findAggCountByID(state.addressStats, group_id, 'scanned_trihourly');
+  },
+
   isUpdating: state => state.isUpdating,
   addrCounts() {
     return state.addressCounts;
@@ -69,6 +93,35 @@ const getters = {
     return [Object.keys(sum), Object.values(sum)];
   }
 };
+
+function findStatByID(stats, group_id, key) {
+  for (let i = 0; i < stats.length; i++) {
+    if (stats[i].group_id == group_id) {
+      return state.addressStats[i][key];
+    }
+  }
+  return [];
+}
+
+function findAggTimeByID(stats, group_id, key) {
+  for (let i = 0; i < stats.length; i++) {
+    if (stats[i].group_id == group_id) {
+      console.log('searching/found gid: ' + group_id);
+      return state.addressStats[i].aggregates[key].time;
+    }
+  }
+  return [];
+}
+
+function findAggCountByID(stats, group_id, key) {
+  for (let i = 0; i < stats.length; i++) {
+    if (stats[i].group_id == group_id) {
+      console.log('searching/found gid: ' + group_id);
+      return state.addressStats[i].aggregates[key].count;
+    }
+  }
+  return [];
+}
 
 function sumFields(stats, key) {
   if (stats.length === 0) {
