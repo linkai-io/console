@@ -147,7 +147,6 @@ export default {
     ...mapGetters('auth', ['subscriptionID']),
     ...mapGetters('scangroup', ['groups']),
     canCreate: function() {
-      console.log( Object.entries(this.groups).length);
       switch (this.subscriptionID) {
         case '101':
           return Object.entries(this.groups).length >= 1 ? false : true;

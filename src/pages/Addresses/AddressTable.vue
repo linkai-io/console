@@ -495,7 +495,6 @@ export default {
       this.multipleSelection = val;
     },
     async getTableData(state) {
-      console.log(state);
       if (state === undefined) {
         return;
       }
@@ -579,7 +578,6 @@ export default {
       }
     },
     handleIgnore(row) {
-      console.log(row);
       let ignore_value = false;
       if (row.ignored === false) {
         ignore_value = true;
@@ -589,7 +587,6 @@ export default {
         address_ids: [row.address_id],
         ignore_value: ignore_value
       };
-      console.log(row);
       this.$store.dispatch('addresses/IGNORE_ADDRESSES', details);
     },
     handleDelete(index, row) {
@@ -655,7 +652,6 @@ export default {
       }
     },
     onDetailsClick(value) {
-      console.log('closing details');
       this.addressDetails = {};
       this.addressSelected = false;
     }
@@ -670,7 +666,6 @@ export default {
   created() {},
   watch: {
     isUpdating(val, oldValue) {
-      console.log('new: ' + val + ' old: ' + oldValue);
       // reset the table data after we delete/ignore/unignore values
       if (val === false && oldValue === true) {
         this.pagination.lastIndex = 0;

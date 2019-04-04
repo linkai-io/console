@@ -5,8 +5,8 @@ import Vue from 'vue';
 const state = {
   subscriptions: [],
   user_timezone: '',
-  should_email_weekly: false,
-  should_email_daily: false,
+  should_weekly_email: false,
+  should_daily_email: false,
   events: [],
   markedReadEvents: [],
   isLoading: false,
@@ -103,8 +103,8 @@ const getters = {
   getMarkedRead: state => state.markedReadEvents,
   eventByTypeID: state => id =>
     state.eventSubscriptions.find(evt => evt.type_id === id),
-  shouldEmailDaily: state => state.should_email_daily,
-  shouldEmailWeekly: state => state.should_email_weekly,
+  shouldDailyEmail: state => state.should_daily_email,
+  shouldWeeklyEmail: state => state.should_weekly_email,
   userTimezone: state => state.user_timezone,
   isLoading: state => state.isLoading,
   isUpdating: state => state.isUpdating
@@ -317,8 +317,8 @@ const mutations = {
   },
   SET_SETTINGS(state, settings) {
     Vue.set(state, 'user_timezone', settings.user_timezone);
-    Vue.set(state, 'should_email_daily', settings.should_email_daily);
-    Vue.set(state, 'should_email_weekly', settings.should_email_weekly);
+    Vue.set(state, 'should_daily_email', settings.should_daily_email);
+    Vue.set(state, 'should_weekly_email', settings.should_weekly_email);
     for (let i = 0; i < state.userSubscriptions.length; i++) {
       for (let j = 0; j < settings.subscriptions.length; j++) {
         if (

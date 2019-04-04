@@ -35,13 +35,13 @@
             >Export selected</base-button>
             -->
             <div class="col-md-12 text-right">
-              <!-- <base-button
+              <base-button
                 type="secondary"
                 :round="true"
                 :loading="updating"
                 @click.native="handleExport"
               >Export all</base-button>
-              -->
+              
               <base-button
                 type="primary"
                 icon
@@ -241,7 +241,6 @@ export default {
       if (state === undefined) {
         return;
       }
-      console.log(state);
 
       this.loading = true;
       let limit = this.pagination.limit;
@@ -258,7 +257,6 @@ export default {
             }
           }
         );
-        console.log(response.data);
         if (response.data.hosts == null || response.data.hosts.length === 0) {
           state.complete();
           return;
@@ -315,7 +313,6 @@ export default {
     },
 
     handleIgnore(row) {
-      console.log(row);
       let ignore_value = false;
       if (row.ignored === false) {
         ignore_value = true;
@@ -325,7 +322,6 @@ export default {
         address_ids: [row.address_id],
         ignore_value: ignore_value
       };
-      console.log(row);
       this.$store.dispatch('addresses/IGNORE_ADDRESSES', details);
     },
     handleDelete(index, row) {
@@ -376,10 +372,9 @@ export default {
     handleExport() {
       let details = {
         group_id: this.group_id,
-        all_addresses: true
       };
 
-      this.$store.dispatch('addresses/EXPORT_ADDRESSES', details);
+      this.$store.dispatch('addresses/EXPORT_HOSTS', details);
       return true;
     },
     deleteRow(row) {

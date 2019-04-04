@@ -130,6 +130,26 @@ const actions = {
       }
     );
   },
+  EXPORT_HOSTS({ dispatch, commit }, details) {
+    commit('SET_IS_UPDATING', true);
+    API.get('/address/group/' + details.group_id + '/hosts/download', {
+      responseType: 'blob'
+    }).then(
+      resp => {
+        commit('SET_IS_UPDATING', false);
+        if (resp.data !== undefined) {
+          fileDownloader(
+            resp.data,
+            'hosts.' + details.group_id + '.json',
+            'application/octet-stream'
+          );
+        }
+      },
+      err => {
+        handleError(commit, dispatch, 'export hosts', err);
+      }
+    );
+  },
   EXPORT_ADDRESSES({ dispatch, commit }, details) {
     commit('SET_IS_UPDATING', true);
     API.post('/address/group/' + details.group_id + '/download', details, {
@@ -138,7 +158,6 @@ const actions = {
       resp => {
         commit('SET_IS_UPDATING', false);
         if (resp.data !== undefined) {
-          console.log('downloading file');
           fileDownloader(
             resp.data,
             'addresses.' + details.group_id + '.json',
@@ -147,7 +166,7 @@ const actions = {
         }
       },
       err => {
-        handleError(commit, dispatch, err);
+        handleError(commit, dispatch, 'export addresses', err);
       }
     );
   },
@@ -170,7 +189,7 @@ const actions = {
         }
       },
       err => {
-        handleError(commit, dispatch, err);
+        handleError(commit, dispatch, 'delete addresses', err);
       }
     );
   },
@@ -194,7 +213,7 @@ const actions = {
         }
       },
       err => {
-        handleError(commit, dispatch, err);
+        handleError(commit, dispatch, 'ignore addresses', err);
       }
     );
   },
@@ -251,13 +270,13 @@ const actions = {
           return;
         }
 
-        handleError(commit, dispatch, err);
+        handleError(commit, dispatch, 'upload to group', err);
       }
     );
   }
 };
 
-function handleError(commit, dispatch, err) {
+function handleError(commit, dispatch, action, err) {
   commit('SET_IS_UPLOADING', false);
   if (err.data !== undefined) {
     dispatch(
@@ -272,7 +291,7 @@ function handleError(commit, dispatch, err) {
     dispatch(
       'notify/CREATE_NOTIFY_MSG',
       {
-        msg: 'Failed to upload to group: ' + err.response.data.msg,
+        msg: 'Failed to ' + action + ': ' + err.response.data.msg,
         msgType: 'danger',
         msgTimeout: 8000
       },
@@ -282,7 +301,7 @@ function handleError(commit, dispatch, err) {
     dispatch(
       'notify/CREATE_NOTIFY_MSG',
       {
-        msg: 'Failed to upload to group: ' + err.message,
+        msg: 'Failed to ' + action + ': ' + err.message,
         msgType: 'danger'
       },
       { root: true }

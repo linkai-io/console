@@ -6,7 +6,7 @@
         <div class="col-md-2">
           <p class="category mt-2">Weekly Emails</p>
           <base-switch
-            v-model="settings.should_email_weekly"
+            v-model="settings.should_weekly_email"
             type="primary"
             on-text="ON"
             off-text="OFF"
@@ -14,7 +14,7 @@
 
           <p class="category mt-2">Daily Emails</p>
           <base-switch
-            v-model="settings.should_email_daily"
+            v-model="settings.should_daily_email"
             type="primary"
             on-text="ON"
             off-text="OFF"
@@ -74,7 +74,7 @@
         </div>
       </div>
 
-      <base-button native-type="submit" type="primary" :disabled="isUpdating" class="btn-fill">Save</base-button>
+      <base-button native-type="submit" type="primary" :disabled="isUpdating || isLoading" class="btn-fill">Save</base-button>
     </form>
   </card>
 </template>
@@ -92,8 +92,8 @@ export default {
   },
   computed: {
     ...mapGetters('event', [
-      'shouldEmailDaily',
-      'shouldEmailWeekly',
+      'shouldDailyEmail',
+      'shouldWeeklyEmail',
       'eventByTypeID',
       'userTimezone',
       'userSubscriptions',
@@ -578,9 +578,9 @@ export default {
       ],
       settings: {
         weekly_report_day: 0,
-        should_email_weekly: false,
+        should_weekly_email: false,
         daily_report_hour: 0,
-        should_email_daily: false,
+        should_daily_email: false,
         user_timezone: ''
       }
     };
@@ -603,8 +603,8 @@ export default {
   },
   mounted() {
     this.$store.dispatch('event/GET_SETTINGS');
-    this.settings.should_email_weekly = this.shouldEmailWeekly;
-    this.settings.should_email_daily = this.shouldEmailDaily;
+    this.settings.should_weekly_email = this.shouldWeeklyEmail;
+    this.settings.should_daily_email = this.shouldDailyEmail;
     this.settings.user_timezone = this.userTimezone;
   }
 };

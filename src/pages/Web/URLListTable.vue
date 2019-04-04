@@ -257,13 +257,11 @@ export default {
   },
   methods: {
     log(val) {
-      console.log(val);
     },
     async getTableData(state) {
       if (state === undefined) {
         return;
       }
-      console.log(state);
 
       this.loading = true;
       let limit = this.pagination.limit;

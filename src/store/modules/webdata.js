@@ -148,7 +148,7 @@ function handleError(commit, dispatch, err) {
     dispatch(
       'notify/CREATE_NOTIFY_MSG',
       {
-        msg: 'Failed to upload to group: ' + err.response.data.msg,
+        msg: 'Request failed: ' + err.response.data.msg,
         msgType: 'danger'
       },
       { root: true }
@@ -166,7 +166,7 @@ function handleError(commit, dispatch, err) {
     dispatch(
       'notify/CREATE_NOTIFY_MSG',
       {
-        msg: 'Failed to upload to group: ' + err.message,
+        msg: 'Request failed: ' + err.message,
         msgType: 'danger'
       },
       { root: true }

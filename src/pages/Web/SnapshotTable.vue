@@ -316,7 +316,6 @@ export default {
       }
     },
     handleSelectionChange(val) {
-      console.log(val);
       this.multipleSelection = val;
     },
     async getTableData(state) {

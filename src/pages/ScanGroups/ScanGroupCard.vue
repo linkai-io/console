@@ -440,7 +440,6 @@ export default {
         group_id: this.group.group_id,
         addresses: this.text_addresses
       };
-      console.log(details.addresses);
       this.$store.dispatch('addresses/UPLOAD_ADDRESSES', details);
 
     },
@@ -461,13 +460,11 @@ export default {
         group_id: this.group.group_id,
         status: 'pause'
       };
-      console.log(details);
       this.$store.dispatch('scangroup/UPDATE_GROUP_STATUS', details);
       return;
     },
     resumeGroup() {
       this.modals.resume = false;
-      console.log('resuming group');
       if (this.group.group_name != this.model.group_name) {
         // notify
         return;
@@ -477,7 +474,6 @@ export default {
         group_id: this.group.group_id,
         status: 'resume'
       };
-      console.log(details);
       this.$store.dispatch('scangroup/UPDATE_GROUP_STATUS', details);
     },
     deleteGroup() {
@@ -499,7 +495,6 @@ export default {
     },
     onFileChange(file) {
       this.file = file;
-      console.log('file changed');
     },
     validate() {
       this.$validator.validateAll().then(isValid => {

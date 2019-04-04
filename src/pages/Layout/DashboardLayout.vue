@@ -253,11 +253,12 @@ export default {
     }
   },
   created() {
+    
+  },
+  mounted() {
     this.$store.dispatch('scangroup/GET_GROUPS');
     this.$store.dispatch('scangroup/GET_GROUP_STATS');
     this.$store.dispatch('event/GET_EVENTS');
-  },
-  mounted() {
     initScrollbar('sidebar-wrapper');
 
     this.$watch('getMsg', msg => {

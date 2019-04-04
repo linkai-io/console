@@ -6,7 +6,14 @@
       </td>
       <td>
         <p class="title">{{ formatTimestamp(row.event_timestamp) }} - {{ formatTitle(row) }}</p>
-        <div class="notification-text">{{ formatNotification(row) }}</div>
+        <div v-if="row.type_id === 100">
+          <div v-for="(data, index) in formatEventLinks(row.data)" :key="index">
+            <a :href="data.url">{{data.url}}</a>
+            on port {{data.port}}
+            <br>
+          </div>
+        </div>
+        <div v-else class="notification-text">{{ formatNotification(row) }}</div>
       </td>
     </template>
   </base-table>
@@ -63,6 +70,21 @@ export default {
     },
     formatTimestamp(ts) {
       return unixNanoToMinMonthDay(ts);
+    },
+    formatEventLinks(data) {
+      if (data.length % 2 !== 0) {
+        return [{ url: 'unknown data returned', port: 0 }];
+      }
+      var results = [];
+
+      for (let i = 0; i < data.length; i += 2) {
+        if (!data[i].startsWith('http')) {
+          results.push({ url: 'http://' + data[i], port: data[i + 1] });
+        } else {
+          results.push({ url: data[i], port: data[i + 1] });
+        }
+      }
+      return results;
     },
     formatNotification(row) {
       let val = '';
@@ -133,7 +155,7 @@ export default {
         difference += days + ' days ';
       }
       if (hours > 0) {
-        difference += hours + " hours";
+        difference += hours + ' hours';
       }
       return difference;
     }

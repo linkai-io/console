@@ -351,7 +351,6 @@ export default {
       if (state === undefined) {
         return;
       }
-      console.log(state);
 
       this.loading = true;
       let limit = this.pagination.limit;
