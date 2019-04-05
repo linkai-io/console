@@ -96,8 +96,11 @@ const getters = {
 
 function findStatByID(stats, group_id, key) {
   for (let i = 0; i < stats.length; i++) {
+    if (stats[i][key] === undefined || stats[i][key] === null) {
+      continue;
+    }
     if (stats[i].group_id == group_id) {
-      return state.addressStats[i][key];
+      return stats[i][key];
     }
   }
   return [];
@@ -105,9 +108,18 @@ function findStatByID(stats, group_id, key) {
 
 function findAggTimeByID(stats, group_id, key) {
   for (let i = 0; i < stats.length; i++) {
+    if (
+      stats[i].aggregates === null ||
+      stats[i].aggregates[key] === undefined ||
+      stats[i].aggregates[key] === null
+    ) {
+      continue;
+    }
+
     if (stats[i].group_id == group_id) {
-      console.log('searching/found gid: ' + group_id);
-      return state.addressStats[i].aggregates[key].time;
+      return state.addressStats[i].aggregates[key].time
+        .map(v => unixNanoToMinMonthDay(v))
+        .reverse();
     }
   }
   return [];
@@ -115,19 +127,18 @@ function findAggTimeByID(stats, group_id, key) {
 
 function findAggCountByID(stats, group_id, key) {
   for (let i = 0; i < stats.length; i++) {
+    if (
+      stats[i].aggregates === null ||
+      stats[i].aggregates[key] === undefined ||
+      stats[i].aggregates[key] === null
+    ) {
+      continue;
+    }
     if (stats[i].group_id == group_id) {
-      console.log('searching/found gid: ' + group_id);
-      return state.addressStats[i].aggregates[key].count;
+      return state.addressStats[i].aggregates[key].count.map(v => v).reverse();
     }
   }
   return [];
-}
-
-function sumFields(stats, key) {
-  if (stats.length === 0) {
-    return 0;
-  }
-  return stats.reduce((acc, group) => (acc += group[key]));
 }
 
 function mergeAggregates(stats, key) {
@@ -368,7 +379,10 @@ const mutations = {
     state.isLoadingStats = details;
   },
   SET_STATS(state, details) {
-    state.addressStats = details;
+    for (let i = 0; i < details.length; i++) {
+      console.log('setting' + details[i].group_id);
+      Vue.set(state.addressStats, i, details[i]);
+    }
   },
   SET_IS_UPLOADING(state, details) {
     state.isUploading = details;

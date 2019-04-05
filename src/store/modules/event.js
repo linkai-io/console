@@ -319,6 +319,7 @@ const mutations = {
     Vue.set(state, 'user_timezone', settings.user_timezone);
     Vue.set(state, 'should_daily_email', settings.should_daily_email);
     Vue.set(state, 'should_weekly_email', settings.should_weekly_email);
+    console.log(state);
     for (let i = 0; i < state.userSubscriptions.length; i++) {
       for (let j = 0; j < settings.subscriptions.length; j++) {
         if (

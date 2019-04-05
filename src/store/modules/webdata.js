@@ -195,7 +195,9 @@ const mutations = {
     state.isLoadingStats = details;
   },
   SET_STATS(state, details) {
-    state.webDataStats = details;
+    for (let i = 0; i < details.length; i++) {
+      Vue.set(state.webDataStats, i, details[i]);
+    }
   },
   SET_IS_UPLOADING(state, details) {
     state.isUploading = details;

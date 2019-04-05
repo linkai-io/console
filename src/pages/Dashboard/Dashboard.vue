@@ -220,19 +220,6 @@ export default {
       this.$store.dispatch('settings/UPDATE_SHOW_HOME', val);
     },
   },
-  watch: {
-    isLoadingAddressStats(val, oldValue) {
-      if (val === false && oldValue === true) {
-        //this.initBigChart(0);
-        //this.initDiscoveryChart();
-      }
-    },
-    isLoadingWebDataStats(val, oldValue) {
-      if (val === false && oldValue === true) {
-        //this.initServerTypeChart();
-      }
-    }
-  },
   created() {},
   mounted() {
     initScrollbar('table-notifications');

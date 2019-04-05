@@ -6,7 +6,8 @@
         <div class="col-md-2">
           <p class="category mt-2">Weekly Emails</p>
           <base-switch
-            v-model="settings.should_weekly_email"
+            ref="weeklyCheck"
+            v-model="should_weekly_email"
             type="primary"
             on-text="ON"
             off-text="OFF"
@@ -14,7 +15,8 @@
 
           <p class="category mt-2">Daily Emails</p>
           <base-switch
-            v-model="settings.should_daily_email"
+            ref="dailyCheck"
+            v-model="should_daily_email"
             type="primary"
             on-text="ON"
             off-text="OFF"
@@ -22,10 +24,11 @@
 
           <p class="category mt-2">Timezone</p>
           <el-select
+            ref="timezoneInput"
             class="select-primary"
             size="large"
             placeholder="Choose a timezone"
-            v-model="settings.user_timezone"
+            v-model="user_timezone"
           >
             <el-option
               v-for="option in timezones"
@@ -38,7 +41,7 @@
           <p class="category mt-2">Find Timezone</p>
           <base-button
             @click.native="findCurrentTimeZone">
-            Use Local Time
+            Detect Timezone
           </base-button>
         </div>
 
@@ -101,6 +104,7 @@ export default {
       'isUpdating'
     ])
   },
+  
   data() {
     return {
       timezones: [
@@ -576,21 +580,21 @@ export default {
         { value: 'Pacific/Wallis', label: 'Pacific/Wallis' },
         { value: 'UTC', label: 'UTC' }
       ],
-      settings: {
-        weekly_report_day: 0,
-        should_weekly_email: false,
-        daily_report_hour: 0,
-        should_daily_email: false,
-        user_timezone: ''
-      }
+      should_weekly_email: false,
+      should_daily_email: false,
+      user_timezone: ''
     };
   },
   methods: {
     updateSettings() {
-      this.$store.dispatch('event/UPDATE_SETTINGS', this.settings);
+      this.$store.dispatch('event/UPDATE_SETTINGS', {
+        weekly_report_day: 0,
+        should_weekly_email: this.should_weekly_email,
+        daily_report_hour: 0,
+        should_daily_email: this.should_daily_email,
+        user_timezone: this.user_timezone
+      });
     },
-    isSubscribed(type_id) {},
-
     subscribe(row, value) {
       this.$store.dispatch('event/EDIT_SUBSCRIPTION', {
         type_id: row.type_id,
@@ -598,14 +602,29 @@ export default {
       });
     },
     findCurrentTimeZone() {
-      this.settings.user_timezone = new Intl.DateTimeFormat().resolvedOptions().timeZone;
+      this.user_timezone = new Intl.DateTimeFormat().resolvedOptions().timeZone;
+    },
+    setModel() {
+      this.should_weekly_email = this.shouldWeeklyEmail;
+      this.should_daily_email = this.shouldDailyEmail;
+      this.user_timezone = this.userTimezone;
     }
+  },
+  watch: {
+    isLoading(val, oldValue) {
+      if (val === false && oldValue === true) {
+        this.setModel();
+      }
+    }
+  },
+  created() {
+    
   },
   mounted() {
     this.$store.dispatch('event/GET_SETTINGS');
-    this.settings.should_weekly_email = this.shouldWeeklyEmail;
-    this.settings.should_daily_email = this.shouldDailyEmail;
-    this.settings.user_timezone = this.userTimezone;
+    this.should_weekly_email = this.shouldWeeklyEmail;
+    this.should_daily_email = this.shouldDailyEmail;
+    this.user_timezone = this.userTimezone;
   }
 };
 </script>

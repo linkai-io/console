@@ -128,6 +128,13 @@ export default {
       this.assetChart.activeIndex = index;
     }
   },
+  watch: {
+    isLoadingAddressStats(val, oldValue) {
+      if (val === false && oldValue === true) {
+        this.initAssetChart(0);
+      }
+    }
+  },
   mounted() {
     this.initAssetChart(0);
   }

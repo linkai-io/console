@@ -76,6 +76,13 @@ export default {
       return this.discoveredByCountByID(this.group_id);
     },
   },
+  watch: {
+    isLoadingAddressStats(val, oldValue) {
+      if (val === false && oldValue === true) {
+        this.initDiscoveryChart();
+      }
+    }
+  },
   methods: {
     initDiscoveryChart() {
       let chartData = {

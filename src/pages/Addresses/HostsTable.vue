@@ -244,14 +244,14 @@ export default {
 
       this.loading = true;
       let limit = this.pagination.limit;
-      let start = this.pagination.lastIndex;
+      let start = this.pagination.lastHost;
 
       try {
         let response = await API.get(
           '/address/group/' + this.group_id + '/hosts',
           {
             params: {
-              start: start,
+              start_host: start,
               limit: limit,
               above_confidence: 99
             }
@@ -264,17 +264,20 @@ export default {
         this.tableData.push(...response.data.hosts);
         state.loaded();
 
-        this.pagination.lastIndex = response.data.last_index;
+        this.pagination.lastHost = response.data.last_host;
         this.pagination.count = this.tableData.length;
+      } catch(err) {
+        console.log(err);
+        state.complete();
       } finally {
         this.loading = false;
       }
     },
     refreshTable() {
-      // force reset
       this.pagination.lastIndex = 0;
       this.tableData = [];
-      this.getTableData(this.$refs.infiniteLoader.stateChanger);
+      let state = this.$refs.infiniteLoader.stateChanger;
+      state.reset();
     },
     formatColumn(row, column, cellValue, index) {
       switch (column.property) {
@@ -292,7 +295,6 @@ export default {
       }
       return cellValue;
     },
-
     setIgnoreIcon(row) {
       return !row.ignored;
     },

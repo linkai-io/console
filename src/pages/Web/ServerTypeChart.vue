@@ -65,7 +65,6 @@ export default {
       'webServerTypeCountsByID'
     ]),
     serverTypes() {
-      console.log(this.webServerTypesByID(this.group_id));
       if (this.webServerTypesByID(this.group_id) === undefined) {
         return [];
       }
@@ -82,6 +81,13 @@ export default {
       return len > 10
         ? this.webServerTypeCountsByID(this.group_id).slice().splice(0, 10)
         : this.webServerTypeCountsByID(this.group_id);
+    }
+  },
+  watch: {
+    isLoadingWebDataStats(val, oldValue) {
+      if (val === false && oldValue === true) {
+        this.initServerTypeChart();
+      }
     }
   },
   methods: {
