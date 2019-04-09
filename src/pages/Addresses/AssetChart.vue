@@ -95,7 +95,6 @@ export default {
         this.seenTrihourlyCountByID(this.group_id),
         this.scannedTrihourlyCountByID(this.group_id),
       ];
-      console.log(this.discoveryTrihourlyCountByID(this.group_id));
 
       var labels = [
         this.discoveryTrihourlyTimeByID(this.group_id),

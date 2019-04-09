@@ -380,7 +380,6 @@ const mutations = {
   },
   SET_STATS(state, details) {
     for (let i = 0; i < details.length; i++) {
-      console.log('setting' + details[i].group_id);
       Vue.set(state.addressStats, i, details[i]);
     }
   },

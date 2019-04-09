@@ -187,7 +187,9 @@
                     </div>
                   </div>
                   <div v-else-if="column.prop === 'raw_body_link'">
-                    <a :href="'/app/data/'+scope.row.raw_body_link">{{ scope.row.raw_body_hash }}</a>
+                    <a :href="'/app/data/'+scope.row.raw_body_link">
+                      <i class="tim-icons icon-cloud-download-93"></i>
+                    </a>
                   </div>
                   <div v-else-if="column.prop === 'headers'">
                     <div v-for="(value, key, index) in scope.row.headers" v-bind:key="index">
@@ -313,7 +315,7 @@ export default {
         {
           prop: 'url',
           label: 'URL',
-          minWidth: 100
+          minWidth: 80
         },
         {
           prop: 'response_port',
@@ -331,13 +333,13 @@ export default {
           minWidth: 80
         },
         {
-          prop: 'raw_body_link',
-          label: 'Link to Data',
+          prop: 'response_timestamp',
+          label: 'Time Taken',
           minWidth: 50
         },
         {
-          prop: 'response_timestamp',
-          label: 'Time Taken',
+          prop: 'raw_body_link',
+          label: 'Download',
           minWidth: 50
         }
       ],
@@ -534,4 +536,6 @@ export default {
   overflow: hidden;
   position: relative;
 }
+
+
 </style>

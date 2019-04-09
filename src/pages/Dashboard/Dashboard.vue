@@ -31,7 +31,6 @@
       </collapse>
     </card>
 
-    
     <!-- stat cards -->
     <div class="row">
       <div class="col-lg-3 col-md-3 d-flex">
@@ -99,38 +98,38 @@
               <a class="dropdown-item" @click="sendOnlyMarkedRead">Mark selected as read</a>
               <a class="dropdown-item" @click="sendAllRead">Mark all as read</a>
             </base-dropdown>
-          </template>                                                                                                                   
+          </template>
           <div class="table-full-width table-responsive table-notifications">
             <event-notifications></event-notifications>
           </div>
         </card>
       </div>
     </div>
-    
+
     <div v-if="hasGroups">
-      <tabs type="primary" tabContentClasses="col-lg-12 col-md-12 d-flex"
-              square
-              centered
-              class="row">                                    
-              <tab-pane v-for="(group, key) in this.groups" :key="key" :label="group.group_name">
-                  <asset-chart v-bind:group_id="group.group_id" v-bind:group_name="group.group_name"></asset-chart>
-                  <div class="row">
-                    <div class="col-md-6 mr-auto">
-                      <discovered-by-chart v-bind:group_id="group.group_id"></discovered-by-chart>
-                    </div>
-                    <div class="col-md-6 mr-auto">
-                      <server-type-chart v-bind:group_id="group.group_id"></server-type-chart>
-                    </div>
-                  </div>
-              </tab-pane>
-        </tabs>
+      <tabs
+        type="primary"
+        tabContentClasses="col-lg-12 col-md-12 d-flex"
+        square
+        centered
+        class="row"
+      >
+        <tab-pane v-for="(group, key) in this.groups" :key="key" :label="group.group_name">
+          <asset-chart v-bind:group_id="group.group_id" v-bind:group_name="group.group_name"></asset-chart>
+          <div class="row">
+            <div class="col-md-6 mr-auto">
+              <discovered-by-chart v-bind:group_id="group.group_id"></discovered-by-chart>
+            </div>
+            <div class="col-md-6 mr-auto">
+              <server-type-chart v-bind:group_id="group.group_id"></server-type-chart>
+            </div>
+          </div>
+        </tab-pane>
+      </tabs>
     </div>
   </div>
 </template>
 <script>
-
-
-import * as chartConfigs from '@/components/Charts/config';
 import StatsCard from 'src/components/Cards/StatsCard';
 import EventNotifications from 'src/pages/Events/EventNotifications.vue';
 import AssetChart from 'src/pages/Addresses/AssetChart.vue';
@@ -138,12 +137,8 @@ import DiscoveredByChart from 'src/pages/Addresses/DiscoveredByChart.vue';
 import ServerTypeChart from 'src/pages/Web/ServerTypeChart.vue';
 import { mapGetters } from 'vuex';
 import { TabPane, Tabs, Collapse, CollapseItem } from 'src/components';
-import config from '@/config';
 import PerfectScrollbar from 'perfect-scrollbar';
 import 'perfect-scrollbar/css/perfect-scrollbar.css';
-
-const typesIndex = 0;
-const valuesIndex = 1;
 
 function hasElement(className) {
   return document.getElementsByClassName(className).length > 0;
@@ -178,9 +173,7 @@ export default {
   data() {
     return {
       addressStatsLoaded: false,
-      webStatsLoaded: false,
-      
-      
+      webStatsLoaded: false
     };
   },
   computed: {
@@ -205,9 +198,7 @@ export default {
     },
     hasGroups() {
       return Object.entries(this.groups).length !== 0;
-    },
-    
-    
+    }
   },
   methods: {
     sendAllRead() {
@@ -218,7 +209,7 @@ export default {
     },
     onClickShowHome(val) {
       this.$store.dispatch('settings/UPDATE_SHOW_HOME', val);
-    },
+    }
   },
   created() {},
   mounted() {

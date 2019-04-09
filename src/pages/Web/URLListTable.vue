@@ -106,7 +106,7 @@
                         :label="requestColumn.label"
                       >
                         <template slot-scope="nestedScope">
-                          <div v-if="requestColumn.prop === 'url'">{{ nestedScope.row.url }}</div>
+                          <div v-if="requestColumn.prop === 'url'"><a :href="nestedScope.row.url">{{ nestedScope.row.url }}</a></div>
                           <div
                             v-else-if="requestColumn.prop === 'mime_type'"
                           >{{ nestedScope.row.mime_type }}</div>
@@ -245,7 +245,7 @@ export default {
           minWidth: 130
         },
         {
-          label: 'Raw Data',
+          label: 'Download',
           prop: 'raw_body_link',
           minWidth: 50
         }

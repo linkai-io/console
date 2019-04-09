@@ -110,7 +110,7 @@
                     <tech-data v-bind="techDataForRow(scope.row)"></tech-data>
                   </div>
 
-                  <div v-else-if="column.prop === 'actions'">
+                  <div v-else-if="column.prop === 'download'">
                     <el-tooltip
                       content="Download Serialized HTML"
                       effect="light"
@@ -224,7 +224,7 @@ export default {
         {
           prop: 'snapshot_link',
           label: 'Image',
-          minWidth: 60
+          minWidth: 50
         },
         {
           prop: 'host_address',
@@ -249,12 +249,12 @@ export default {
         {
           prop: 'response_timestamp',
           label: 'Time Taken',
-          minWidth: 50
+          minWidth: 40
         },
         {
-          prop: 'actions',
-          label: 'Actions',
-          minWidth: 20
+          prop: 'download',
+          label: 'Download',
+          minWidth: 50
         }
       ],
       tableData: [],
