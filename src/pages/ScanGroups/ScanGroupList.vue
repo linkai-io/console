@@ -21,7 +21,7 @@
     <div v-else-if="!hasGroups" class="col-md-6">
       <p>You have no groups, create one now.</p>
     </div>
-    <div v-else class="row" v-for="(value, key) in groups" :key="key">
+    <div v-else class="row" v-for="value in groups" :key="value.group_id">
       <scan-group-card :group="value"></scan-group-card>
     </div>
   </div>

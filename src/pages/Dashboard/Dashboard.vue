@@ -110,11 +110,12 @@
       <tabs
         type="primary"
         tabContentClasses="col-lg-12 col-md-12 d-flex"
+        tabNavClasses=""
         square
         centered
         class="row"
       >
-        <tab-pane v-for="(group, key) in this.groups" :key="key" :label="group.group_name">
+        <tab-pane v-for="group in this.groups" :key="group.group_id" :label="group.group_name" :id="group.group_id">
           <asset-chart v-bind:group_id="group.group_id" v-bind:group_name="group.group_name"></asset-chart>
           <div class="row">
             <div class="col-md-6 mr-auto">

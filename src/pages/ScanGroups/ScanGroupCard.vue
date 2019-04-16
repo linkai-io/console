@@ -4,8 +4,8 @@
       <form class="form-horizontal">
         <card>
           <div class="row">
-            <base-alert type="default" icon="tim-icons icon-bell-55" v-if="addrCount === 0">
-              <div class="col-md-auto">
+            <base-alert type="default" icon="tim-icons icon-bell-55">
+              <div class="col-md-auto" v-if="addrCount === 0">
                 <span>This scan group does not have any addresses associated with it, either type in or upload the initial addresses for this group.</span>
               </div>
 

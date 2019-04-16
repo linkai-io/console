@@ -284,7 +284,7 @@ const actions = {
   UPLOAD_ADDRESSES({ dispatch, commit }, details) {
     commit('SET_IS_UPLOADING', true);
     API.put(
-      '/address/group/' + details.group_id + '/initial',
+      '/address/group/' + details.group_id + '/add',
       details.addresses
     ).then(
       resp => {
