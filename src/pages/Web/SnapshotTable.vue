@@ -102,6 +102,9 @@
                   </div>
                   <div v-else-if="column.prop === 'url'">
                     <a :href="formatWebLink(scope.row.url)">{{ formatWebLink(scope.row.url)}}</a>
+                    <div v-if="scope.row.url !== scope.row.load_url && scope.row.load_url !== ''">
+                      redirected from: <br><a :href="formatWebLink(scope.row.load_url)">{{ formatWebLink(scope.row.load_url) }}</a>
+                    </div>
                   </div>
                   <div v-else-if="column.prop ==='snapshot_link'">
                     <img :src="'/app/data/'+scope.row.snapshot_link">
