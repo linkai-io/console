@@ -95,10 +95,15 @@
               class="float-right"
             >
               <i slot="title" class="tim-icons icon-settings-gear-63"></i>
+             
               <a class="dropdown-item" @click="sendOnlyMarkedRead">Mark selected as read</a>
               <a class="dropdown-item" @click="sendAllRead">Mark all as read</a>
+              <a class="dropdown-item" @click="configureNotifications">Configure notifications</a>
             </base-dropdown>
           </template>
+          <div v-if="!hasSubscriptions" class="row">
+              <p class="col-sm">You do not currently have any notifications enabled</p>
+          </div>
           <div class="table-full-width table-responsive table-notifications">
             <event-notifications></event-notifications>
           </div>
@@ -178,7 +183,7 @@ export default {
     };
   },
   computed: {
-    ...mapGetters('event', ['events']),
+    ...mapGetters('event', ['events', 'hasSubscriptions']),
     ...mapGetters('scangroup', ['groups']),
     ...mapGetters('settings', ['shouldShowHome']),
     ...mapGetters('addresses', [
@@ -210,6 +215,9 @@ export default {
     },
     onClickShowHome(val) {
       this.$store.dispatch('settings/UPDATE_SHOW_HOME', val);
+    },
+    configureNotifications() {
+      this.$router.push('/settings');
     }
   },
   created() {},

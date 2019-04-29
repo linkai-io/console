@@ -100,6 +100,8 @@ const state = {
 const getters = {
   events: state => state.events,
   userSubscriptions: state => state.userSubscriptions,
+  hasSubscriptions: state =>
+    state.userSubscriptions.find(evt => evt.subscribed === true) !== undefined,
   getMarkedRead: state => state.markedReadEvents,
   eventByTypeID: state => id =>
     state.eventSubscriptions.find(evt => evt.type_id === id),
