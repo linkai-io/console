@@ -5,11 +5,16 @@ import NotFound from 'src/pages/GeneralViews/NotFoundPage.vue';
 
 // Dashboard pages
 const Dashboard = () =>
-  import(/* webpackChunkName: "dashboard" */ 'src/pages/Dashboard/Dashboard.vue');
+  import(
+    /* webpackChunkName: "dashboard" */ 'src/pages/Dashboard/Dashboard.vue'
+  );
 
 // Pages
 const User = () =>
   import(/* webpackChunkName: "pages" */ 'src/pages/UserProfile.vue');
+
+const Agreement = () =>
+  import(/* webpackChunkName: "pages" */ 'src/pages/UserProfile/Agreement.vue');
 
 // Hakken pages
 const ScanGroup = () =>
@@ -22,7 +27,9 @@ const Addresses = () =>
   import(/* webpackChunkName: "pages" */ 'src/pages/Addresses.vue');
 
 const AddressTable = () =>
-  import(/* webpackChunkName: "pages" */ 'src/pages/Addresses/AddressTable.vue');
+  import(
+    /* webpackChunkName: "pages" */ 'src/pages/Addresses/AddressTable.vue'
+  );
 
 const HostsTable = () =>
   import(/* webpackChunkName: "pages" */ 'src/pages/Addresses/HostsTable.vue');
@@ -70,6 +77,11 @@ const routes = [
         path: 'user',
         name: 'User Page',
         components: { default: User }
+      },
+      {
+        path: 'agreement',
+        name: 'Beta User Agreement',
+        components: { default: Agreement }
       },
       {
         path: 'groups',

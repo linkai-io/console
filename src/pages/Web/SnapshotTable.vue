@@ -102,7 +102,7 @@
                   </div>
                   <div v-else-if="column.prop === 'url'">
                     <a :href="formatWebLink(scope.row.url)">{{ formatWebLink(scope.row.url)}}</a>
-                    <div v-if="scope.row.url !== scope.row.load_url && scope.row.load_url !== ''">
+                    <div v-if="wasRedirect(scope.row)">
                       redirected from: <br><a :href="formatWebLink(scope.row.load_url)">{{ formatWebLink(scope.row.load_url) }}</a>
                     </div>
                   </div>
@@ -266,6 +266,9 @@ export default {
     };
   },
   methods: {
+    wasRedirect(row) { 
+      return (scope.row.url !== scope.row.load_url && scope.row.load_url !== '' && scope.row.url !== scope.row.load_url+'/');
+    },
     formatWebLink(value) {
       return formatWebLink(value);
     },

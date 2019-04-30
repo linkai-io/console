@@ -93,13 +93,23 @@
                 @click.native.prevent="validate"
                 type="primary"
                 :loading="isCreating"
-                :disabled="!canCreate"
+                :disabled="!canCreate || !hasAccepted"
                 class="mb-3" 
                 size="md">
                 Create
               </base-button>
             </div>
           
+          <base-alert v-if="!hasAccepted" type="default" dismissible icon="tim-icons icon-alert-circle-exc">
+            Unable to create new scan group because the user has not accepted the Beta Agreement.<br> 
+            <base-button
+              native-type="button"
+              :block="false"
+              type="danger"
+              @click.native="goto"
+              >Go to Agreement</base-button>
+          </base-alert>
+
           <base-alert v-if="!canCreate" type="default" dismissible icon="tim-icons icon-alert-circle-exc">
             The maximum number of scan groups for this pricing plan has been reached.
           </base-alert>
@@ -146,6 +156,7 @@ export default {
     ...mapState('scangroup', ['isCreating', 'creationMsg', 'groupCreated']),
     ...mapGetters('auth', ['subscriptionID']),
     ...mapGetters('scangroup', ['groups']),
+    ...mapGetters('user', ['hasAccepted']),
     canCreate: function() {
       switch (this.subscriptionID) {
         case '101':
@@ -153,10 +164,14 @@ export default {
           case '102':
           return Object.entries(this.groups).length >= 3 ? false : true;
       }
+      
       return true;
     }
   },
   methods: {
+    goto() {
+      this.$router.push('/agreement');
+    },
     created() {},
     getError(fieldName) {
       return this.errors.first(fieldName);
