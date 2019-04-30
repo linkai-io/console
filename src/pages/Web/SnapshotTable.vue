@@ -44,6 +44,22 @@
                   </el-tooltip>
                 </div>
 
+                <div class="col-md-2 d-flex">
+                  <el-tooltip
+                    content="Only return responses that were found using the following technology"
+                    effect="light"
+                    :open-delay="150"
+                    placement="bottom"
+                  >
+                    <base-input
+                      label="Matches technology"
+                      v-model="filter.tech_type"
+                      type="text"
+                      placeholder="jquery"
+                    ></base-input>
+                  </el-tooltip>
+                </div>
+
                 <div class="col-md-2 d-flex align-bottom">
                   <base-input class="mt-3">
                     <base-button
@@ -267,7 +283,7 @@ export default {
   },
   methods: {
     wasRedirect(row) { 
-      return (scope.row.url !== scope.row.load_url && scope.row.load_url !== '' && scope.row.url !== scope.row.load_url+'/');
+      return (row.url !== row.load_url && row.load_url !== '' && row.url !== row.load_url+'/');
     },
     formatWebLink(value) {
       return formatWebLink(value);

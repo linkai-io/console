@@ -95,14 +95,14 @@
               class="float-right"
             >
               <i slot="title" class="tim-icons icon-settings-gear-63"></i>
-             
+
               <a class="dropdown-item" @click="sendOnlyMarkedRead">Mark selected as read</a>
               <a class="dropdown-item" @click="sendAllRead">Mark all as read</a>
               <a class="dropdown-item" @click="configureNotifications">Configure notifications</a>
             </base-dropdown>
           </template>
           <div v-if="!hasSubscriptions" class="row">
-              <p class="col-sm">You do not currently have any notifications enabled</p>
+            <p class="col-sm">You do not currently have any notifications enabled</p>
           </div>
           <div class="table-full-width table-responsive table-notifications">
             <event-notifications></event-notifications>
@@ -115,12 +115,17 @@
       <tabs
         type="primary"
         tabContentClasses="col-lg-12 col-md-12 d-flex"
-        tabNavClasses=""
+        tabNavClasses
         square
         centered
         class="row"
       >
-        <tab-pane v-for="group in this.groups" :key="group.group_id" :label="group.group_name" :id="group.group_id">
+        <tab-pane
+          v-for="group in this.groups"
+          :key="group.group_id"
+          :label="group.group_name"
+          :id="group.group_id"
+        >
           <asset-chart v-bind:group_id="group.group_id" v-bind:group_name="group.group_name"></asset-chart>
           <div class="row">
             <div class="col-md-6 mr-auto">
@@ -128,6 +133,18 @@
             </div>
             <div class="col-md-6 mr-auto">
               <server-type-chart v-bind:group_id="group.group_id"></server-type-chart>
+            </div>
+            <!-- tech data table -->
+              <div class="col-lg-12 col-md-12 d-flex">
+                <card type="notifications">
+                  <template slot="header">
+                    <h6 class="title d-inline">Technology Data</h6>
+                    <p class="card-category d-inline"></p>
+                  </template>
+                  <div>
+                    <tech-table v-bind:group_id="group.group_id"></tech-table>
+                  </div>
+                </card>
             </div>
           </div>
         </tab-pane>
@@ -141,6 +158,8 @@ import EventNotifications from 'src/pages/Events/EventNotifications.vue';
 import AssetChart from 'src/pages/Addresses/AssetChart.vue';
 import DiscoveredByChart from 'src/pages/Addresses/DiscoveredByChart.vue';
 import ServerTypeChart from 'src/pages/Web/ServerTypeChart.vue';
+import TechTable from 'src/pages/Web/TechTable.vue';
+
 import { mapGetters } from 'vuex';
 import { TabPane, Tabs, Collapse, CollapseItem } from 'src/components';
 import PerfectScrollbar from 'perfect-scrollbar';
@@ -173,6 +192,7 @@ export default {
     DiscoveredByChart,
     ServerTypeChart,
     StatsCard,
+    TechTable,
     Collapse,
     CollapseItem
   },

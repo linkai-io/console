@@ -16,9 +16,9 @@
               @click.native="openLink(tech_data.tech_websites[idx])"
             >
               <a :href="tech_data.tech_websites[idx]">
-                <img height="16" width="16" :src="'img/tech/'+tech_data.tech_icons[idx]">
+                <div v-if="tech_data.tech_icons[idx] !== ''"><img height="16" width="16" :src="'img/tech/'+tech_data.tech_icons[idx]">&nbsp;</div>
               </a>
-              &nbsp;{{ tech_data.tech_names[idx] }}
+              {{ tech_data.tech_names[idx] }}
               <div
                 v-if="tech_data.tech_versions[idx] !== ''"
               >:&nbsp;{{tech_data.tech_versions[idx]}}</div>
