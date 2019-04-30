@@ -236,7 +236,8 @@ export default {
         count: 0
       },
       filter: {
-        host_address: ''
+        host_address: '',
+        tech_type: ''
       },
       searchQuery: '',
       tableColumns: [
@@ -360,6 +361,9 @@ export default {
       }
       if (this.filter.host_address !== '') {
         params.host_address = this.filter.host_address;
+      }
+      if (this.filter.tech_type !== '') {
+        params.tech_type = this.filter.tech_type;
       }
       try {
         let response = await API.get(

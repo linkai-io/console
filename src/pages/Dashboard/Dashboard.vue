@@ -138,7 +138,7 @@
               <div class="col-lg-12 col-md-12 d-flex">
                 <card type="notifications">
                   <template slot="header">
-                    <h6 class="title d-inline">Technology Data</h6>
+                    <h6 class="title d-inline">Technology Data (Last 7 Days)</h6>
                     <p class="card-category d-inline"></p>
                   </template>
                   <div>

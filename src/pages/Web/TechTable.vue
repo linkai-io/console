@@ -2,6 +2,15 @@
   <card card-body-classes="table-full-width">
     <div class="row">
       <div class="col-sm-12">
+        <div class="text-right">
+            <base-button
+                type="primary"
+                :round="false"
+                size="sm"
+                :loading="updating"
+                @click.native="downloadTechData"
+              >Export all</base-button>
+        </div>
         <!-- start table -->
         <el-table ref="techDataTable" :data="tableData">
           <el-table-column
@@ -59,6 +68,7 @@ import {
   Option
 } from 'element-ui';
 import InfiniteLoading from 'vue-infinite-loading';
+import { fileDownloader } from '../../data/downloader.js';
 import { mapGetters, mapState } from 'vuex';
 import { unixNanoToMinDate } from 'src/data/time.js';
 import { formatWebLink } from 'src/data/formatters.js';
@@ -146,6 +156,7 @@ export default {
           minWidth: 100
         }
       ],
+      downloadData: {},
       tableData: [],
       multipleSelection: [],
       fuseSearch: null
@@ -154,6 +165,9 @@ export default {
   methods: {
     openLink(link) {
       window.open(link, '_blank');
+    },
+    downloadTechData() {
+      fileDownloader(JSON.stringify(this.downloadData), 'webtech.json', 'application/octet-stream');
     },
     refreshTable() {
       // force reset
@@ -184,10 +198,11 @@ export default {
         if (response.data.technologies === null) {
           return;
         }
+        
+        this.downloadData = response.data;
         let tech = response.data.technologies;
-        console.log(tech);
         let tech_details = response.data.tech_details;
-        console.log(tech_details);
+
         Object.keys(tech_details).forEach(v => {
           this.tableData.push({
             technologies: v,
