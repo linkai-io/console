@@ -1,5 +1,38 @@
 <template>
   <div class="col-md-8">
+    <card>
+      <div class="card-header">
+        <h5 class="card-category">Scan Group</h5>
+        <h3 class="card-title">Configuration</h3>
+      </div>
+          <div class="card-body mt-0">
+            <h3>Creating a new scan group</h3>
+            <p>
+              Scan groups allow you to group domains or hosts to run independently of one another. While in beta, not all options are exposed nor are all user levels, making it potentially unclear as to the benefit of separating your hosts into different groups. If you are unsure, just put all of your assets into a single group.
+            </p>
+            <br>
+            <h4>Settings</h4>
+            <p>
+              <ul>
+                <li><b>Concurrent Requests</b> - This option limits how many hosts to analyze in parallel. </li>
+                <li><b>Custom Sub-Domains</b> - This option allows you to add environment specific sub domain names that will be prepended to all domains, and sub-domains found. For example, providing "gold, silver" 
+                to the custom sub domains would have the brute force module attempt: gold.example.com and silver.example.com. Note custom sub-domains are joined together with a built in list of commonly found sub-domains.</li>
+                <li><b>Custom Ports</b> - By default Hakken only attempts to connect to port 80 and 443 (tls). If you wish to find additional web sites on non-standard ports you can add them here. For example, providing "8000, 8080" would 
+                cause the web analysis module to attempt:
+                  <ul>
+                    <li>http://example.com</li>
+                    <li>https://example.com</li>
+                    <li>http://example.com:8000</li>
+                    <li>https://example.com:8080</li> 
+                    <li>http://example.com:8080</li>
+                    <li>https://example.com:8080</li>
+                  </ul>
+                </li>
+              </ul>
+            </p>
+          </div>
+    </card>
+
     <form class="form-horizontal">
       <card>
           <h4 slot="header" class="card-title">New Scan Group</h4>
@@ -27,7 +60,7 @@
 
             <div class="row">
               <el-tooltip
-                    content="Limit the number of concurrent addresses to be tested at the same time. NOTICE: During alpha this is limited to 5 per scan group"
+                    content="Limit the number of concurrent addresses to be tested at the same time. NOTICE: During beta this is limited to 10 per scan group"
                     effect="light"
                     :open-delay="150"
                     placement="right"
@@ -48,7 +81,7 @@
 
             <div class="row">
               <el-tooltip
-                    content="Prepend these subdomain prefixes to all hostnames."
+                    content="Prepend these subdomain prefixes to all hostnames, on top of the default 10,000 included"
                     effect="light"
                     :open-delay="150"
                     placement="right"
@@ -137,7 +170,7 @@ export default {
         group_name: '',
         custom_sub_names: [],
         custom_ports: [],
-        concurrent_requests: 5 // alpha restrictions
+        concurrent_requests: 5 // beta restriction to 10
       },
       modelValidations: {
         group_name: {
@@ -147,7 +180,7 @@ export default {
         concurrent_requests: {
           required: true,
           min_value: 1,
-          max_value: 5 // alpha restrictions
+          max_value: 10 // beta restrictions
         }
       }
     };

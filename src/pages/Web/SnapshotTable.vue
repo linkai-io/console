@@ -95,6 +95,18 @@
               </base-button>
             </div>
           </div>
+          <!--- show response data -->
+          <div id="response_details">
+            <div v-if="responseSelected === true">
+              <response-card @clicked="onResponseDetailsClick" :lookupFilter="responseDetails"></response-card>
+            </div>
+          </div>
+          <!--- show url data -->
+          <div id="url_details">
+            <div v-if="urlSelected === true">
+              <response-card @clicked="onURLDetailsClick" :lookupFilter="urlDetails"></response-card>
+            </div>
+          </div>
           <div class="col-sm-12">
             <!-- start table -->
             <el-table
@@ -102,6 +114,7 @@
               :data="tableData"
               @selection-change="handleSelectionChange"
             >
+            
               <el-table-column
                 v-for="column in tableColumns"
                 :key="column.label"
@@ -129,7 +142,43 @@
                     <tech-data v-bind="techDataForRow(scope.row)"></tech-data>
                   </div>
 
-                  <div v-else-if="column.prop === 'download'">
+                  <div v-else-if="column.prop === 'actions'">
+                    
+                    <!-- view response -->
+                    <el-tooltip
+                      content="View This Response"
+                      effect="light"
+                      :open-delay="150"
+                      placement="top"
+                    >
+                      <base-button
+                      type="info"
+                      icon
+                      size="sm"
+                      class="btn-link"
+                      @click.native="setResponseDetails(scope.row)"
+                    >
+                      <i class="tim-icons icon-sound-wave"></i>
+                    </base-button>
+                    </el-tooltip>
+                    <!-- view url -->
+                    <el-tooltip
+                      content="View Sub-Resource Responses"
+                      effect="light"
+                      :open-delay="150"
+                      placement="top"
+                    >
+                      <base-button
+                      type="info"
+                      icon
+                      size="sm"
+                      class="btn-link"
+                      @click.native="setURLDetails(scope.row)"
+                    >
+                      <i class="tim-icons icon-notes"></i>
+                    </base-button>
+                    </el-tooltip>
+                    <!-- download html -->
                     <el-tooltip
                       content="Download Serialized HTML"
                       effect="light"
@@ -137,10 +186,11 @@
                       placement="top"
                     >
                       <a :href="'/app/data/'+scope.row.serialized_dom_link">
-                        <i class="tim-icons icon-cloud-download-93"></i>
+                        <i class="ml-2 tim-icons icon-cloud-download-93"></i>
                       </a>
                     </el-tooltip>
                   </div>
+
                   <div
                     v-else-if="column.prop === 'response_timestamp'"
                   >{{ formatNSTime(scope.row.response_timestamp) }}</div>
@@ -180,12 +230,14 @@ import InfiniteLoading from 'vue-infinite-loading';
 import { mapGetters, mapState } from 'vuex';
 import { unixNanoToMinDate } from 'src/data/time.js';
 import { formatWebLink } from 'src/data/formatters.js';
+import ResponseCard from 'src/pages/Web/ResponseCard.vue';
 import API from 'src/api/api.js';
 import Fuse from 'fuse.js';
 
 export default {
   components: {
     TechData,
+    ResponseCard,
     InfiniteLoading,
     [DatePicker.name]: DatePicker,
     [TimeSelect.name]: TimeSelect,
@@ -227,6 +279,10 @@ export default {
   },
   data() {
     return {
+      responseSelected: false,
+      responseDetails: {},
+      urlSelected: false, 
+      urlDetails: {},
       dateTimePicker: '',
       pagination: {
         lastIndex: 0,
@@ -272,8 +328,8 @@ export default {
           minWidth: 40
         },
         {
-          prop: 'download',
-          label: 'Download',
+          prop: 'actions',
+          label: 'Actions',
           minWidth: 50
         }
       ],
@@ -414,6 +470,36 @@ export default {
 
       this.$store.dispatch('webdata/EXPORT_WEBSITES', details);
       return true;
+    },
+    setResponseDetails(row) {
+      this.responseSelected = true;
+      this.responseDetails = row;
+      this.responseDetails.display_url_list = false;
+      let options = {
+        container: 'body',
+        easing: 'ease-in',
+        offset: -60
+      };
+      this.$scrollTo('#response_details', options);
+    },
+    setURLDetails(row) {
+      this.urlSelected = true;
+      this.urlDetails = row;
+      this.urlDetails.display_url_list = true;
+      let options = {
+        container: 'body',
+        easing: 'ease-in',
+        offset: -60
+      };
+      this.$scrollTo('#url_details', options);
+    },
+    onResponseDetailsClick(value) {
+      this.responseDetails = {};
+      this.responseSelected = false;
+    },
+    onURLDetailsClick(value) {
+      this.urlDetails = {};
+      this.urlSelected = false;
     }
   },
   mounted() {

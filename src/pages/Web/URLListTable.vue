@@ -106,7 +106,9 @@
                         :label="requestColumn.label"
                       >
                         <template slot-scope="nestedScope">
-                          <div v-if="requestColumn.prop === 'url'"><a :href="nestedScope.row.url">{{ nestedScope.row.url }}</a></div>
+                          <div v-if="requestColumn.prop === 'url'">
+                            <a :href="nestedScope.row.url">{{ nestedScope.row.url }}</a>
+                          </div>
                           <div
                             v-else-if="requestColumn.prop === 'mime_type'"
                           >{{ nestedScope.row.mime_type }}</div>
@@ -256,8 +258,7 @@ export default {
     };
   },
   methods: {
-    log(val) {
-    },
+    log(val) {},
     async getTableData(state) {
       if (state === undefined) {
         return;

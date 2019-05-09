@@ -335,8 +335,8 @@ export default {
       model: {
         group_name: this.group.group_name,
         custom_sub_names: this.group.module_configurations.dnsbrute_module
-          .custom_subnames,
-        custom_ports: this.group.module_configurations.port_module.custom_ports,
+          .custom_subnames || [],
+        custom_ports: this.group.module_configurations.port_module.custom_ports || [],
         concurrent_requests: this.group.module_configurations.ns_module
           .requests_per_second
       },
@@ -348,7 +348,7 @@ export default {
         concurrent_requests: {
           required: true,
           min_value: 1,
-          max_value: 5
+          max_value: 10
         }
       }
     };

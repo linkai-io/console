@@ -12,6 +12,30 @@ const state = {
   isLoading: false,
   userSubscriptions: [
     {
+      type_id: 10,
+      description: 'A new hostname has been detected (recommended)',
+      subscribed_since: 0,
+      subscribed: false
+    },
+    {
+      type_id: 100,
+      description: 'A new web site has been detected',
+      subscribed_since: 0,
+      subscribed: false
+    },
+    {
+      type_id: 150,
+      description: "A web site's certificate will expire soon (recommended)",
+      subscribed_since: 0,
+      subscribed: false
+    },
+    {
+      type_id: 200,
+      description: 'A DNS server is allowing DNS zone transfers (recommended)',
+      subscribed_since: 0,
+      subscribed: false
+    },
+    {
       type_id: 1,
       disabled: true,
       description: 'The scan group analysis has been completed',
@@ -27,21 +51,9 @@ const state = {
       subscribed: false
     },
     {
-      type_id: 10,
-      description: 'A new hostname has been detected (recommended)',
-      subscribed_since: 0,
-      subscribed: false
-    },
-    {
       type_id: 11,
       disabled: true,
       description: 'A new DNS record has been detected (not recommended)',
-      subscribed_since: 0,
-      subscribed: false
-    },
-    {
-      type_id: 100,
-      description: 'A new web site has been detected',
       subscribed_since: 0,
       subscribed: false
     },
@@ -67,21 +79,9 @@ const state = {
       subscribed: false
     },
     {
-      type_id: 150,
-      description: "A web site's certificate will expire soon (recommended)",
-      subscribed_since: 0,
-      subscribed: false
-    },
-    {
       type_id: 151,
       disabled: true,
       description: "A web site's certificate has expired (recommended)",
-      subscribed_since: 0,
-      subscribed: false
-    },
-    {
-      type_id: 200,
-      description: 'A DNS server is allowing DNS zone transfers (recommended)',
       subscribed_since: 0,
       subscribed: false
     },
