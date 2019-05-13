@@ -98,13 +98,13 @@
           <!--- show response data -->
           <div id="response_details">
             <div v-if="responseSelected === true">
-              <response-card @clicked="onResponseDetailsClick" :lookupFilter="responseDetails"></response-card>
+              <response-card @clicked="onResponseDetailsClick" :lookupFilter="responseDetails" title="Response"></response-card>
             </div>
           </div>
           <!--- show url data -->
           <div id="url_details">
             <div v-if="urlSelected === true">
-              <response-card @clicked="onURLDetailsClick" :lookupFilter="urlDetails"></response-card>
+              <response-card @clicked="onURLDetailsClick" v-bind:lookupFilter="urlDetails" title="URL Details"></response-card>
             </div>
           </div>
           <div class="col-sm-12">
@@ -472,8 +472,9 @@ export default {
       return true;
     },
     setResponseDetails(row) {
-      this.responseSelected = true;
+      this.onResponseDetailsClick(null);
       this.responseDetails = row;
+      this.responseSelected = true;
       this.responseDetails.display_url_list = false;
       let options = {
         container: 'body',
@@ -483,8 +484,9 @@ export default {
       this.$scrollTo('#response_details', options);
     },
     setURLDetails(row) {
-      this.urlSelected = true;
+      this.onURLDetailsClick(null);
       this.urlDetails = row;
+      this.urlSelected = true;
       this.urlDetails.display_url_list = true;
       let options = {
         container: 'body',

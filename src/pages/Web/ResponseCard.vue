@@ -5,7 +5,7 @@
         <card class="mt-1 bg-dark">
           <h4 slot="header" class="card-title">
             <div class="row">
-              <div class="col-md-8"></div>
+              <div class="col-md-8">{{title}}</div>
               <div class="col-md-4 text-right">
                 <base-button type="danger" icon size="sm" @click="closeDetails" class="btn-link">
                   <i class="tim-icons icon-simple-remove"></i>
@@ -16,41 +16,52 @@
 
           <div class="row">
             <div class="col-md-12">
-              <div v-for="(response, index) in responseData" class="row" :key="index">
-                <div
-                  v-for="(chunk, chunk_index) in formRows"
-                  :key="chunk_index"
-                  :class="chunk[0].prop=='raw_body_link' ? 'col-md-12' : 'col-md-6'"
-                >
-                  <div v-for="formRow in chunk" :key="formRow.label">
-                    <el-tooltip
-                      :content="formRow.tooltip"
-                      effect="light"
-                      :open-delay="150"
-                      placement="left"
-                    >
-                      <label class="col-sm-2 col-form-label text-left">{{formRow.label}}</label>
-                    </el-tooltip>
-                    <div v-if="formRow.prop=='raw_body_link'">
-                      <response-body :url="response[formRow.prop]"></response-body>
+              <collapse class="col-md-12" accordion>
+                <div v-for="(response, index) in responseData" class="row" :key="index">
+                  <collapse-item class="col-md-12 ml-1" :title="response.url">
+                    <div class="row">
+                      <div
+                        v-for="(chunk, chunk_index) in formRows"
+                        :key="chunk_index"
+                        :class="chunk[0].prop=='raw_body_link' ? 'col-md-12' : 'col-md-6'"
+                      >
+                        <div v-for="formRow in chunk" :key="formRow.label">
+                          <el-tooltip
+                            :content="formRow.tooltip"
+                            effect="light"
+                            :open-delay="150"
+                            placement="left"
+                          >
+                            <label class="col-sm-2 col-form-label text-left">{{formRow.label}}</label>
+                          </el-tooltip>
+                          <div v-if="formRow.prop=='raw_body_link'">
+                            <response-body :url="response[formRow.prop]"></response-body>
+                          </div>
+                          <div v-else-if="formRow.prop === 'url'" class="col-sm-10">
+                            <a
+                              :href="formatWebLink(response[formRow.prop])"
+                            >{{ formatWebLink(response[formRow.prop])}}</a>
+                          </div>
+                          <div v-else-if="formRow.prop === 'headers'" class="col-sm-10">
+                            <p
+                              v-for="(value, key, index) in response[formRow.prop]"
+                              v-bind:key="index"
+                            >
+                              {{key}}: {{value}}
+                              <br>
+                            </p>
+                          </div>
+                          <div v-else class="col-sm-10">
+                            <p
+                              class="form-control-static text-left"
+                            >{{formatValues(formRow.prop, response[formRow.prop])}}</p>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                    <div v-else-if="formRow.prop === 'url'" class="col-sm-10">
-                      <a
-                        :href="formatWebLink(response[formRow.prop])"
-                      >{{ formatWebLink(response[formRow.prop])}}</a>
-                    </div>
-                    <div v-else-if="formRow.prop === 'headers'" class="col-sm-10">
-                      <p v-for="(value, key, index) in response[formRow.prop]" v-bind:key="index">
-                      {{key}}: {{value}}<br></p>
-                    </div>
-                    <div v-else class="col-sm-10">
-                      <p
-                        class="form-control-static text-left"
-                      >{{formatValues(formRow.prop, response[formRow.prop])}}</p>
-                    </div>
-                  </div>
+                  </collapse-item>
                 </div>
-              </div>
+              </collapse>
             </div>
           </div>
         </card>
@@ -60,12 +71,15 @@
 </template>
 <script>
 import API from 'src/api/api.js';
+import { Collapse, CollapseItem } from 'src/components';
 import { unixNanoToMinDate } from 'src/data/time.js';
 import ResponseBody from 'src/pages/Web/ResponseBody.vue';
 import { formatWebLink } from 'src/data/formatters.js';
 
 export default {
   components: {
+    Collapse,
+    CollapseItem,
     ResponseBody
   },
   data() {
@@ -160,7 +174,14 @@ export default {
     };
   },
   props: {
+    title: {
+      type: String
+    },
     lookupFilter: {
+      type: Object,
+      default: function() {
+        return {}
+      },
       group_id: {
         type: String
       },
@@ -195,20 +216,20 @@ export default {
       let params = {
         start: start,
         limit: limit,
-        url_request_timestamp: this.lookupFilter.request_timestamp,
+        url_request_timestamp: this.lookupFilter.request_timestamp
       };
 
       if (this.lookupFilter.display_url_list === true) {
         params.original_host_address = this.lookupFilter.load_host_address;
         params.original_ip_address = this.lookupFilter.load_ip_address;
       } else {
-        params.host_address =  this.lookupFilter.host_address;
+        params.host_address = this.lookupFilter.host_address;
         params.ip_address = this.lookupFilter.ip_address;
         // TODO: re-enable this to use timestamps after a few days
-        //params.response_timestamp = this.lookupFilter.response_timestamp;
-        params.url = this.lookupFilter.url;
+        params.response_timestamp = this.lookupFilter.response_timestamp;
+        //params.url = this.lookupFilter.url;
       }
-     
+
       try {
         let response = await API.get(
           '/webdata/group/' + this.lookupFilter.group_id + '/responses',
@@ -228,7 +249,7 @@ export default {
         if (err.data !== undefined && err.data.msg !== undefined) {
           msg = err.data.msg;
         }
-        
+
         this.$store.dispatch(
           'notify/CREATE_NOTIFY_MSG',
           {
@@ -248,9 +269,21 @@ export default {
           return unixNanoToMinDate(value);
       }
       return value;
+    },
+    updateData() {
+      this.getResponseData();
+    }
+  },
+  watch: {
+    lookupFilter(val, oldValue) {
+      if (val.url !== oldValue) {
+        this.responseData = [];
+        this.getResponseData();
+      }
     }
   },
   mounted() {
+    //this.$watch(this.lookupFilter.url, this.updateData(), { deep: true });
     this.getResponseData();
   }
 };

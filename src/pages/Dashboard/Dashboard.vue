@@ -134,18 +134,24 @@
             <div class="col-md-6 mr-auto">
               <server-type-chart v-bind:group_id="group.group_id"></server-type-chart>
             </div>
-            <!-- tech data table -->
-              <div class="col-lg-12 col-md-12 d-flex">
-                <card type="notifications">
-                  <template slot="header">
-                    <h6 class="title d-inline">Technology Data (Last 7 Days)</h6>
-                    <p class="card-category d-inline"></p>
-                  </template>
-                  <div>
-                    <tech-table v-bind:group_id="group.group_id"></tech-table>
-                  </div>
-                </card>
+            
+            <!-- domain dependencies graph -->
+            <div class="col-lg-12 col-md-12 d-flex">
+              <domain-dependency-graph v-bind:group_id="group.group_id"></domain-dependency-graph>
             </div>
+              <!-- tech data table -->
+            <div class="col-lg-12 col-md-12 d-flex">
+              <card type="notifications">
+                <template slot="header">
+                  <h6 class="title d-inline">Technology Data (Last 7 Days)</h6>
+                  <p class="card-category d-inline"></p>
+                </template>
+                <div>
+                  <tech-table v-bind:group_id="group.group_id"></tech-table>
+                </div>
+              </card>
+            </div>
+            
           </div>
         </tab-pane>
       </tabs>
@@ -158,6 +164,7 @@ import EventNotifications from 'src/pages/Events/EventNotifications.vue';
 import AssetChart from 'src/pages/Addresses/AssetChart.vue';
 import DiscoveredByChart from 'src/pages/Addresses/DiscoveredByChart.vue';
 import ServerTypeChart from 'src/pages/Web/ServerTypeChart.vue';
+import DomainDependencyGraph from 'src/pages/Web/DomainDependencyGraph.vue';
 import TechTable from 'src/pages/Web/TechTable.vue';
 
 import { mapGetters } from 'vuex';
@@ -186,6 +193,7 @@ function initScrollbar(className) {
 export default {
   components: {
     EventNotifications,
+    DomainDependencyGraph,
     Tabs,
     TabPane,
     AssetChart,
@@ -246,6 +254,7 @@ export default {
     this.$store.dispatch('settings/INIT');
     this.$store.dispatch('addresses/LOAD_ADDRESS_STATS');
     this.$store.dispatch('webdata/LOAD_WEB_STATS');
+
     this.i18n = this.$i18n;
   },
   beforeDestroy() {}

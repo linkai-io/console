@@ -10,11 +10,17 @@ const state = {
   snapshots: {},
   certificates: {},
   isLoadingStats: false,
+  isLoadingDeps: false,
+  domainDependencies: [],
   webDataStats: []
 };
 
 // getters
 const getters = {
+  domainDependenciesByID: state => group_id => {
+    return findDependencyByID(state.domainDependencies, group_id);
+  },
+  isLoadingDependencies: state => state.isLoadingDeps,
   isLoadingWebDataStats: state => state.isLoadingStats,
   webStats: state => state.webDataStats,
   isUpdating: state => state.isUpdating,
@@ -44,6 +50,15 @@ const getters = {
     return [Object.keys(sum), Object.values(sum)];
   }
 };
+
+function findDependencyByID(dep, group_id) {
+  for (let i = 0; i < dep.length; i++) {
+    if (dep[i].group_id == group_id) {
+      return dep[i];
+    }
+  }
+  return [];
+}
 
 function findStatByID(stats, group_id, key) {
   for (let i = 0; i < stats.length; i++) {
@@ -76,6 +91,21 @@ const actions = {
       err => {
         console.log(err);
         commit('SET_LOADING_STATS', false);
+      }
+    );
+  },
+  LOAD_DOMAIN_DEPENDENCIES({ dispatch, commit }, group_id) {
+    commit('SET_LOADING_DEPS', true);
+    API.get('/webdata/group/' + group_id + '/domains').then(
+      resp => {
+        commit('SET_LOADING_DEPS', false);
+        if (resp.data.status === 'OK') {
+          commit('SET_DOMAIN_DEPS', resp.data);
+        }
+      },
+      err => {
+        commit('SET_LOADING_DEPS', false);
+        handleError(commit, dispatch, err);
       }
     );
   },
@@ -191,6 +221,12 @@ function handleError(commit, dispatch, err) {
 
 // mutations
 const mutations = {
+  SET_LOADING_DEPS(state, details) {
+    state.isLoadingDeps = details;
+  },
+  SET_DOMAIN_DEPS(state, details) {
+    state.domainDependencies.push(details);
+  },
   SET_LOADING_STATS(state, details) {
     state.isLoadingStats = details;
   },
