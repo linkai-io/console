@@ -88,6 +88,11 @@ export default {
       if (val === false && oldValue === true) {
         this.initServerTypeChart();
       }
+    },
+    active(val, oldValue) {
+      if (val === true) {
+        this.initServerTypeChart();
+      }
     }
   },
   methods: {

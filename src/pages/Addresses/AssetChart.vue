@@ -59,6 +59,10 @@ export default {
     group_name: {
       type: String,
       default: ''
+    },
+    active: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -130,6 +134,11 @@ export default {
   watch: {
     isLoadingAddressStats(val, oldValue) {
       if (val === false && oldValue === true) {
+        this.initAssetChart(0);
+      }
+    },
+    active(val, oldValue) {
+      if (val === true) {
         this.initAssetChart(0);
       }
     }

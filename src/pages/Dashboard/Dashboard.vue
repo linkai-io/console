@@ -119,6 +119,7 @@
         square
         centered
         class="row"
+        @change="handleChange"
       >
         <tab-pane
           v-for="group in this.groups"
@@ -126,18 +127,18 @@
           :label="group.group_name"
           :id="group.group_id"
         >
-          <asset-chart v-bind:group_id="group.group_id" v-bind:group_name="group.group_name"></asset-chart>
+          <asset-chart v-bind:group_id="group.group_id" v-bind:group_name="group.group_name" :active="activeTabID === group.group_id"></asset-chart>
           <div class="row">
             <div class="col-md-6 mr-auto">
-              <discovered-by-chart v-bind:group_id="group.group_id"></discovered-by-chart>
+              <discovered-by-chart v-bind:group_id="group.group_id" :active="activeTabID === group.group_id"></discovered-by-chart>
             </div>
             <div class="col-md-6 mr-auto">
-              <server-type-chart v-bind:group_id="group.group_id"></server-type-chart>
+              <server-type-chart v-bind:group_id="group.group_id" :active="activeTabID === group.group_id"></server-type-chart>
             </div>
             
             <!-- domain dependencies graph -->
             <div class="col-lg-12 col-md-12 d-flex">
-              <domain-dependency-graph v-bind:group_id="group.group_id"></domain-dependency-graph>
+              <domain-dependency-graph v-bind:group_id="group.group_id" :active="activeTabID === group.group_id"></domain-dependency-graph>
             </div>
               <!-- tech data table -->
             <div class="col-lg-12 col-md-12 d-flex">
@@ -207,7 +208,8 @@ export default {
   data() {
     return {
       addressStatsLoaded: false,
-      webStatsLoaded: false
+      webStatsLoaded: false,
+      activeTab: 0,
     };
   },
   computed: {
@@ -232,6 +234,9 @@ export default {
     },
     hasGroups() {
       return Object.entries(this.groups).length !== 0;
+    },
+    activeTabID() {
+      return this.activeTab;
     }
   },
   methods: {
@@ -246,9 +251,14 @@ export default {
     },
     configureNotifications() {
       this.$router.push('/settings');
+    },
+    handleChange(tabID) {
+      this.activeTab = tabID;
+      console.log(this.activeTab);
     }
   },
-  created() {},
+  created() {
+  },
   mounted() {
     initScrollbar('table-notifications');
     this.$store.dispatch('settings/INIT');

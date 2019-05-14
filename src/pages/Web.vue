@@ -39,7 +39,7 @@
             </stats-card>
             </router-link>
           </div>
-
+          <!--
           <div class="col-sm">
             <router-link :to="'/webdata/urls/'+ value.group_id">
             <stats-card title="URL List" type="info"  class="results-card" icon="tim-icons icon-paper">
@@ -47,7 +47,8 @@
             </stats-card>
             </router-link>
           </div>
-
+          -->
+          
           <div class="col-sm">
             <router-link :to="'/webdata/certificates/'+ value.group_id">
             <stats-card title="Certificates" type="info" class="results-card" icon="tim-icons icon-lock-circle">

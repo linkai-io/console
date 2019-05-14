@@ -32,6 +32,10 @@ export default {
     group_id: {
       type: Number,
       default: 0
+    },
+    active: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -79,6 +83,11 @@ export default {
   watch: {
     isLoadingAddressStats(val, oldValue) {
       if (val === false && oldValue === true) {
+        this.initDiscoveryChart();
+      }
+    },
+    active(val, oldValue) {
+      if (val === true) {
         this.initDiscoveryChart();
       }
     }

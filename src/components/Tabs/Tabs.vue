@@ -124,6 +124,7 @@ export default {
       }
       this.deactivateTabs();
       tab.active = true;
+      this.$emit('change', tab.id);
     },
     deactivateTabs() {
       this.tabs.forEach(tab => {
