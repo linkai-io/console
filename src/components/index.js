@@ -6,6 +6,7 @@ import BaseInput from './Inputs/BaseInput.vue';
 import BaseTextArea from './Inputs/BaseTextArea.vue';
 import RawTextArea from './Inputs/RawTextArea.vue';
 import TagsInput from './Inputs/TagsInput.vue';
+import TagsAutoInput from './Inputs/TagsAutoInput.vue';
 import BaseSwitch from './BaseSwitch.vue';
 import Badge from './Badge';
 import BaseProgress from './BaseProgress.vue';
@@ -56,6 +57,7 @@ export {
   BaseTextArea,
   RawTextArea,
   TagsInput,
+  TagsAutoInput,
   Card,
   StatsCard,
   BaseTable,

@@ -56,20 +56,88 @@
                 </div>
               </div>
               <div class="row">
-                <div class="col-md-12">
-                  <!-- <div>
-                  <label id="asset-search">Search Filter:</label>-->
-                  <tags-auto-input
-                    v-model="filters.tags"
-                    :tagItems="tagItems"
-                    aria-labelled-by="asset-search"
-                  ></tags-auto-input>
-                  <!--</div>-->
+                <div class="col-md-2">
+                  <el-tooltip
+                    content="Return responses that match the provided host"
+                    effect="light"
+                    :open-delay="150"
+                    placement="bottom"
+                  >
+                    <base-input
+                      label="Matches host"
+                      v-model="filter.host_address"
+                      type="text"
+                      placeholder="example.com"
+                    ></base-input>
+                  </el-tooltip>
+                </div>
+
+                <div class="col-md-2">
+                  <el-tooltip
+                    content="Return responses for IP addresses matching the provided IP"
+                    effect="light"
+                    :open-delay="150"
+                    placement="bottom"
+                  >
+                    <base-input
+                      label="Matches IP"
+                      v-model="filter.ip_address"
+                      type="text"
+                      placeholder="192.168.10.1"
+                    ></base-input>
+                  </el-tooltip>
+                </div>
+
+                <div class="col-md-2">
+                  <el-tooltip
+                    content="Starts with hostname"
+                    effect="light"
+                    :open-delay="150"
+                    placement="bottom"
+                  >
+                    <base-input
+                      label="Host starts with"
+                      type="text"
+                      v-model="filter.starts_host_address"
+                      placeholder="dev"
+                    ></base-input>
+                  </el-tooltip>
+                </div>
+
+                <div class="col-md-2">
+                  <el-tooltip
+                    content="Ends with hostname"
+                    effect="light"
+                    :open-delay="150"
+                    placement="bottom"
+                  >
+                    <base-input
+                      label="Ends with domain"
+                      type="text"
+                      v-model="filter.ends_host_address"
+                      placeholder="example.com"
+                    ></base-input>
+                  </el-tooltip>
+                </div>
+
+                <div class="col-md-2">
+                  <el-tooltip
+                    content="Return responses have a confidence level at or above"
+                    effect="light"
+                    :open-delay="150"
+                    placement="bottom"
+                  >
+                    <base-input
+                      label="Above confidence"
+                      type="text"
+                      v-model="filter.above_confidence"
+                      placeholder="0"
+                    ></base-input>
+                  </el-tooltip>
                 </div>
               </div>
             </form>
           </div>
-
           <div class="col-sm-12">
             <base-button
               type="primary"
@@ -228,19 +296,19 @@ import {
   Option
 } from 'element-ui';
 import InfiniteLoading from 'vue-infinite-loading';
-//import { scroller } from 'vue-scrollto/src/scrollTo';
+import { scroller } from 'vue-scrollto/src/scrollTo';
 import { unixNanoToMinDate } from 'src/data/time.js';
 import { mapGetters, mapState } from 'vuex';
-import { formatNSRecord, NSRecords } from 'src/data/formatters.js';
-import { TagsAutoInput } from 'src/components/index';
+import { formatNSRecord } from 'src/data/formatters.js';
+
 import AddressCard from 'src/pages/Addresses/AddressCard.vue';
 import API from 'src/api/api.js';
 import Fuse from 'fuse.js';
+import swal from 'sweetalert2';
 
 export default {
   components: {
     AddressCard,
-    TagsAutoInput,
     [DatePicker.name]: DatePicker,
     [TimeSelect.name]: TimeSelect,
     InfiniteLoading,
@@ -291,9 +359,6 @@ export default {
         count: 0,
         discoveredDateTimePicker: 0,
         seenDateTimePicker: 0
-      },
-      filters: {
-        tags: []
       },
       filter: {
         discoveredDateTimePicker: '',
@@ -360,121 +425,7 @@ export default {
       ],
       tableData: [],
       multipleSelection: [],
-      fuseSearch: null,
-      tagItems: [
-        {
-          filter: 'ignored',
-          display: 'include ignored assets',
-          has_value: false
-        },
-        {
-          filter: 'not_ignored',
-          display: 'exclude ignored assets',
-          has_value: false
-        },
-        {
-          filter: 'wildcard',
-          display: 'include wildcard domains',
-          has_value: false
-        },
-        {
-          filter: 'not_wildcard',
-          display: 'exclude wildcard domains',
-          has_value: false
-        },
-        {
-          filter: 'hosted',
-          display: 'include hosted services',
-          has_value: false
-        },
-        {
-          filter: 'not_hosted',
-          display: 'exclude hosted services',
-          has_value: false
-        },
-        {
-          filter: 'above_confidence',
-          display: 'confidence greater than',
-          min: 0,
-          max: 99,
-          has_value: true
-        },
-        {
-          filter: 'below_confidence',
-          display: 'confidence less than',
-          min: 1,
-          max: 99,
-          has_value: true
-        },
-        {
-          filter: 'equals_confidence',
-          display: 'confidence equals',
-          min: 0,
-          max: 100,
-          has_value: true
-        },
-        {
-          filter: 'above_user_confidence',
-          display: 'user confidence greater than',
-          min: 0,
-          max: 99,
-          has_value: true
-        },
-        {
-          filter: 'below_user_confidence',
-          display: 'user confidence less than',
-          min: 1,
-          max: 99
-        },
-        {
-          filter: 'equals_user_confidence',
-          display: 'user confidence equals',
-          min: 0,
-          max: 100,
-          has_value: true
-        },
-        {
-          filter: 'ns_record',
-          display: 'NS record equals',
-          options: NSRecords,
-          has_value: true
-        },
-        {
-          filter: 'not_ns_record',
-          display: 'NS record does not equal',
-          options: NSRecords,
-          has_value: true
-        },
-        { filter: 'ip_address', display: 'IP Address equals',
-          has_value: true },
-        { filter: 'not_ip_address', display: 'IP Address does not equal',
-          has_value: true },
-        { filter: 'host_address', display: 'Hostname equals',
-          has_value: true },
-        { filter: 'not_host_address', display: 'Hostname does not equal',
-          has_value: true },
-        { filter: 'ends_host_address', display: 'Hostname ends with',
-          has_value: true },
-        {
-          filter: 'not_ends_host_address',
-          display: 'Hostname does not end with',
-          has_value: true
-        },
-        { filter: 'starts_host_address', display: 'Hostname starts with',
-          has_value: true },
-        {
-          filter: 'not_starts_host_address',
-          display: 'Hostname does not start with',
-          has_value: true
-        },
-        { filter: 'contains_host_address', display: 'Hostname contains',
-          has_value: true },
-        {
-          filter: 'not_contains_host_address',
-          display: 'Hostname does not contain',
-          has_value: true
-        }
-      ]
+      fuseSearch: null
     };
   },
   methods: {
@@ -489,8 +440,7 @@ export default {
       try {
         let discoverDate = new Date(this.filter.discoveredDateTimePicker);
         let seenDate = new Date(this.filter.seenDateTimePicker);
-        this.pagination.discoveredDateTimePicker =
-          discoverDate.getTime() * 1000000; // 1000000 (ns)
+        this.pagination.discoveredDateTimePicker = discoverDate.getTime() * 1000000; // 1000000 (ns)
         this.pagination.seenDateTimePicker = seenDate.getTime() * 1000000; // 1000000 (ns)
         // force reset
         this.refreshTable();
@@ -500,7 +450,7 @@ export default {
         this.pagination.seenDateTimePicker = 0;
       }
     },
-    formatColumn(row, column, cellValue) {
+    formatColumn(row, column, cellValue, index) {
       switch (column.property) {
         case 'ns_record':
           return formatNSRecord(cellValue);
@@ -701,7 +651,7 @@ export default {
         this.tableData.splice(indexToDelete, 1);
       }
     },
-    onDetailsClick() {
+    onDetailsClick(value) {
       this.addressDetails = {};
       this.addressSelected = false;
     }
