@@ -7,99 +7,94 @@
       <div class="col-12">
         <card card-body-classes="table-full-width">
           <h4 slot="header" class="card-title">Address Data</h4>
-          <div class="row">
-            <form class="form-horizontal col-md-10">
-              <div class="row">
-                <div class="col-md-4">
-                  <el-tooltip
-                    content="Return results since discovery date/time."
-                    effect="light"
-                    :open-delay="150"
-                    placement="top"
-                  >
-                    <base-input>
-                      <el-date-picker
-                        type="datetime"
-                        placeholder="Filter since discovered"
-                        v-model="filter.discoveredDateTimePicker"
-                      ></el-date-picker>
-                    </base-input>
-                  </el-tooltip>
-                </div>
-
-                <div class="col-md-4">
-                  <el-tooltip
-                    content="Return results since seen date/time."
-                    effect="light"
-                    :open-delay="150"
-                    placement="top"
-                  >
-                    <base-input>
-                      <el-date-picker
-                        type="datetime"
-                        placeholder="Filter since seen"
-                        v-model="filter.seenDateTimePicker"
-                      ></el-date-picker>
-                    </base-input>
-                  </el-tooltip>
-                </div>
-
-                <div class="col-md-4">
+          <form class="form-horizontal">
+            <div class="row">
+              <div class="col-md-5">
+                <!-- <div>
+                <label id="asset-search">Search Filter:</label>-->
+                <tags-auto-input
+                  :tagItems="tagItems"
+                  aria-labelled-by="asset-search"
+                  @change="updateSearchFilters"
+                ></tags-auto-input>
+                <!--</div>-->
+              </div>
+              <div class="col-md-2">
+                <el-tooltip
+                  content="Return results since discovery date/time."
+                  effect="light"
+                  :open-delay="150"
+                  placement="bottom"
+                >
                   <base-input>
-                    <base-button
-                      type="secondary"
-                      :round="true"
-                      :loading="updating"
-                      @click.native="filterResults"
-                    >Filter</base-button>
+                    <el-date-picker
+                      type="datetime"
+                      placeholder="Filter since discovered"
+                      v-model="filter.discoveredDateTimePicker"
+                    ></el-date-picker>
                   </base-input>
-                </div>
+                </el-tooltip>
               </div>
-              <div class="row">
-                <div class="col-md-12">
-                  <!-- <div>
-                  <label id="asset-search">Search Filter:</label>-->
-                  <tags-auto-input
-                    v-model="filters.tags"
-                    :tagItems="tagItems"
-                    aria-labelled-by="asset-search"
-                  ></tags-auto-input>
-                  <!--</div>-->
-                </div>
+
+              <div class="col-md-2">
+                <el-tooltip
+                  content="Return results since seen date/time."
+                  effect="light"
+                  :open-delay="150"
+                  placement="bottom"
+                >
+                  <base-input>
+                    <el-date-picker
+                      type="datetime"
+                      placeholder="Filter since seen"
+                      v-model="filter.seenDateTimePicker"
+                    ></el-date-picker>
+                  </base-input>
+                </el-tooltip>
               </div>
-            </form>
-          </div>
+              <div class="col-md-3">
+                <base-input>
+                  <base-button
+                    type="primary"
+                    size="sm"
+                    :loading="updating"
+                    @click.native="filterResults"
+                  >Filter</base-button>
+                </base-input>
+              </div>
+            </div>
+          </form>
 
           <div class="col-sm-12">
-            <base-button
-              type="primary"
-              :round="true"
-              :disabled="!hasMultiSelected"
-              @click.native="handleMultiDelete"
-            >Delete</base-button>
-            <base-button
-              type="primary"
-              :round="true"
-              :disabled="!hasMultiSelected"
-              @click.native="handleMultiIgnore"
-            >Ignore</base-button>
-            <base-button
-              type="primary"
-              :round="true"
-              :disabled="!hasMultiSelected"
-              @click.native="handleMultiUnignore"
-            >Unignore</base-button>
-            <base-button
-              type="primary"
-              :round="true"
-              :disabled="!hasMultiSelected"
-              @click.native="handleMultiExport"
-            >Export selected</base-button>
-
             <div class="col-md-12 text-right">
               <base-button
-                type="secondary"
-                :round="true"
+                type="primary"
+                size="sm"
+                :disabled="!hasMultiSelected"
+                @click.native="handleMultiDelete"
+              >Delete</base-button>
+              <base-button
+                type="primary"
+                size="sm"
+                :disabled="!hasMultiSelected"
+                @click.native="handleMultiIgnore"
+              >Ignore</base-button>
+              <base-button
+                type="primary"
+                size="sm"
+                :disabled="!hasMultiSelected"
+                @click.native="handleMultiUnignore"
+              >Unignore</base-button>
+              <base-button
+                type="primary"
+                size="sm"
+                :disabled="!hasMultiSelected"
+                @click.native="handleMultiExport"
+              >Export selected</base-button>
+
+              <base-button
+                type="primary"
+                size="sm"
                 :loading="updating"
                 @click.native="handleExport"
               >Export all</base-button>
@@ -292,9 +287,7 @@ export default {
         discoveredDateTimePicker: 0,
         seenDateTimePicker: 0
       },
-      filters: {
-        tags: []
-      },
+      selectedFilters: [],
       filter: {
         discoveredDateTimePicker: '',
         seenDateTimePicker: '',
@@ -445,33 +438,46 @@ export default {
           options: NSRecords,
           has_value: true
         },
-        { filter: 'ip_address', display: 'IP Address equals',
-          has_value: true },
-        { filter: 'not_ip_address', display: 'IP Address does not equal',
-          has_value: true },
-        { filter: 'host_address', display: 'Hostname equals',
-          has_value: true },
-        { filter: 'not_host_address', display: 'Hostname does not equal',
-          has_value: true },
-        { filter: 'ends_host_address', display: 'Hostname ends with',
-          has_value: true },
+        { filter: 'ip_address', display: 'IP address equals', has_value: true },
+        {
+          filter: 'not_ip_address',
+          display: 'IP address does not equal',
+          has_value: true
+        },
+        { filter: 'host_address', display: 'hostname equals', has_value: true },
+        {
+          filter: 'not_host_address',
+          display: 'hostname does not equal',
+          has_value: true
+        },
+        {
+          filter: 'ends_host_address',
+          display: 'hostname ends with',
+          has_value: true
+        },
         {
           filter: 'not_ends_host_address',
-          display: 'Hostname does not end with',
+          display: 'hostname does not end with',
           has_value: true
         },
-        { filter: 'starts_host_address', display: 'Hostname starts with',
-          has_value: true },
+        {
+          filter: 'starts_host_address',
+          display: 'hostname starts with',
+          has_value: true
+        },
         {
           filter: 'not_starts_host_address',
-          display: 'Hostname does not start with',
+          display: 'hostname does not start with',
           has_value: true
         },
-        { filter: 'contains_host_address', display: 'Hostname contains',
-          has_value: true },
+        {
+          filter: 'contains_host_address',
+          display: 'hostname contains',
+          has_value: true
+        },
         {
           filter: 'not_contains_host_address',
-          display: 'Hostname does not contain',
+          display: 'hostname does not contain',
           has_value: true
         }
       ]
@@ -499,6 +505,9 @@ export default {
         this.pagination.discoveredDateTimePicker = 0;
         this.pagination.seenDateTimePicker = 0;
       }
+    },
+    updateSearchFilters(newFilters) {
+      this.selectedFilters = newFilters;
     },
     formatColumn(row, column, cellValue) {
       switch (column.property) {
@@ -568,26 +577,17 @@ export default {
         params.after_seen = this.pagination.seenDateTimePicker;
       }
 
-      if (this.filter.host_address !== '') {
-        params.host_address = this.filter.host_address;
-      }
-
-      if (this.filter.ip_address !== '') {
-        params.ip_address = this.filter.ip_address;
-      }
-
-      if (this.filter.starts_host_address !== '') {
-        params.starts_host_address = this.filter.starts_host_address;
-      }
-
-      if (this.filter.ends_host_address !== '') {
-        params.ends_host_address = this.filter.ends_host_address;
-      }
-
-      if (this.filter.above_confidence !== '') {
-        params.above_confidence = this.filter.above_confidence;
-      }
-
+      this.selectedFilters.map(v => {
+        console.log(v);
+        if (v.has_value === false) {
+          params[v.filter] = true;
+          return;
+        } else if (params[v.filter] === undefined) {
+          params[v.filter] = [];
+        }
+        params[v.filter].push(v.value);
+      });
+      console.log(params);
       try {
         let response = await API.get('/address/group/' + this.group_id, {
           params: params

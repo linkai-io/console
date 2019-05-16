@@ -37,7 +37,10 @@
         @keydown.up="onArrowUp"
         @keydown.enter="onEnter"
       >
-      <!-- @blur="handleInputConfirm" -->
+      <base-button type="primary" class="ml-1" size="sm" :disabled="inputValue === ''" @click="onEnter" icon>
+        <i class="tim-icons icon-simple-add"></i>
+      </base-button>
+
       <ul class="autocomplete-results" v-show="isOpen">
         <li
           v-for="(result, i) in results"
@@ -144,7 +147,10 @@ export default {
       // option 1 selection is the filter itself
       if (result !== undefined && result.has_value === false) {
         this.dynamicTags.push(result);
+        console.log('onSelect...emit');
+        console.log(this.dynamicTags);
         this.$emit('change', this.dynamicTags);
+
         this.inputVisible = false;
         this.inputValue = '';
         this.isOpen = false;
@@ -168,15 +174,6 @@ export default {
         this.arrowCounter = -1;
       }
     },
-    handleInputConfirm() {
-      let inputValue = this.inputValue;
-      if (inputValue) {
-        this.dynamicTags.push(inputValue);
-        this.$emit('change', this.dynamicTags);
-      }
-      this.inputVisible = false;
-      this.inputValue = '';
-    },
     onInput(evt) {
       this.$emit('input', evt.target.value);
       this.filterResults();
@@ -190,7 +187,7 @@ export default {
           item.display.toLowerCase().indexOf(this.inputValue.toLowerCase()) > -1
       );
       console.log(this.results.length);
-      if (this.inputValue === '' || this.results.length === 0) {
+      if (this.results.length === 0) {
         this.results = [];
         this.isOpen = false;
       } else {
@@ -218,26 +215,31 @@ export default {
 <style scoped>
 .input-new-tag {
   margin-left: 10px;
-  width: 50% !important;
+  width: 60% !important;
   height: 32px;
   display: inline;
 }
 .autocomplete {
-  position: relative;
-  width: 50% !important;
+  overflow: auto;
 }
 
 .autocomplete-results {
   padding: 0;
   margin: 0;
+  width: 60% !important;
+  position: absolute;
+  z-index: 100;
+  margin-left: 60px;
   border: 1px solid #e14eca;
   height: 120px;
   overflow: auto;
+  background: #525f7f;
 }
 
 .autocomplete-result {
   list-style: none;
   text-align: left;
+  overflow: auto;
   padding: 4px 2px;
   cursor: pointer;
 }
