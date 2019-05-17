@@ -23,7 +23,7 @@
         type="info"
         :closable="true"
         :close-transition="false"
-        @close="handleCloseSelected(currentTag);"
+        @close="handleCloseSelected();"
       >{{ currentTag.display }}</el-tag>
       <input
         type="text"
@@ -32,12 +32,20 @@
         v-model="inputValue"
         ref="saveTagInput"
         :aria-labelledby="ariaLabelledBy"
+        @click="showOptions"
         @input="onInput"
         @keydown.down="onArrowDown"
         @keydown.up="onArrowUp"
         @keydown.enter="onEnter"
       >
-      <base-button type="primary" class="ml-1" size="sm" :disabled="inputValue === ''" @click="onEnter" icon>
+      <base-button
+        type="primary"
+        class="ml-1"
+        size="sm"
+        :disabled="inputValue === ''"
+        @click="onEnter"
+        icon
+      >
         <i class="tim-icons icon-simple-add"></i>
       </base-button>
 
@@ -104,7 +112,7 @@ export default {
       this.dynamicTags.splice(this.dynamicTags.indexOf(tag), 1);
       this.$emit('change', this.dynamicTags);
     },
-    handleCloseSelected(tag) {
+    handleCloseSelected() {
       this.currentTag = {};
     },
     showInput() {
@@ -147,7 +155,6 @@ export default {
       // option 1 selection is the filter itself
       if (result !== undefined && result.has_value === false) {
         this.dynamicTags.push(result);
-        console.log('onSelect...emit');
         console.log(this.dynamicTags);
         this.$emit('change', this.dynamicTags);
 
@@ -168,6 +175,7 @@ export default {
       if (this.currentTag.filter !== undefined && this.inputValue !== '') {
         this.currentTag.value = this.inputValue;
         this.dynamicTags.push(this.currentTag);
+        this.$emit('change', this.dynamicTags);
         this.currentTag = {};
         this.inputValue = '';
         this.isOpen = false;
@@ -177,6 +185,15 @@ export default {
     onInput(evt) {
       this.$emit('input', evt.target.value);
       this.filterResults();
+    },
+    showOptions() {
+      // don't show drop down if a current tag filter is set
+      if (this.currentTag.filter !== undefined) {
+        return;
+      }
+      this.isOpen = true;
+      this.results = this.tagItems;
+
     },
     filterResults() {
       if (this.currentTag.filter !== undefined) {
