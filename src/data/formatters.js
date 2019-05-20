@@ -1,3 +1,78 @@
+export let NSRecords = [
+  { record: 'NA', value: 0 },
+  { record: 'A', value: 1 },
+  { record: 'NS', value: 2 },
+  { record: 'MD', value: 3 },
+  { record: 'MF', value: 4 },
+  { record: 'CNAME', value: 5 },
+  { record: 'SOA', value: 6 },
+  { record: 'MB', value: 7 },
+  { record: 'MG', value: 8 },
+  { record: 'MR', value: 9 },
+  { record: 'NULL', value: 10 },
+  { record: 'PTR', value: 12 },
+  { record: 'HINFO', value: 13 },
+  { record: 'MINFO', value: 14 },
+  { record: 'MX', value: 15 },
+  { record: 'TXT', value: 16 },
+  { record: 'RP', value: 17 },
+  { record: 'AFSDB', value: 18 },
+  { record: 'X25', value: 19 },
+  { record: 'ISDN', value: 20 },
+  { record: 'RT', value: 21 },
+  { record: 'NSAPPTR', value: 23 },
+  { record: 'SIG', value: 24 },
+  { record: 'KEY', value: 25 },
+  { record: 'PX', value: 26 },
+  { record: 'GPOS', value: 27 },
+  { record: 'AAAA', value: 28 },
+  { record: 'LOC', value: 29 },
+  { record: 'NXT', value: 30 },
+  { record: 'EID', value: 31 },
+  { record: 'NIMLOC', value: 32 },
+  { record: 'SRV', value: 33 },
+  { record: 'ATMA', value: 34 },
+  { record: 'NAPTR', value: 35 },
+  { record: 'KX', value: 36 },
+  { record: 'CERT', value: 37 },
+  { record: 'DNAME', value: 39 },
+  { record: 'OPT', value: 41 },
+  { record: 'DS', value: 43 },
+  { record: 'SSHFP', value: 44 },
+  { record: 'RRSIG', value: 46 },
+  { record: 'NSEC', value: 47 },
+  { record: 'DNSKEY', value: 48 },
+  { record: 'DHCID', value: 49 },
+  { record: 'NSEC3', value: 50 },
+  { record: 'TLSA', value: 52 },
+  { record: 'SMIMEA', value: 53 },
+  { record: 'HIP', value: 55 },
+  { record: 'NINFO', value: 56 },
+  { record: 'RKEY', value: 57 },
+  { record: 'TALINK', value: 58 },
+  { record: 'CDS', value: 59 },
+  { record: 'CDNSKEY', value: 60 },
+  { record: 'OPENPGPKEY', value: 61 },
+  { record: 'CSYNC', value: 62 },
+  { record: 'SPF', value: 99 },
+  { record: 'UINFO', value: 100 },
+  { record: 'UID', value: 101 },
+  { record: 'GID', value: 102 },
+  { record: 'UNSPEC', value: 103 },
+  { record: 'NID', value: 104 },
+  { record: 'L32', value: 105 },
+  { record: 'L64', value: 106 },
+  { record: 'LP', value: 107 },
+  { record: 'EUI48', value: 108 },
+  { record: 'EUI64', value: 109 },
+  { record: 'URI', value: 256 },
+  { record: 'CAA', value: 257 },
+  { record: 'AVC', value: 258 },
+  { record: 'IXFR', value: 251 },
+  { record: 'AXFR', value: 252 },
+  { record: 'ANY', value: 255 }
+];
+
 export function formatWebLink(value) {
   // little sanity check here...
   if (!value.startsWith('http')) {
@@ -7,161 +82,9 @@ export function formatWebLink(value) {
 }
 
 export function formatNSRecord(record) {
-  switch (record) {
-    case 0:
-      return 'NA';
-    case 1:
-      return 'A';
-    case 2:
-      return 'NS';
-    case 3:
-      return 'MD';
-    case 4:
-      return 'MF';
-    case 5:
-      return 'CNAME';
-    case 6:
-      return 'SOA';
-    case 7:
-      return 'MB';
-    case 8:
-      return 'MG';
-    case 9:
-      return 'MR';
-    case 10:
-      return 'NULL';
-    case 12:
-      return 'PTR';
-    case 13:
-      return 'HINFO';
-    case 14:
-      return 'MINFO';
-    case 15:
-      return 'MX';
-    case 16:
-      return 'TXT';
-    case 17:
-      return 'RP';
-    case 18:
-      return 'AFSDB';
-    case 19:
-      return 'X25';
-    case 20:
-      return 'ISDN';
-    case 21:
-      return 'RT';
-    case 23:
-      return 'NSAPPTR';
-    case 24:
-      return 'SIG';
-    case 25:
-      return 'KEY';
-    case 26:
-      return 'PX';
-    case 27:
-      return 'GPOS';
-    case 28:
-      return 'AAAA';
-    case 29:
-      return 'LOC';
-    case 30:
-      return 'NXT';
-    case 31:
-      return 'EID';
-    case 32:
-      return 'NIMLOC';
-    case 33:
-      return 'SRV';
-    case 34:
-      return 'ATMA';
-    case 35:
-      return 'NAPTR';
-    case 36:
-      return 'KX';
-    case 37:
-      return 'CERT';
-    case 39:
-      return 'DNAME';
-    case 41:
-      return 'OPT';
-    case 43:
-      return 'DS';
-    case 44:
-      return 'SSHFP';
-    case 46:
-      return 'RRSIG';
-    case 47:
-      return 'NSEC';
-    case 48:
-      return 'DNSKEY';
-    case 49:
-      return 'DHCID';
-    case 50:
-      return 'NSEC3';
-    case 51:
-      return 'NSEC3PARAM';
-    case 52:
-      return 'TLSA';
-    case 53:
-      return 'SMIMEA';
-    case 55:
-      return 'HIP';
-    case 56:
-      return 'NINFO';
-    case 57:
-      return 'RKEY';
-    case 58:
-      return 'TALINK';
-    case 59:
-      return 'CDS';
-    case 60:
-      return 'CDNSKEY';
-    case 61:
-      return 'OPENPGPKEY';
-    case 62:
-      return 'CSYNC';
-    case 99:
-      return 'SPF';
-    case 100:
-      return 'UINFO';
-    case 101:
-      return 'UID';
-    case 102:
-      return 'GID';
-    case 103:
-      return 'UNSPEC';
-    case 104:
-      return 'NID';
-    case 105:
-      return 'L32';
-    case 106:
-      return 'L64';
-    case 107:
-      return 'LP';
-    case 108:
-      return 'EUI48';
-    case 109:
-      return 'EUI64';
-    case 256:
-      return 'URI';
-    case 257:
-      return 'CAA';
-    case 258:
-      return 'AVC';
-    case 249:
-      return 'TKEY';
-    case 250:
-      return 'TSIG';
-    case 251:
-      return 'IXFR';
-    case 252:
-      return 'AXFR';
-    case 253:
-      return 'MAILB';
-    case 254:
-      return 'MAILA';
-    case 255:
-      return 'ANY';
+  let found = NSRecords.find(e => e.value === record);
+  if (found !== null) {
+    return found.record;
   }
   return 'Unknown';
 }
