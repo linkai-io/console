@@ -9,7 +9,52 @@
           <h4 slot="header" class="card-title">Address Data</h4>
           <form class="form-horizontal">
             <div class="row">
-              <div class="col-md-5">
+                <div class="col-md-2">
+                  <el-tooltip
+                    content="Return results since discovery date/time."
+                    effect="light"
+                    :open-delay="150"
+                    placement="bottom"
+                  >
+                    <base-input>
+                      <el-date-picker
+                        type="datetime"
+                        placeholder="Filter since discovered"
+                        v-model="filter.discoveredDateTimePicker"
+                      ></el-date-picker>
+                    </base-input>
+                  </el-tooltip>
+                </div>
+
+                <div class="col-md-2">
+                  <el-tooltip
+                    content="Return results since seen date/time."
+                    effect="light"
+                    :open-delay="150"
+                    placement="bottom"
+                  >
+                    <base-input>
+                      <el-date-picker
+                        type="datetime"
+                        placeholder="Filter since seen"
+                        v-model="filter.seenDateTimePicker"
+                      ></el-date-picker>
+                    </base-input>
+                  </el-tooltip>
+                </div>
+                <div class="col-md-2">
+                  <base-input>
+                    <base-button
+                      type="primary"
+                      size="sm"
+                      :loading="updating"
+                      @click.native="filterResults"
+                    >Filter</base-button>
+                  </base-input>
+                </div>
+              </div>
+              <div class="row">
+              <div class="col-md-12">
                 <!-- <div>
                 <label id="asset-search">Search Filter:</label>-->
                 <tags-auto-input
@@ -17,55 +62,13 @@
                   aria-labelled-by="asset-search"
                   @change="updateSearchFilters"
                 ></tags-auto-input>
-                <!--</div>-->
-              </div>
-              <div class="col-md-2">
-                <el-tooltip
-                  content="Return results since discovery date/time."
-                  effect="light"
-                  :open-delay="150"
-                  placement="bottom"
-                >
-                  <base-input>
-                    <el-date-picker
-                      type="datetime"
-                      placeholder="Filter since discovered"
-                      v-model="filter.discoveredDateTimePicker"
-                    ></el-date-picker>
-                  </base-input>
-                </el-tooltip>
-              </div>
 
-              <div class="col-md-2">
-                <el-tooltip
-                  content="Return results since seen date/time."
-                  effect="light"
-                  :open-delay="150"
-                  placement="bottom"
-                >
-                  <base-input>
-                    <el-date-picker
-                      type="datetime"
-                      placeholder="Filter since seen"
-                      v-model="filter.seenDateTimePicker"
-                    ></el-date-picker>
-                  </base-input>
-                </el-tooltip>
-              </div>
-              <div class="col-md-3">
-                <base-input>
-                  <base-button
-                    type="primary"
-                    size="sm"
-                    :loading="updating"
-                    @click.native="filterResults"
-                  >Filter</base-button>
-                </base-input>
+                <!--</div>-->
               </div>
             </div>
           </form>
 
-          <div class="col-sm-12">
+          <div class="row">
             <div class="col-md-12 text-right">
               <base-button
                 type="primary"
@@ -98,8 +101,10 @@
                 :loading="updating"
                 @click.native="handleExport"
               >Export all</base-button>
+
               <base-button
                 type="primary"
+                size="sm"
                 icon
                 round
                 :loading="updating"
@@ -142,55 +147,59 @@
                 }"
                   class="text-right table-actions"
                 >
-                  <el-tooltip
-                    content="Asset details"
-                    effect="light"
-                    :open-delay="150"
-                    placement="top"
-                  >
-                    <base-button
-                      type="info"
-                      icon
-                      size="sm"
-                      class="btn-link"
-                      @click.native="setAddressDetails(row)"
-                    >
-                      <i class="tim-icons icon-notes"></i>
-                    </base-button>
-                  </el-tooltip>
-                  <el-tooltip
-                    :content="setIgnoreToolTip(row)"
-                    effect="light"
-                    :open-delay="150"
-                    placement="top"
-                  >
-                    <base-button
-                      type="warning"
-                      icon
-                      size="sm"
-                      @click="handleIgnore(row)"
-                      class="btn-link"
-                    >
-                      <i v-if="setIgnoreIcon(row)" class="tim-icons icon-simple-delete"></i>
-                      <i v-else class="tim-icons icon-bulb-63"></i>
-                    </base-button>
-                  </el-tooltip>
-                  <el-tooltip
-                    content="Delete Host"
-                    effect="light"
-                    :open-delay="150"
-                    placement="top"
-                  >
-                    <base-button
-                      type="danger"
-                      icon
-                      size="sm"
-                      @click="handleDelete(row)"
-                      class="btn-link"
-                    >
-                      <i class="tim-icons icon-simple-remove"></i>
-                    </base-button>
-                  </el-tooltip>
+                  <div class="row">
+                    <div class="col-md-12">
+                      <el-tooltip
+                        content="Asset details"
+                        effect="light"
+                        :open-delay="150"
+                        placement="top"
+                      >
+                        <base-button
+                          type="info"
+                          icon
+                          size="sm"
+                          class="btn-link"
+                          @click.native="setAddressDetails(row)"
+                        >
+                          <i class="tim-icons icon-notes"></i>
+                        </base-button>
+                      </el-tooltip>
+                      <el-tooltip
+                        :content="setIgnoreToolTip(row)"
+                        effect="light"
+                        :open-delay="150"
+                        placement="top"
+                      >
+                        <base-button
+                          type="warning"
+                          icon
+                          size="sm"
+                          @click="handleIgnore(row)"
+                          class="btn-link"
+                        >
+                          <i v-if="setIgnoreIcon(row)" class="tim-icons icon-simple-delete"></i>
+                          <i v-else class="tim-icons icon-bulb-63"></i>
+                        </base-button>
+                      </el-tooltip>
+                      <el-tooltip
+                        content="Delete Host"
+                        effect="light"
+                        :open-delay="150"
+                        placement="top"
+                      >
+                        <base-button
+                          type="danger"
+                          icon
+                          size="sm"
+                          @click="handleDelete(row)"
+                          class="btn-link"
+                        >
+                          <i class="tim-icons icon-simple-remove"></i>
+                        </base-button>
+                      </el-tooltip>
+                    </div>
+                  </div>
                 </div>
               </el-table-column>
 
@@ -226,6 +235,7 @@ import InfiniteLoading from 'vue-infinite-loading';
 //import { scroller } from 'vue-scrollto/src/scrollTo';
 import { unixNanoToMinDate } from 'src/data/time.js';
 import { mapGetters, mapState } from 'vuex';
+import { handleErrors } from 'src/data/errors.js';
 import { formatNSRecord, NSRecords } from 'src/data/formatters.js';
 import { TagsAutoInput } from 'src/components/index';
 import AddressCard from 'src/pages/Addresses/AddressCard.vue';
@@ -358,31 +368,37 @@ export default {
         {
           filter: 'ignored',
           display: 'include ignored assets',
+          allow_multiple: false,
           has_value: false
         },
         {
           filter: 'not_ignored',
           display: 'exclude ignored assets',
+          allow_multiple: false,
           has_value: false
         },
         {
           filter: 'wildcard',
           display: 'include wildcard domains',
+          allow_multiple: false,
           has_value: false
         },
         {
           filter: 'not_wildcard',
           display: 'exclude wildcard domains',
+          allow_multiple: false,
           has_value: false
         },
         {
           filter: 'hosted',
           display: 'include hosted services',
+          allow_multiple: false,
           has_value: false
         },
         {
           filter: 'not_hosted',
           display: 'exclude hosted services',
+          allow_multiple: false,
           has_value: false
         },
         {
@@ -390,6 +406,7 @@ export default {
           display: 'confidence greater than',
           min: 0,
           max: 99,
+          allow_multiple: false,
           has_value: true
         },
         {
@@ -397,6 +414,7 @@ export default {
           display: 'confidence less than',
           min: 1,
           max: 99,
+          allow_multiple: false,
           has_value: true
         },
         {
@@ -404,80 +422,96 @@ export default {
           display: 'confidence equals',
           min: 0,
           max: 100,
+          allow_multiple: false,
           has_value: true
         },
         {
           filter: 'above_user_confidence',
           display: 'user confidence greater than',
           min: 0,
-          max: 99,
+          max: 100,
+          allow_multiple: false,
           has_value: true
         },
         {
           filter: 'below_user_confidence',
           display: 'user confidence less than',
           min: 1,
-          max: 99
+          max: 100,
+          allow_multiple: false,
+          has_value: true
         },
         {
           filter: 'equals_user_confidence',
           display: 'user confidence equals',
           min: 0,
           max: 100,
+          allow_multiple: false,
           has_value: true
         },
         {
           filter: 'ns_record',
           display: 'NS record equals',
           options: NSRecords,
+          option_field: 'record',
+          allow_multiple: true,
           has_value: true
         },
         {
           filter: 'not_ns_record',
           display: 'NS record does not equal',
           options: NSRecords,
+          option_field: 'record',
+          allow_multiple: true,
           has_value: true
         },
-        { filter: 'ip_address', display: 'IP address equals', has_value: true },
+        { filter: 'ip_address', display: 'IP address equals', allow_multiple: true, has_value: true },
         {
           filter: 'not_ip_address',
           display: 'IP address does not equal',
           has_value: true
         },
-        { filter: 'host_address', display: 'hostname equals', has_value: true },
+        { filter: 'host_address', display: 'hostname equals',allow_multiple: true, has_value: true },
         {
           filter: 'not_host_address',
           display: 'hostname does not equal',
+          allow_multiple: true,
           has_value: true
         },
         {
           filter: 'ends_host_address',
           display: 'hostname ends with',
+          allow_multiple: true,
           has_value: true
         },
         {
           filter: 'not_ends_host_address',
           display: 'hostname does not end with',
+          allow_multiple: true,
           has_value: true
         },
         {
           filter: 'starts_host_address',
           display: 'hostname starts with',
+          allow_multiple: true,
           has_value: true
         },
         {
           filter: 'not_starts_host_address',
           display: 'hostname does not start with',
+          allow_multiple: true,
           has_value: true
         },
         {
           filter: 'contains_host_address',
           display: 'hostname contains',
+          allow_multiple: true,
           has_value: true
         },
         {
           filter: 'not_contains_host_address',
           display: 'hostname does not contain',
+          allow_multiple: true,
           has_value: true
         }
       ]
@@ -582,6 +616,9 @@ export default {
         if (v.has_value === false) {
           params[v.filter] = true;
           return;
+        } else if (v.allow_multiple === false) {
+          params[v.filter] = v.value;
+          return;
         } else if (params[v.filter] === undefined) {
           params[v.filter] = [];
         }
@@ -607,22 +644,8 @@ export default {
         this.pagination.count = this.tableData.length;
         this.pagination.total = response.data.total;
       } catch (err) {
-        console.log(err);
         state.complete();
-
-        let msg = 'error getting data';
-        if (err.data !== undefined && err.data.msg !== undefined) {
-          msg = err.data.msg;
-        }
-
-        this.$store.dispatch(
-          'notify/CREATE_NOTIFY_MSG',
-          {
-            msg: msg,
-            msgType: 'danger'
-          },
-          { root: true }
-        );
+        handleErrors(this.$store.dispatch, 'getting addresses', err);
       } finally {
         this.loading = false;
       }

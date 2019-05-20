@@ -1,64 +1,76 @@
 <template>
   <div>
-    <el-tag
-      v-for="(tag, index) in dynamicTags"
-      :key="tag + index"
-      size="medium"
-      :type="tagType"
-      :closable="true"
-      :close-transition="false"
-      @close="handleClose(tag);"
-    >{{ tag.display }} {{tag.value}}</el-tag>
+    <div class="row">
+      <div class="col-md-12">
+        <el-tag
+          v-for="(tag, index) in dynamicTags"
+          :key="tag + index"
+          size="medium"
+          :type="tagType"
+          :closable="true"
+          :close-transition="false"
+          @close="handleClose(tag);"
+        >{{ tag.display }} {{tag.value}}</el-tag>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <div
+          class="autocomplete"
+          role="combobox"
+          aria-haspopup="listbox"
+          aria-owns="autocomplete-results"
+          :aria-expanded="isOpen"
+        >
+          <el-tag
+            v-model="currentTag"
+            size="medium"
+            type="info"
+            ref="currentTag"
+            :closable="true"
+            :close-transition="false"
+            @close="handleCloseSelected();"
+          >{{ currentTag.display }}</el-tag>
+          <input
+            type="text"
+            placeholder="Type to add filter"
+            class="form-control input-new-tag"
+            v-model="inputValue"
+            ref="saveTagInput"
+            :aria-labelledby="ariaLabelledBy"
+            @click="showOptions"
+            @input="onInput"
+            @keydown.down="onArrowDown"
+            @keydown.up="onArrowUp"
+            @keydown.enter="onEnter"
+          >
+          <base-button
+            type="primary"
+            class="ml-1"
+            size="sm"
+            :disabled="inputValue === ''"
+            @click="onEnter"
+            icon
+          >
+            <i class="tim-icons icon-simple-add"></i>
+          </base-button>
 
-    <div
-      class="autocomplete"
-      role="combobox"
-      aria-haspopup="listbox"
-      aria-owns="autocomplete-results"
-      :aria-expanded="isOpen"
-    >
-      <el-tag
-        v-model="currentTag"
-        size="medium"
-        type="info"
-        :closable="true"
-        :close-transition="false"
-        @close="handleCloseSelected();"
-      >{{ currentTag.display }}</el-tag>
-      <input
-        type="text"
-        placeholder="Type to add filter"
-        class="form-control input-new-tag"
-        v-model="inputValue"
-        ref="saveTagInput"
-        :aria-labelledby="ariaLabelledBy"
-        @click="showOptions"
-        @input="onInput"
-        @keydown.down="onArrowDown"
-        @keydown.up="onArrowUp"
-        @keydown.enter="onEnter"
-      >
-      <base-button
-        type="primary"
-        class="ml-1"
-        size="sm"
-        :disabled="inputValue === ''"
-        @click="onEnter"
-        icon
-      >
-        <i class="tim-icons icon-simple-add"></i>
-      </base-button>
-
-      <ul class="autocomplete-results" v-show="isOpen">
-        <li
-          v-for="(result, i) in results"
-          :key="i"
-          @click="onClickSelect(result)"
-          class="autocomplete-result"
-          :class="{ 'is-active': i === arrowCounter }"
-          role="option"
-        >{{ result.display }}</li>
-      </ul>
+          <ul
+            class="autocomplete-results"
+            v-show="isOpen"
+            :style="'margin-left: '+autoMargin+'px; width: '+autoSize+'px;'"
+          >
+            <li
+              v-for="(result, i) in results"
+              :key="i"
+              @click="onClickSelect(result)"
+              class="autocomplete-result"
+              :class="{ 'is-active': i === arrowCounter }"
+              role="option"
+            >{{ result[displayField] }}</li>
+          </ul>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -101,8 +113,11 @@ export default {
       dynamicTags: [],
       currentTag: {},
       results: [],
+      displayField: 'display',
       inputVisible: false,
       isOpen: false,
+      autoMargin: 60,
+      autoSize: 120,
       arrowCounter: -1,
       inputValue: ''
     };
@@ -114,6 +129,7 @@ export default {
     },
     handleCloseSelected() {
       this.currentTag = {};
+      this.isOpen = false;
     },
     showInput() {
       this.inputVisible = true;
@@ -141,12 +157,15 @@ export default {
       this.onSelect(this.results[this.arrowCounter]);
     },
     onClickSelect(result) {
+      this.arrowCounter = -1;
       this.onSelect(result);
       this.$refs.saveTagInput.focus();
     },
     // we have to handle multiple cases here:
+    // TODO: This *really* should be a FSM
     // 1. the option selected has_value is false, meaning the selection itself is the filter
     // 1.1 push it into the dynamicTags array and clear input
+    // 1.2 we have a sub filter that we need to add
     // 2. the user selected a new filter that requires a value
     // 2.1 pop the current filter into the currentTag
     // 2.2 clear the inputValue
@@ -155,7 +174,6 @@ export default {
       // option 1 selection is the filter itself
       if (result !== undefined && result.has_value === false) {
         this.dynamicTags.push(result);
-        console.log(this.dynamicTags);
         this.$emit('change', this.dynamicTags);
 
         this.inputVisible = false;
@@ -163,7 +181,36 @@ export default {
         this.isOpen = false;
         return;
       }
-      // option two set currentTag to current selection
+      // we are in a sub filter, but result isn't a real value, don't allow insertion
+      if (
+        result === undefined &&
+        this.currentTag.filter !== undefined &&
+        this.currentTag.options !== undefined
+      ) {
+        this.arrowCounter = -1;
+        return;
+      }
+
+      // option 1.2 sub filter needs to be added
+      if (
+        result !== undefined &&
+        this.currentTag.filter !== undefined &&
+        this.currentTag.options !== undefined
+      ) {
+        let sub_result = {
+          filter: this.currentTag.filter,
+          display: this.currentTag.display,
+          value: result[this.displayField]
+        };
+        this.dynamicTags.push(sub_result);
+        this.$emit('change', this.dynamicTags);
+        this.currentTag = {};
+        this.inputValue = '';
+        this.isOpen = false;
+        this.arrowCounter = -1;
+      }
+
+      // option two, set currentTag to current selection
       if (this.currentTag.filter === undefined && result !== undefined) {
         this.currentTag = result;
         this.isOpen = false;
@@ -171,10 +218,17 @@ export default {
         this.inputValue = '';
         return;
       }
+
       // 2.1 set currentTag filter value to inputValue
       if (this.currentTag.filter !== undefined && this.inputValue !== '') {
         this.currentTag.value = this.inputValue;
-        this.dynamicTags.push(this.currentTag);
+        let new_result = {
+          filter: this.currentTag.filter,
+          display: this.currentTag.display,
+          allow_multiple: this.currentTag.allow_multiple,
+          value: this.inputValue
+        };
+        this.dynamicTags.push(new_result);
         this.$emit('change', this.dynamicTags);
         this.currentTag = {};
         this.inputValue = '';
@@ -187,32 +241,66 @@ export default {
       this.filterResults();
     },
     showOptions() {
-      // don't show drop down if a current tag filter is set
+      // don't show drop down if a current tag filter is set and options are null
       if (this.currentTag.filter !== undefined) {
+        this.showSubOptions();
         return;
       }
+      this.displayField = 'display';
+      this.autoMargin = 60;
       this.isOpen = true;
       this.results = this.tagItems;
-
+    },
+    showSubOptions() {
+      if (this.currentTag.options !== undefined) {
+        this.autoMargin = this.$refs.currentTag.$el.offsetWidth + 20;
+        this.isOpen = true;
+        this.displayField = this.currentTag.option_field;
+        this.results = this.currentTag.options;
+      }
     },
     filterResults() {
       if (this.currentTag.filter !== undefined) {
+        this.filterSubField();
         return;
       }
+      this.autoMargin = 60;
+      this.displayField = 'display';
       this.results = this.tagItems.filter(
         item =>
           item.display.toLowerCase().indexOf(this.inputValue.toLowerCase()) > -1
       );
-      console.log(this.results.length);
+
       if (this.results.length === 0) {
         this.results = [];
         this.isOpen = false;
       } else {
         this.isOpen = true;
       }
+    },
+    filterSubField() {
+      if (this.currentTag.options !== undefined) {
+        this.displayField = this.currentTag.option_field;
+        this.autoMargin = this.$refs.currentTag.$el.offsetWidth + 20;
+        this.results = this.currentTag.options.filter(item => {
+          return (
+            item[this.displayField]
+              .toLowerCase()
+              .indexOf(this.inputValue.toLowerCase()) > -1
+          );
+        });
+
+        if (this.results.length === 0) {
+          this.results = [];
+          this.isOpen = false;
+        } else {
+          this.isOpen = true;
+        }
+      }
     }
   },
   mounted() {
+    this.autoSize = this.$refs.saveTagInput.offsetWidth;
     document.addEventListener('click', this.handleClickOutside);
   },
   destroyed() {
@@ -233,8 +321,8 @@ export default {
 .input-new-tag {
   margin-left: 10px;
   width: 60% !important;
-  height: 32px;
-  display: inline;
+  height: 40px;
+  display: inline-block;
 }
 .autocomplete {
   overflow: auto;
