@@ -127,18 +127,11 @@
           :label="group.group_name"
           :id="group.group_id"
         >
-          <asset-chart v-bind:group_id="group.group_id" v-bind:group_name="group.group_name" :active="activeTabID === group.group_id"></asset-chart>
           <div class="row">
-            <div class="col-md-6 mr-auto">
-              <discovered-by-chart v-bind:group_id="group.group_id" :active="activeTabID === group.group_id"></discovered-by-chart>
-            </div>
-            <div class="col-md-6 mr-auto">
-              <server-type-chart v-bind:group_id="group.group_id" :active="activeTabID === group.group_id"></server-type-chart>
-            </div>
             
-            <!-- domain dependencies graph -->
+            <!-- tech stack card --> 
             <div class="col-lg-12 col-md-12 d-flex">
-              <domain-dependency-graph v-bind:group_id="group.group_id" :active="activeTabID === group.group_id"></domain-dependency-graph>
+              <tech-stack-card v-bind:group_id="group.group_id" v-bind:group_name="group.group_name" :active="activeTabID === group.group_id"></tech-stack-card>
             </div>
               <!-- tech data table -->
             <div class="col-lg-12 col-md-12 d-flex">
@@ -166,6 +159,7 @@ import AssetChart from 'src/pages/Addresses/AssetChart.vue';
 import DiscoveredByChart from 'src/pages/Addresses/DiscoveredByChart.vue';
 import ServerTypeChart from 'src/pages/Web/ServerTypeChart.vue';
 import DomainDependencyGraph from 'src/pages/Web/DomainDependencyGraph.vue';
+import TechStackCard from 'src/pages/Web/TechStackCard.vue';
 import TechTable from 'src/pages/Web/TechTable.vue';
 
 import { mapGetters } from 'vuex';
@@ -201,6 +195,7 @@ export default {
     DiscoveredByChart,
     ServerTypeChart,
     StatsCard,
+    TechStackCard,
     TechTable,
     Collapse,
     CollapseItem
