@@ -345,6 +345,11 @@ export default {
       if (this.filter.tech_type !== '') {
         params.tech_type = this.filter.tech_type;
       }
+      
+      if (this.filter.dependent_host_address !== '') {
+        params.dependent_host_address = this.filter.dependent_host_address;
+      }
+
       try {
         let response = await API.get(
           '/webdata/group/' + this.group_id + '/snapshots',

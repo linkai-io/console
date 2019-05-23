@@ -133,7 +133,7 @@
             <div class="col-lg-12 col-md-12 d-flex">
               <tech-stack-card v-bind:group_id="group.group_id" v-bind:group_name="group.group_name" :active="activeTabID === group.group_id"></tech-stack-card>
             </div>
-              <!-- tech data table -->
+              <!-- tech data table 
             <div class="col-lg-12 col-md-12 d-flex">
               <card type="notifications">
                 <template slot="header">
@@ -145,7 +145,7 @@
                 </div>
               </card>
             </div>
-            
+            -->
           </div>
         </tab-pane>
       </tabs>

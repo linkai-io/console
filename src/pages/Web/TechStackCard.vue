@@ -28,30 +28,55 @@
         </div>
       </div>
     </template>
-    <div class="row" v-show="buttonCategories[display.activeIndex] === 'Technologies'">
-      <div v-for="category in techCategories" :key="category">
-        <div class="col-sm-12">
-          <h6>{{category}}</h6>
-          <hr>
-          <div v-for="(tech, index) in tableData" :key="index">
-            <div v-if="tech.category === category">
-              <base-button type="sm" class="mt-2" @click.native="loadTable(tech.technologies)">
-                <div v-if="tech.icon !== ''">
-                  <img height="16" width="16" :src="'img/tech/'+tech.icon">&nbsp;
+    <!-- tech -->
+    <div v-show="buttonCategories[display.activeIndex] === 'Technologies'">
+      <!-- categories -->
+      <div class="row">
+        <div v-for="category in techCategories" :key="category">
+          <div class="col-sm-12">
+            <h6>{{category}}</h6>
+            <hr>
+            <div v-for="(tech, index) in tableData" :key="index">
+              <div v-if="tech.category === category">
+                <base-button type="sm" class="mt-2" @click.native="loadVersions(tech)">
+                  <div v-if="tech.icon !== ''">
+                    <img height="16" width="16" :src="'img/tech/'+tech.icon">&nbsp;
+                  </div>
+                  {{tech.technologies}} - {{tech.assets.length}}
+                </base-button>
+              </div>
+            </div>
+          </div>
+        </div>
+        </div>
+        <!-- show version table -->
+        <div class="row">
+          <div class="col-sm-12 mt-3" v-show="showVersionSearch">
+            <hr>
+            <h4>Search {{techVersionFilter.technologies}} - Versions</h4>
+            <div v-for="(version, index) in filteredVersion" :key="index">
+              <base-button
+                type="sm"
+                class="mt-2"
+                @click.native="loadTable(techVersionFilter.technologies, version)"
+              >
+                <div v-if="techVersionFilter.icon !== ''">
+                  <img height="16" width="16" :src="'img/tech/'+techVersionFilter.icon">&nbsp;
                 </div>
-                {{tech.technologies}} - {{tech.assets.length}}
+                {{techVersionFilter.technologies}} - {{version}}
               </base-button>
             </div>
           </div>
         </div>
-      </div>
+      
     </div>
+
     <div class="row" v-show="buttonCategories[display.activeIndex] === 'Dependencies'">
       <div class="col-sm-12">
-        <domain-dependency v-bind:group_id="group_id"></domain-dependency>
+        <domain-dependency v-bind:group_id="group_id" @search="loadDependent"></domain-dependency>
       </div>
     </div>
-    <div id="table_start">
+    <div :id="'table_start_'+group_id">
       <div v-if="shouldLoad">
         <hr>
         <filtered-snapshot-table
@@ -107,39 +132,85 @@ export default {
     },
     shouldLoad() {
       return this.filtered;
+    },
+    filteredVersion() {
+      if (this.techVersionFilter === '') {
+        return [];
+      }
+      let assets = this.tableData
+        .filter(v => v.technologies === this.techVersionFilter.technologies)
+        .flatMap(v => v.assets);
+
+      let versionSet = new Set(
+        assets.map(v => {
+          if (v.version === '') {
+            return 'all';
+          }
+          return v.version;
+        })
+      );
+      console.log(versionSet);
+      if (versionSet.size === 1 && versionSet.has('all')) {
+        console.log('searching now');
+        this.loadTable(this.techVersionFilter.technologies);
+      }
+      return Array.from(versionSet);
+    },
+    showVersionSearch() {
+      return (
+        this.techVersionFilter.technologies !== undefined &&
+        this.techVersionFilter.technologies !== ''
+      );
     }
   },
   data() {
     return {
       tableData: [],
       techCategories: [],
+      techVersions: [],
       display: {
         activeIndex: 0
       },
       filter: {},
-      filtered: false
+      filtered: false,
+      showVersionList: false,
+      techVersionFilter: {}
     };
   },
   methods: {
-    openLink(link) {
-      window.open(link, '_blank');
-    },
-    downloadTechData() {
-      fileDownloader(
-        JSON.stringify(this.downloadData),
-        'webtech.json',
-        'application/octet-stream'
-      );
-    },
-    loadTable(techName) {
-      this.filter = { tech_type: techName };
+    loadDependent(domain) {
+      console.log('searching: ' + domain);
+      this.filter = { dependent_host_address: domain };
       this.filtered = true;
       let options = {
         container: 'body',
         easing: 'ease-in',
         offset: -60
       };
-      this.$scrollTo('#table_start', options);
+      this.$scrollTo('#table_start' + this.group_id, options);
+    },
+    openLink(link) {
+      window.open(link, '_blank');
+    },
+    shouldShowVersions() {
+      return this.showVersionList;
+    },
+    loadVersions(tech) {
+      this.techVersionFilter = tech;
+      console.log(tech);
+    },
+    loadTable(techName, version) {
+      this.filter = { tech_type: techName };
+      if (version !== 'all') {
+        this.filter.version = version;
+      }
+      this.filtered = true;
+      let options = {
+        container: 'body',
+        easing: 'ease-in',
+        offset: -60
+      };
+      this.$scrollTo('#table_start_' + this.group_id, options);
     },
     async getTableData() {
       try {

@@ -1,40 +1,45 @@
 <template>
   <div>
-      <div class="row">
-        <div class="col-sm-6 text-left">
-          <h5 class="card-category">Domains loaded by your websites</h5>
-          <h2 class="card-title">Domain Dependencies</h2>
-        </div>
-        <div class="col-sm-6">
-          <div class="btn-group btn-group-toggle float-right" data-toggle="buttons">
-            <label
-              v-for="(option, index) in buttonCategories"
-              :key="option"
-              class="btn btn-sm btn-secondary btn-simple"
-              :class="{ active: display.activeIndex === index }"
-              :id="index"
+    <div class="row">
+      <div class="col-sm-6 text-left">
+        <h5 class="card-category">Domains loaded by your websites</h5>
+        <h2 class="card-title">Domain Dependencies</h2>
+      </div>
+      <div class="col-sm-6">
+        <div class="btn-group btn-group-toggle float-right" data-toggle="buttons">
+          <label
+            v-for="(option, index) in buttonCategories"
+            :key="option"
+            class="btn btn-sm btn-secondary btn-simple"
+            :class="{ active: display.activeIndex === index }"
+            :id="index"
+          >
+            <input
+              type="radio"
+              @click="showGraph(index)"
+              name="options"
+              autocomplete="off"
+              :checked="display.activeIndex === index"
             >
-              <input
-                type="radio"
-                @click="showGraph(index)"
-                name="options"
-                autocomplete="off"
-                :checked="display.activeIndex === index"
-              >
-              {{ option }}
-            </label>
-          </div>
+            {{ option }}
+          </label>
         </div>
       </div>
+    </div>
     <div class="row" v-show="buttonCategories[display.activeIndex] === 'List View'">
       <ul class="wrapped-ul">
-        <li v-for="(domain, index) in domainLinks" :key="index">{{domain.id}}</li>
+        <li v-for="(domain, index) in domainLinks" :key="index" @click="searchDomain(domain)">{{domain.id}}</li>
       </ul>
     </div>
     <div class="row" v-show="buttonCategories[display.activeIndex] === 'Graph View'">
       <div class="col-md-12 mr-1 ml-1" ref="container">
-        <div class="domain-canvas" ref="graph">No data</div>
+        <div id="overlay">
+          <p>Click to interact with the map</p>
+          <p><span style="color: #e14eca">Source nodes</span> represent what the browser initially loaded</p>
+          <p><span style="color: #abb3bb">Target nodes</span> are resources that are included in the source site</p>
+        </div>
       </div>
+      <div class="domain-canvas" id="container" ref="graph" @click="enablePanZoom">No data</div>
     </div>
   </div>
 </template>
@@ -79,6 +84,9 @@ export default {
     }
   },
   methods: {
+    searchDomain(domain) {
+      this.$emit('search', domain.id);
+    },
     showGraph(index) {
       this.display.activeIndex = index;
       if (this.buttonCategories[this.display.activeIndex] === 'Graph View') {
@@ -93,6 +101,9 @@ export default {
         nodes.push({ id: i + '.example.com' });
       }
       return nodes;
+    },
+    enablePanZoom() {
+      this.domainGraph.enableZoomPanInteraction(true);
     },
     downloadDomainDependencies() {
       fileDownloader(
@@ -112,21 +123,14 @@ export default {
       }
     },
     drawGraph() {
-      // ugh
-      let old = this.$refs.graph.firstElementChild;
-      if (old !== null) {
-        this.$refs.graph.removeChild(old);
-      }
-      console.log(this.$refs.graph.outerWidth);
-      console.log(this.$refs.graph.clientWidth);
-
       this.domainGraph(this.$refs.graph)
         .backgroundColor('rgba(0,0,0,0.3)') // #525f7f #1e1e2f
         .linkDirectionalParticles(1)
         .linkColor(() => 'rgba(255,255,255,0.2)')
         .nodeLabel('id')
         .height(760)
-        .width(this.$refs.container.outerWidth)
+        .width(this.$el.clientWidth)
+        .enableZoomPanInteraction(false)
         .linkDirectionalParticleSpeed(0.01)
         .nodeCanvasObject((node, ctx, globalScale) => {
           let label = node.id;
@@ -158,7 +162,6 @@ export default {
         .graphData(this.domainDependencies)
         .d3Force('link')
         .distance(() => 50);
-        console.log('drew graph');
     }
   },
   watch: {
@@ -178,9 +181,6 @@ export default {
           this.domainDependencies = resp.data;
           delete resp.data.status;
           this.downloadData = JSON.stringify(resp.data);
-          if (this.domainDependencies.links.length > 0) {
-            //this.drawGraph();
-          }
         }
       },
       err => {
@@ -225,7 +225,7 @@ export default {
   mounted() {}
 };
 </script>
-<style>
+<style scoped>
 .data p,
 .data span,
 .data tr,
@@ -255,5 +255,19 @@ hr {
   color: #e14eca;
   background-color: #e14eca;
   border: none;
+}
+
+#container {
+  margin-left: 15px;
+  position: relative;
+}
+#container canvas,
+#overlay {
+  position: absolute;
+  margin-left: 5px;
+  margin-top: 10px;
+  padding: 2px;
+  z-index: 100;
+   border: 1px solid white;
 }
 </style>
