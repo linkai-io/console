@@ -24,11 +24,17 @@ const getters = {
   isLoadingWebDataStats: state => state.isLoadingStats,
   webStats: state => state.webDataStats,
   isUpdating: state => state.isUpdating,
+  certsFifteenByID: state => group_id =>
+    findStatByID(state.webDataStats, group_id, 'expiring_certs_15'),
+  certsThirtyByID: state => group_id =>
+    findStatByID(state.webDataStats, group_id, 'expiring_certs_30'),
   totalCertsFifteen: state =>
     sumFields(state.webDataStats, 'expiring_certs_15'),
   totalCertsThirty: state => sumFields(state.webDataStats, 'expiring_certs_30'),
   totalUniqueWebServers: state =>
     sumFields(state.webDataStats, 'unique_web_servers'),
+  uniqueWebServersByID: state => group_id =>
+    findStatByID(state.webDataStats, group_id, 'unique_web_servers'),
   webServerTypesByID: state => group_id => {
     return findStatByID(state.webDataStats, group_id, 'server_types');
   },

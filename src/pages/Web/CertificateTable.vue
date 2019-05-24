@@ -1,7 +1,7 @@
 <template>
   <div class="content">
     <div class="col-md-8 ml-auto mr-auto">
-      <h2 class="text-center">{{group.group_name}}</h2>
+      <h2 class="text-center">{{ group.group_name }}</h2>
     </div>
     <div class="row mt-5">
       <div class="col-12">
@@ -137,7 +137,11 @@ export default {
   },
   props: {
     group_id: {
-      type: String
+      type: Number
+    },
+    expire_time: {
+      type: Number,
+      default: 0
     }
   },
   computed: {
@@ -290,6 +294,9 @@ export default {
       };
       if (this.pagination.sinceTimeTaken !== 0) {
         params.since_response_time = this.pagination.sinceTimeTaken;
+      }
+      if (this.expireTime !== 0) {
+        params.valid_to = this.expireTime;
       }
       try {
         let response = await API.get(

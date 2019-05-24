@@ -3,6 +3,7 @@
     <div class="row mt-5">
       <div class="col-12">
         <card card-body-classes="table-full-width">
+          <h3>{{ title }}</h3>
           <div class="row">
             <div class="col-md-12 text-right">
               <base-button
@@ -24,7 +25,7 @@
             </div>
           </div>
           <!--- show response data -->
-          <div id="response_details">
+          <div :id="'response_details_' + group_id">
             <div v-if="responseSelected === true">
               <response-card
                 @clicked="onResponseDetailsClick"
@@ -34,7 +35,7 @@
             </div>
           </div>
           <!--- show url data -->
-          <div id="url_details">
+          <div :id="'url_details_' + group_id">
             <div v-if="urlSelected === true">
               <response-card
                 @clicked="onURLDetailsClick"
@@ -62,7 +63,7 @@
                 <template slot-scope="scope">
                   <div v-if="column.prop === 'host_address'">
                     Host: {{scope.row.host_address}}
-                    <div v-if="scope.row.ip_address !== ''"> IP Address: {{scope.row.ip_address}}</div>
+                    <div v-if="scope.row.ip_address !== ''">IP Address: {{scope.row.ip_address}}</div>
                     <p>Port: {{ scope.row.response_port}}</p>
                     <p>Time: {{ formatNSTime(scope.row.response_timestamp) }}</p>
                   </div>
@@ -164,12 +165,10 @@ import {
 } from 'element-ui';
 import TechData from 'src/pages/Web/TechData.vue';
 import InfiniteLoading from 'vue-infinite-loading';
-import { mapGetters, mapState } from 'vuex';
 import { unixNanoToMinDate } from 'src/data/time.js';
 import { formatWebLink } from 'src/data/formatters.js';
 import ResponseCard from 'src/pages/Web/ResponseCard.vue';
 import API from 'src/api/api.js';
-import Fuse from 'fuse.js';
 
 export default {
   name: 'filtered-snapshot-table',
@@ -195,6 +194,10 @@ export default {
     filter: {
       type: Object,
       default: {}
+    },
+    title: {
+      type: String,
+      default: ''
     }
   },
   computed: {
@@ -345,7 +348,7 @@ export default {
       if (this.filter.tech_type !== '') {
         params.tech_type = this.filter.tech_type;
       }
-      
+
       if (this.filter.dependent_host_address !== '') {
         params.dependent_host_address = this.filter.dependent_host_address;
       }
@@ -410,7 +413,7 @@ export default {
         easing: 'ease-in',
         offset: -60
       };
-      this.$scrollTo('#response_details', options);
+      this.$scrollTo('#response_details_'+this.group_id, options);
     },
     setURLDetails(row) {
       this.onURLDetailsClick(null);
@@ -422,20 +425,18 @@ export default {
         easing: 'ease-in',
         offset: -60
       };
-      this.$scrollTo('#url_details', options);
+      this.$scrollTo('#url_details_'+this.group_id, options);
     },
-    onResponseDetailsClick(value) {
+    onResponseDetailsClick() {
       this.responseDetails = {};
       this.responseSelected = false;
     },
-    onURLDetailsClick(value) {
+    onURLDetailsClick() {
       this.urlDetails = {};
       this.urlSelected = false;
     }
   },
-  mounted() {
-    
-  },
+  mounted() {},
   created() {},
   watch: {
     isUpdating(val, oldValue) {
@@ -444,9 +445,7 @@ export default {
         this.tableData = [];
       }
     },
-    filter(val, oldValue) {
-      console.log('calling get table data again');
-      console.log(this.filter);
+    filter() {
       this.refreshTable();
     }
   }

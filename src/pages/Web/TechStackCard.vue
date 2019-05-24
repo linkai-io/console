@@ -83,6 +83,7 @@
           v-bind:group_id="group_id"
           v-bind:group_name="group_name"
           v-bind:filter="getFilter"
+          v-bind:title="getTitle"
         ></filtered-snapshot-table>
       </div>
     </div>
@@ -92,8 +93,6 @@
 import { mapGetters, mapState } from 'vuex';
 import FilteredSnapshotTable from 'src/pages/Web/FilteredSnapshotTable.vue';
 import DomainDependency from 'src/pages/Web/DomainDependency.vue';
-import { unixNanoToMinDate } from 'src/data/time.js';
-import { formatWebLink } from 'src/data/formatters.js';
 import API from 'src/api/api.js';
 
 export default {
@@ -119,6 +118,13 @@ export default {
     ...mapGetters('addresses', ['getCountByID']),
     ...mapState('addresses', ['isUpdating']),
     ...mapGetters('scangroup', ['groups']),
+     ...mapGetters('webdata', [
+      'isLoadingWebDataStats',
+      'totalCertsThirty',
+      'certsThirtyByID',
+      'webServerTypesByID',
+      'webServerTypeCountsByID'
+    ]),
     updating() {
       return this.isUpdating;
     },
@@ -126,12 +132,13 @@ export default {
       return ['Technologies', 'Dependencies'];
     },
     getFilter() {
-      console.log('this getFilter called');
-      console.log(this.filter);
       return this.filter;
     },
     shouldLoad() {
       return this.filtered;
+    },
+    getTitle() {
+      return this.title;
     },
     filteredVersion() {
       if (this.techVersionFilter === '') {
@@ -149,9 +156,7 @@ export default {
           return v.version;
         })
       );
-      console.log(versionSet);
       if (versionSet.size === 1 && versionSet.has('all')) {
-        console.log('searching now');
         this.loadTable(this.techVersionFilter.technologies);
       }
       return Array.from(versionSet);
@@ -174,12 +179,13 @@ export default {
       filter: {},
       filtered: false,
       showVersionList: false,
+      title: '',
       techVersionFilter: {}
     };
   },
   methods: {
     loadDependent(domain) {
-      console.log('searching: ' + domain);
+      this.title = 'Websites that load ' + domain;
       this.filter = { dependent_host_address: domain };
       this.filtered = true;
       let options = {
@@ -187,7 +193,7 @@ export default {
         easing: 'ease-in',
         offset: -60
       };
-      this.$scrollTo('#table_start' + this.group_id, options);
+      this.$scrollTo('#table_start_' + this.group_id, options);
     },
     openLink(link) {
       window.open(link, '_blank');
@@ -197,12 +203,13 @@ export default {
     },
     loadVersions(tech) {
       this.techVersionFilter = tech;
-      console.log(tech);
     },
     loadTable(techName, version) {
+      this.title = 'Websites that use ' + techName 
       this.filter = { tech_type: techName };
-      if (version !== 'all') {
+      if (version !== undefined && version !== 'all') {
         this.filter.version = version;
+        this.title += ' version ' + version;
       }
       this.filtered = true;
       let options = {
@@ -221,14 +228,14 @@ export default {
         if (response.data.technologies === null) {
           return;
         }
-        response.data = this.fakeData();
+        //response.data = this.fakeData();
         this.downloadData = response.data;
         let tech = response.data.technologies;
         let tech_details = response.data.tech_details;
         this.techCategories = Array.from(
           new Set(Object.keys(tech_details).map(v => tech_details[v].category))
         ).sort();
-        console.log(this.techCategories);
+
         Object.keys(tech_details).forEach(v => {
           this.tableData.push({
             technologies: v,

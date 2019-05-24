@@ -30,57 +30,6 @@
         </collapse-item>
       </collapse>
     </card>
-
-    <!-- stat cards -->
-    <div class="row">
-      <div class="col-lg-3 col-md-3 d-flex">
-        <stats-card
-          subTitle="Unique Web Servers"
-          :title="totalUniqueWebServers.toString()"
-          class="results-card"
-          type="info"
-          icon="tim-icons icon-globe-2"
-        >
-          <div slot="footer">Unique web servers found on host, IP, and port combinations</div>
-        </stats-card>
-      </div>
-
-      <div class="col-lg-3 col-md-3 d-flex">
-        <stats-card
-          subTitle="Certificates"
-          :title="totalCertsThirty.toString()"
-          class="results-card"
-          type="danger"
-          icon="tim-icons icon-lock-circle"
-        >
-          <div slot="footer">Certificates expiring in 30 days</div>
-        </stats-card>
-      </div>
-
-      <div class="col-lg-3 col-md-3 d-flex">
-        <stats-card
-          subTitle="Assets"
-          :title="totalConfident.toString()"
-          class="results-card"
-          type="info"
-          icon="tim-icons icon-shape-star"
-        >
-          <div slot="footer">Total assets found with 100% confidence</div>
-        </stats-card>
-      </div>
-
-      <div class="col-lg-3 col-md-3 d-flex">
-        <stats-card
-          subTitle="Discovered in last 24h"
-          :title="totalAssetsDay.toString()"
-          class="results-card"
-          type="warning"
-          icon="tim-icons icon-vector"
-        >
-          <div slot="footer">Total assets discovered in the last 24 hours</div>
-        </stats-card>
-      </div>
-    </div>
     <!-- notifications table -->
     <div class="row">
       <div class="col-lg-12 col-md-12 d-flex">
@@ -128,24 +77,39 @@
           :id="group.group_id"
         >
           <div class="row">
-            
-            <!-- tech stack card --> 
-            <div class="col-lg-12 col-md-12 d-flex">
-              <tech-stack-card v-bind:group_id="group.group_id" v-bind:group_name="group.group_name" :active="activeTabID === group.group_id"></tech-stack-card>
-            </div>
-              <!-- tech data table 
-            <div class="col-lg-12 col-md-12 d-flex">
-              <card type="notifications">
-                <template slot="header">
-                  <h6 class="title d-inline">Technology Data (Last 7 Days)</h6>
-                  <p class="card-category d-inline"></p>
-                </template>
-                <div>
-                  <tech-table v-bind:group_id="group.group_id"></tech-table>
+            <!-- stat cards -->
+            <div class="col-lg-12">
+              <div class="row">
+                <div class="col-md-12">
+                  <stats-card
+                    subTitle="Certificates Expiring"
+                    :title="certsExpiringTitle(group.group_id)"
+                    class="results-card"
+                    type="danger"
+                    icon="tim-icons icon-lock-circle"
+                  >
+                    <div slot="footer">Certificates expiring in 30 days
+                      <filtered-certificates-expiring v-bind:group_id="group.group_id" v-bind:expire_time="30"></filtered-certificates-expiring>
+                    </div>
+                  </stats-card>
                 </div>
-              </card>
+              </div>
+              <div class="row">
+                <div class="col-md-12">
+                  
+                  </div>
+                </div>
             </div>
-            -->
+          </div>
+          <div class="row">
+            <!-- tech stack card -->
+            <div class="col-lg-12 col-md-12 d-flex">
+              <tech-stack-card
+                v-bind:group_id="group.group_id"
+                v-bind:group_name="group.group_name"
+                :active="activeTabID === group.group_id"
+              ></tech-stack-card>
+            </div>
           </div>
         </tab-pane>
       </tabs>
@@ -159,6 +123,7 @@ import AssetChart from 'src/pages/Addresses/AssetChart.vue';
 import DiscoveredByChart from 'src/pages/Addresses/DiscoveredByChart.vue';
 import ServerTypeChart from 'src/pages/Web/ServerTypeChart.vue';
 import DomainDependencyGraph from 'src/pages/Web/DomainDependencyGraph.vue';
+import FilteredCertificatesExpiring from 'src/pages/Web/FilteredCertificatesExpiring.vue';
 import TechStackCard from 'src/pages/Web/TechStackCard.vue';
 import TechTable from 'src/pages/Web/TechTable.vue';
 
@@ -189,6 +154,7 @@ export default {
   components: {
     EventNotifications,
     DomainDependencyGraph,
+    FilteredCertificatesExpiring,
     Tabs,
     TabPane,
     AssetChart,
@@ -204,7 +170,8 @@ export default {
     return {
       addressStatsLoaded: false,
       webStatsLoaded: false,
-      activeTab: 0,
+      showExpiringTable: false,
+      activeTab: 0
     };
   },
   computed: {
@@ -222,7 +189,11 @@ export default {
       'totalCertsThirty',
       'totalCertsFifteen',
       'totalUniqueWebServers',
-      'totalWebServerTypes'
+      'totalWebServerTypes',
+      'uniqueWebServersByID',
+      'certsThirtyByID',
+      'webServerTypesByID',
+      'webServerTypeCountsByID'
     ]),
     showHome() {
       return this.shouldShowHome;
@@ -232,9 +203,24 @@ export default {
     },
     activeTabID() {
       return this.activeTab;
+    },
+    showExpiring() {
+      let expiring = this.certsThirtyByID(this.activeTab);
+      if (expiring === 0 || expiring === null || expiring === undefined) {
+        return false;
+      }
+      return true;
     }
   },
   methods: {
+    certsExpiringTitle(group_id) {
+      let expiring = this.certsThirtyByID(group_id);
+      if (expiring === 0 || expiring === null || expiring === undefined) {
+        return '0';
+      }
+      return expiring.toString();
+    },
+
     sendAllRead() {
       this.$store.dispatch('event/MARK_READ', 'all');
     },
@@ -252,8 +238,7 @@ export default {
       console.log(this.activeTab);
     }
   },
-  created() {
-  },
+  created() {},
   mounted() {
     initScrollbar('table-notifications');
     this.$store.dispatch('settings/INIT');

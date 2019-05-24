@@ -3,7 +3,7 @@
     <div class="row">
       <div class="col-sm-6 text-left">
         <h5 class="card-category">Domains loaded by your websites</h5>
-        <h2 class="card-title">Domain Dependencies</h2>
+        <h2 class="card-title"></h2>
       </div>
       <div class="col-sm-6">
         <div class="btn-group btn-group-toggle float-right" data-toggle="buttons">
@@ -27,16 +27,40 @@
       </div>
     </div>
     <div class="row" v-show="buttonCategories[display.activeIndex] === 'List View'">
-      <ul class="wrapped-ul">
-        <li v-for="(domain, index) in domainLinks" :key="index" @click="searchDomain(domain)">{{domain.id}}</li>
-      </ul>
+      <div class="col-md-12">
+        <div class="row">
+          <div class="col-md-3">
+            <base-input
+              type="text"
+              v-model="filterDomain"
+              placeholder="Search domain..."
+              @input="updateFilterDomain"
+            ></base-input>
+          </div>
+        </div>
+      <div class="row">
+        <div class="col-md-12 domain-wrapped-list">
+          <ul class="wrapped-ul">
+            <li
+              v-for="(domain, index) in filterDomainLinks"
+              :key="index"
+              @click="searchDomain(domain)"
+            >{{domain.id}}</li>
+          </ul>
+        </div>
+      </div>
+      </div>
     </div>
     <div class="row" v-show="buttonCategories[display.activeIndex] === 'Graph View'">
       <div class="col-md-12 mr-1 ml-1" ref="container">
         <div id="overlay">
           <p>Click to interact with the map</p>
-          <p><span style="color: #e14eca">Source nodes</span> represent what the browser initially loaded</p>
-          <p><span style="color: #abb3bb">Target nodes</span> are resources that are included in the source site</p>
+          <p>
+            <span style="color: #e14eca">Source nodes</span> represent what the browser initially loaded
+          </p>
+          <p>
+            <span style="color: #abb3bb">Target nodes</span> are resources that are included in the source site
+          </p>
         </div>
       </div>
       <div class="domain-canvas" id="container" ref="graph" @click="enablePanZoom">No data</div>
@@ -61,6 +85,7 @@ export default {
   data() {
     return {
       domainDependencies: {},
+      filterDomain: '',
       downloadData: {},
       domainGraph: ForceGraph(),
       resizer: null,
@@ -72,6 +97,18 @@ export default {
     };
   },
   computed: {
+    filterDomainLinks() {
+      if (this.filterDomain === '') {
+        return this.domainLinks;
+      }
+
+      return this.domainLinks.filter(v => {
+        if (v.id === undefined) {
+          return false;
+        }
+        return v.id.toLowerCase().startsWith(this.filterDomain.toLowerCase());
+      });
+    },
     buttonCategories() {
       return ['List View', 'Graph View'];
     },
@@ -84,6 +121,9 @@ export default {
     }
   },
   methods: {
+    updateFilterDomain(domain) {
+      this.filterDomain = domain;
+    },
     searchDomain(domain) {
       this.$emit('search', domain.id);
     },
@@ -131,6 +171,7 @@ export default {
         .height(760)
         .width(this.$el.clientWidth)
         .enableZoomPanInteraction(false)
+        .onNodeClick(this.searchDomain)
         .linkDirectionalParticleSpeed(0.01)
         .nodeCanvasObject((node, ctx, globalScale) => {
           let label = node.id;
@@ -168,6 +209,9 @@ export default {
     active: function(val, oldValue) {
       if (val === true) {
         this.drawGraph();
+      } else {
+        this.domainGraph.pauseAnimation();
+        this.domainGraph = null;
       }
     }
   },
@@ -237,17 +281,30 @@ export default {
   width: 100%;
 }
 
-.wrapped-ul {
-  list-style-type: none;
+.domain-wrapped-list {
+  overflow: auto;
 }
+
+.wrapped-ul {
+  padding: 0;
+  margin: 0;
+  
+  z-index: 100;
+  height: 120px;
+  overflow: auto;
+}
+
 .wrapped-ul li {
+  list-style: none;
   float: left;
-  margin: 5px;
-  -webkit-transition: box-shadow 0.5s ease;
-  -moz-transition: box-shadow 0.5s ease;
-  -o-transition: box-shadow 0.5s ease;
-  -ms-transition: box-shadow 0.5s ease;
-  transition: box-shadow 0.5s ease;
+  overflow: auto;
+  padding: 4px 2px;
+  cursor: pointer;
+}
+
+.wrapped-ul li.is-active,
+.wrapped-ul li:hover {
+  color: #e14eca;
 }
 
 hr {
@@ -268,6 +325,6 @@ hr {
   margin-top: 10px;
   padding: 2px;
   z-index: 100;
-   border: 1px solid white;
+  border: 1px solid white;
 }
 </style>
