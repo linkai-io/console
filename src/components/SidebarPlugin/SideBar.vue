@@ -2,10 +2,10 @@
   <div class="sidebar" :data="backgroundColor">
     <div class="sidebar-wrapper" ref="sidebarScrollArea">
       <div class="logo">
-        <a href="https://linkai.io" class="simple-text logo-mini">
+        <a href="#/dashboard" class="simple-text logo-mini">
           <img :src="logo" alt="app-logo" />
         </a>
-        <a href="https://linkai.io" class="simple-text logo-normal">
+        <a href="#/dashboard" class="simple-text logo-normal">
           {{ title }}
         </a>
       </div>

@@ -109,7 +109,8 @@ const getters = {
   shouldWeeklyEmail: state => state.should_weekly_email,
   userTimezone: state => state.user_timezone,
   isLoading: state => state.isLoading,
-  isUpdating: state => state.isUpdating
+  isUpdating: state => state.isUpdating,
+  isLoadingEvents: state => state.isLoading
 };
 
 // actions

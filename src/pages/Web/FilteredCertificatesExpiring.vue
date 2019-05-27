@@ -2,7 +2,7 @@
   <div class="content">
     <collapse accordion>
       <collapse-item
-        title="Show Certificates"
+        title="Show Expiring Certificates"
         :multiple-active="false"
         @activate="loadCertificateTable"
       >
@@ -41,10 +41,10 @@
                 @infinite="getTableData"
               >
                 <div slot="no-more">
-                  <router-link :to="'/webdata/certificates/'+ group_id">See all...</router-link>
+                  <router-link :to="'/webdata/certificates/'+ group_id">See all certificates...</router-link>
                 </div>
-                <div slot="no-data">
-                  <router-link :to="'/webdata/certificates/'+ group_id">See all...</router-link>
+                <div slot="no-results">
+                  <router-link :to="'/webdata/certificates/'+ group_id">See all certificates...</router-link>
                 </div>
               </infinite-loading>
             </template>

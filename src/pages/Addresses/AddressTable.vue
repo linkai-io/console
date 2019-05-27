@@ -612,7 +612,6 @@ export default {
       }
 
       this.selectedFilters.map(v => {
-        console.log(v);
         if (v.has_value === false) {
           params[v.filter] = true;
           return;

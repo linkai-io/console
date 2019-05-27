@@ -31,8 +31,8 @@
                 <div class="col-md-4">
                   <base-input>
                     <base-button
-                      type="secondary"
-                      :round="true"
+                      type="primary"
+                      size="sm"
                       :loading="updating"
                       @click.native="filterSince"
                     >Filter</base-button>
@@ -46,13 +46,14 @@
           <div class="row">
             <div class="col-md-12 text-right">
               <base-button
-                type="secondary"
-                :round="true"
+                type="primary"
+                size="sm"
                 :loading="updating"
                 @click.native="handleExport"
               >Export all</base-button>
               <base-button
                 type="primary"
+                size="sm"
                 icon
                 round
                 :loading="updating"
@@ -123,7 +124,6 @@ import { unixNanoToMinDate, unixTimeToMinDate } from 'src/data/time.js';
 import { mapGetters, mapState } from 'vuex';
 import API from 'src/api/api.js';
 import Fuse from 'fuse.js';
-import swal from 'sweetalert2';
 
 export default {
   components: {
@@ -137,7 +137,7 @@ export default {
   },
   props: {
     group_id: {
-      type: Number
+      type: String
     },
     expire_time: {
       type: Number,

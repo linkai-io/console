@@ -6,7 +6,7 @@
     <div class="row mt-5">
       <div class="col-12">
         <card card-body-classes="table-full-width">
-          <h4 slot="header" class="card-title">Response Data</h4>
+          <h4 slot="header" class="card-title">Website Data</h4>
 
           <div class="row">
             <form class="form-horizontal col-md-12">
@@ -63,8 +63,8 @@
                 <div class="col-md-2 d-flex align-bottom">
                   <base-input class="mt-3">
                     <base-button
-                      type="secondary"
-                      :round="true"
+                      type="primary"
+                      size="sm"
                       :loading="updating"
                       @click.native="filterSince"
                     >Filter</base-button>
@@ -79,13 +79,14 @@
           <div class="row">
             <div class="col-md-12 text-right">
               <base-button
-                type="secondary"
-                :round="true"
+                type="primary"
+                size="sm"
                 :loading="updating"
                 @click.native="handleExport"
               >Export all</base-button>
               <base-button
                 type="primary"
+                size="sm"
                 icon
                 round
                 :loading="updating"

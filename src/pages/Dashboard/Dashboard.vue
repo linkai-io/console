@@ -30,89 +30,95 @@
         </collapse-item>
       </collapse>
     </card>
-    <!-- notifications table -->
-    <div class="row">
-      <div class="col-lg-12 col-md-12 d-flex">
-        <card type="notifications" :header-classes="'text-right'">
-          <template slot="header">
-            <h6 class="title d-inline">Notifications ({{events.length}})</h6>
-            <p class="card-category d-inline"></p>
-            <base-dropdown
-              menu-on-right
-              tag="div"
-              title-classes="btn btn-link btn-icon"
-              class="float-right"
-            >
-              <i slot="title" class="tim-icons icon-settings-gear-63"></i>
+    <div id="loading_menu">
+    <loading-main-panel v-bind:loading="isLoading"></loading-main-panel>
+      <!-- notifications table -->
+      <div class="row">
+        <div class="col-lg-12 col-md-12 d-flex">
+          <card type="notifications" :header-classes="'text-right'">
+            <template slot="header">
+              <h6 class="title d-inline">Notifications ({{events.length}})</h6>
+              <p class="card-category d-inline"></p>
+              <base-dropdown
+                menu-on-right
+                tag="div"
+                title-classes="btn btn-link btn-icon"
+                class="float-right"
+              >
+                <i slot="title" class="tim-icons icon-settings-gear-63"></i>
 
-              <a class="dropdown-item" @click="sendOnlyMarkedRead">Mark selected as read</a>
-              <a class="dropdown-item" @click="sendAllRead">Mark all as read</a>
-              <a class="dropdown-item" @click="configureNotifications">Configure notifications</a>
-            </base-dropdown>
-          </template>
-          <div v-if="!hasSubscriptions" class="row">
-            <p class="col-sm">You do not currently have any notifications enabled</p>
-          </div>
-          <div class="table-full-width table-responsive table-notifications">
-            <event-notifications></event-notifications>
-          </div>
-        </card>
+                <a class="dropdown-item" @click="sendOnlyMarkedRead">Mark selected as read</a>
+                <a class="dropdown-item" @click="sendAllRead">Mark all as read</a>
+                <a class="dropdown-item" @click="configureNotifications">Configure notifications</a>
+              </base-dropdown>
+            </template>
+            <div v-if="!hasSubscriptions" class="row">
+              <p class="col-sm">You do not currently have any notifications enabled</p>
+            </div>
+            <div class="table-full-width table-responsive table-notifications">
+              <event-notifications></event-notifications>
+            </div>
+          </card>
+        </div>
       </div>
-    </div>
 
-    <div v-if="hasGroups">
-      <tabs
-        type="primary"
-        tabContentClasses="col-lg-12 col-md-12 d-flex"
-        tabNavClasses
-        square
-        centered
-        class="row"
-        @change="handleChange"
-      >
-        <tab-pane
-          v-for="group in this.groups"
-          :key="group.group_id"
-          :label="group.group_name"
-          :id="group.group_id"
+      <div v-if="hasGroups">
+        <tabs
+          type="primary"
+          tabContentClasses="col-lg-12 col-md-12 d-flex"
+          tabNavClasses
+          square
+          centered
+          class="row"
+          @change="handleChange"
         >
-          <div class="row">
-            <!-- stat cards -->
-            <div class="col-lg-12">
-              <div class="row">
-                <div class="col-md-12">
-                  <stats-card
-                    subTitle="Certificates Expiring"
-                    :title="certsExpiringTitle(group.group_id)"
-                    class="results-card"
-                    type="danger"
-                    icon="tim-icons icon-lock-circle"
-                  >
-                    <div slot="footer">Certificates expiring in 30 days
-                      <filtered-certificates-expiring v-bind:group_id="group.group_id" v-bind:expire_time="30"></filtered-certificates-expiring>
-                    </div>
-                  </stats-card>
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-md-12">
-                  
+          <tab-pane
+            v-for="group in this.groups"
+            :key="group.group_id"
+            :label="group.group_name"
+            :id="group.group_id"
+          >
+            <div class="row">
+              <!-- stat cards -->
+              <div class="col-lg-12">
+                <div class="row">
+                  <div class="col-md-12">
+                    <stats-card
+                      subTitle="Certificates Expiring"
+                      :title="certsExpiringTitle(group.group_id)"
+                      type="danger"
+                      icon="tim-icons icon-lock-circle"
+                      :link="'/webdata/certificates/'+group.group_id"
+                    >
+                      <div slot="footer">
+                        Certificates expiring in 30 days
+                        <filtered-certificates-expiring
+                          v-if="showExpiring(group.group_id)"
+                          v-bind:group_id="group.group_id"
+                          v-bind:expire_time="30"
+                        ></filtered-certificates-expiring>
+                      </div>
+                    </stats-card>
                   </div>
                 </div>
+                <div class="row">
+                  <div class="col-md-12"></div>
+                </div>
+              </div>
             </div>
-          </div>
-          <div class="row">
-            <!-- tech stack card -->
-            <div class="col-lg-12 col-md-12 d-flex">
-              <tech-stack-card
-                v-bind:group_id="group.group_id"
-                v-bind:group_name="group.group_name"
-                :active="activeTabID === group.group_id"
-              ></tech-stack-card>
+            <div class="row">
+              <!-- tech stack card -->
+              <div class="col-lg-12 col-md-12 d-flex">
+                <tech-stack-card
+                  v-bind:group_id="group.group_id"
+                  v-bind:group_name="group.group_name"
+                  :active="activeTabID === group.group_id"
+                ></tech-stack-card>
+              </div>
             </div>
-          </div>
-        </tab-pane>
-      </tabs>
+          </tab-pane>
+        </tabs>
+      </div>
     </div>
   </div>
 </template>
@@ -126,6 +132,7 @@ import DomainDependencyGraph from 'src/pages/Web/DomainDependencyGraph.vue';
 import FilteredCertificatesExpiring from 'src/pages/Web/FilteredCertificatesExpiring.vue';
 import TechStackCard from 'src/pages/Web/TechStackCard.vue';
 import TechTable from 'src/pages/Web/TechTable.vue';
+import LoadingMainPanel from 'src/pages/Layout/LoadingMainPanel.vue';
 
 import { mapGetters } from 'vuex';
 import { TabPane, Tabs, Collapse, CollapseItem } from 'src/components';
@@ -155,6 +162,7 @@ export default {
     EventNotifications,
     DomainDependencyGraph,
     FilteredCertificatesExpiring,
+    LoadingMainPanel,
     Tabs,
     TabPane,
     AssetChart,
@@ -175,7 +183,7 @@ export default {
     };
   },
   computed: {
-    ...mapGetters('event', ['events', 'hasSubscriptions']),
+    ...mapGetters('event', ['events', 'hasSubscriptions', 'isLoadingEvents']),
     ...mapGetters('scangroup', ['groups']),
     ...mapGetters('settings', ['shouldShowHome']),
     ...mapGetters('addresses', [
@@ -204,15 +212,22 @@ export default {
     activeTabID() {
       return this.activeTab;
     },
-    showExpiring() {
-      let expiring = this.certsThirtyByID(this.activeTab);
-      if (expiring === 0 || expiring === null || expiring === undefined) {
-        return false;
-      }
-      return true;
+    isLoading() {
+      return !(
+        this.isLoadingWebDataStats === false &&
+        this.isLoadingAddressStats === false &&
+        this.isLoadingEvents === false
+      );
     }
   },
   methods: {
+    showExpiring(group_id) {
+      let expiring = this.certsThirtyByID(group_id);
+      if (expiring === null || expiring === undefined || expiring === 0) {
+        return false;
+      }
+      return true;
+    },
     certsExpiringTitle(group_id) {
       let expiring = this.certsThirtyByID(group_id);
       if (expiring === 0 || expiring === null || expiring === undefined) {
@@ -250,5 +265,12 @@ export default {
   beforeDestroy() {}
 };
 </script>
-<style>
+<style scoped>
+.el-loading-spinner .path {
+  stroke: #f3c !important;
+}
+
+.el-loading-mask {
+  background: transparent !important;
+}
 </style>

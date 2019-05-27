@@ -110,7 +110,7 @@ export default {
     }
   },
   watch: {
-    active: function(val, oldValue) {
+    active: function(val) {
       if (val === true) {
         this.drawGraph();
       }
@@ -171,7 +171,7 @@ export default {
   mounted() {}
 };
 </script>
-<style>
+<style scoped>
 .data p,
 .data span,
 .data tr,

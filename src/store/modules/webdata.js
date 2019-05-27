@@ -141,11 +141,11 @@ const actions = {
     );
   },
 
-  EXPORT_WEBSITES({ dispatch, commit }, details) {
+  EXPORT_WEBSITES({ dispatch, commit }, params) {
     commit('SET_IS_UPDATING', true);
-    API.post(
-      '/webdata/group/' + details.group_id + '/snapshots/download',
-      details,
+    API.get(
+      '/webdata/group/' + params.group_id + '/snapshots/download',
+      { params: params },
       {
         responseType: 'blob'
       }
@@ -155,8 +155,8 @@ const actions = {
         if (resp.data !== undefined) {
           console.log('downloading file');
           fileDownloader(
-            resp.data,
-            'websites.' + details.group_id + '.json',
+            JSON.stringify(resp.data),
+            'websites.' + params.group_id + '.json',
             'application/octet-stream'
           );
         }

@@ -6,12 +6,11 @@
         <h3 class="card-title">Configuration</h3>
       </div>
           <div class="card-body mt-0">
-            <h3>Creating a new scan group</h3>
             <p>
-              Scan groups allow you to group domains or hosts to run independently of one another. While in beta, not all options are exposed nor are all user levels, making it potentially unclear as to the benefit of separating your hosts into different groups. If you are unsure, just put all of your assets into a single group.
+              Scan groups allow you to group domains or hosts to run independently of one another. While in beta, not all options are exposed nor are all user levels, making it potentially unclear as to the benefit of separating your hosts into different groups. If you are unsure, it is recommended that you put all of your assets into a single group.
             </p>
             <br>
-            <h4>Settings</h4>
+            <h6>Settings</h6>
             <p>
               <ul>
                 <li><b>Concurrent Requests</b> - This option limits how many hosts to analyze in parallel. </li>

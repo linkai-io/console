@@ -11,7 +11,7 @@
                 size="sm"
                 :loading="updating"
                 @click.native="handleExport"
-              >Export all</base-button>
+              >Export</base-button>
               <base-button
                 type="primary"
                 icon
@@ -349,6 +349,10 @@ export default {
         params.tech_type = this.filter.tech_type;
       }
 
+      if (this.filter.tech_type_version !== '') {
+        params.tech_type_version = this.filter.tech_type_version;
+      }
+
       if (this.filter.dependent_host_address !== '') {
         params.dependent_host_address = this.filter.dependent_host_address;
       }
@@ -395,12 +399,32 @@ export default {
       }
     },
     handleExport() {
-      let details = {
+      let params = {
         group_id: this.group_id,
-        all_addresses: true
+        start: 0
       };
+      if (
+        !Number.isNaN(this.pagination.sinceTimeTaken) &&
+        this.pagination.sinceTimeTaken !== 0
+      ) {
+        params.after_response_time = this.pagination.sinceTimeTaken;
+      }
+      if (this.filter.host_address !== '') {
+        params.host_address = this.filter.host_address;
+      }
+      if (this.filter.tech_type !== '') {
+        params.tech_type = this.filter.tech_type;
+      }
 
-      this.$store.dispatch('webdata/EXPORT_WEBSITES', details);
+      if (this.filter.tech_type_version !== '') {
+        params.tech_type_version = this.filter.tech_type_version;
+      }
+
+      if (this.filter.dependent_host_address !== '') {
+        params.dependent_host_address = this.filter.dependent_host_address;
+      }
+
+      this.$store.dispatch('webdata/EXPORT_WEBSITES', params);
       return true;
     },
     setResponseDetails(row) {

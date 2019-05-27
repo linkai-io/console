@@ -35,20 +35,21 @@
               v-model="filterDomain"
               placeholder="Search domain..."
               @input="updateFilterDomain"
+              @keyup.enter="searchIfHit"
             ></base-input>
           </div>
         </div>
-      <div class="row">
-        <div class="col-md-12 domain-wrapped-list">
-          <ul class="wrapped-ul">
-            <li
-              v-for="(domain, index) in filterDomainLinks"
-              :key="index"
-              @click="searchDomain(domain)"
-            >{{domain.id}}</li>
-          </ul>
+        <div class="row">
+          <div class="col-md-12 domain-wrapped-list">
+            <ul class="wrapped-ul">
+              <li
+                v-for="(domain, index) in filterDomainLinks"
+                :key="index"
+                @click="searchDomain(domain)"
+              >{{domain.id}}</li>
+            </ul>
+          </div>
         </div>
-      </div>
       </div>
     </div>
     <div class="row" v-show="buttonCategories[display.activeIndex] === 'Graph View'">
@@ -124,6 +125,12 @@ export default {
     updateFilterDomain(domain) {
       this.filterDomain = domain;
     },
+    searchIfHit() {
+      let results = this.filterDomainLinks;
+      if (results.length === 1) {
+        this.searchDomain(results[0]);
+      }
+    },
     searchDomain(domain) {
       this.$emit('search', domain.id);
     },
@@ -153,6 +160,10 @@ export default {
       );
     },
     handleResize() {
+      if (this.buttonCategories[this.display.activeIndex] !== 'Graph View') {
+        return;
+      }
+
       if (
         this.domainDependencies.nodes !== undefined &&
         this.domainDependencies.links !== undefined
@@ -206,7 +217,7 @@ export default {
     }
   },
   watch: {
-    active: function(val, oldValue) {
+    active: function(val) {
       if (val === true) {
         this.drawGraph();
       } else {
@@ -288,7 +299,7 @@ export default {
 .wrapped-ul {
   padding: 0;
   margin: 0;
-  
+
   z-index: 100;
   height: 120px;
   overflow: auto;

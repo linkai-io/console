@@ -156,7 +156,7 @@ export default {
           return v.version;
         })
       );
-      if (versionSet.size === 1 && versionSet.has('all')) {
+      if (versionSet.size === 1) {
         this.loadTable(this.techVersionFilter.technologies);
       }
       return Array.from(versionSet);
@@ -208,7 +208,7 @@ export default {
       this.title = 'Websites that use ' + techName 
       this.filter = { tech_type: techName };
       if (version !== undefined && version !== 'all') {
-        this.filter.version = version;
+        this.filter.tech_type_version = version;
         this.title += ' version ' + version;
       }
       this.filtered = true;
@@ -674,7 +674,7 @@ export default {
   }
 };
 </script>
-<style>
+<style scoped>
 .pagination-select,
 .search-input {
   width: 200px;
@@ -682,5 +682,11 @@ export default {
 .el-table {
   overflow: hidden;
   position: relative;
+}
+hr{ 
+  height: 1px;
+  color: #e14eca;
+  background-color: #e14eca;
+  border: none;
 }
 </style>
