@@ -6,9 +6,11 @@
           <div class="row">
             <base-alert type="default" icon="tim-icons icon-bell-55">
               <div class="col-md-auto" v-if="addrCount === 0">
-                <span>This scan group does not have any addresses associated with it, either type in or upload the initial addresses for this group.</span>
+                <div>
+                  <span>This scan group does not have any addresses associated with it, either type in or upload the initial addresses for this group.</span>
+                </div>
               </div>
-
+              <p><span style="color: red">Warning:</span> When uploading IP addresses, they will be resolved and the hostname or domain that is returned will be added to your list of assets.</p>
               <div class="row">
                 <label class="col-sm-2 col-form-label">Add Hosts</label>
                 <div class="col-sm-7">

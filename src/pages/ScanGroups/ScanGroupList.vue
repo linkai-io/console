@@ -17,6 +17,7 @@
               <li>Type into the Add hosts text box</li>
             </ul>
             <p>When typing in to the text box, be sure to add only a single hostname / range / address per line.</p>
+            <p><span style="color: red">Warning:</span> When uploading IP addresses, if they can be resolved, they will be resolved and the hostname or domain that is returned will be added to your list of assets.</p>
           <div class="mr-auto">
             <base-button type="primary" @click="createGroup" size="sm">Create New Group</base-button>
           </div>
