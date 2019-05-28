@@ -8,36 +8,11 @@
         <card card-body-classes="table-full-width">
           <h4 slot="header" class="card-title">Hostnames</h4>
           <div class="col-sm-12">
-            <!--
-            <base-button
-              type="primary"
-              :round="true"
-              :disabled="!hasMultiSelected"
-              @click.native="handleMultiDelete"
-            >Delete</base-button>
-            <base-button
-              type="primary"
-              :round="true"
-              :disabled="!hasMultiSelected"
-              @click.native="handleMultiIgnore"
-            >Ignore</base-button>
-            <base-button
-              type="primary"
-              :round="true"
-              :disabled="!hasMultiSelected"
-              @click.native="handleMultiUnignore"
-            >Unignore</base-button>
-            <base-button
-              type="primary"
-              :round="true"
-              :disabled="!hasMultiSelected"
-              @click.native="handleMultiExport"
-            >Export selected</base-button>
-            -->
+            
             <div class="col-md-12 text-right">
               <base-button
-                type="secondary"
-                :round="true"
+                type="primary"
+                size="sm"
                 :loading="updating"
                 @click.native="handleExport"
               >Export all</base-button>
@@ -45,7 +20,7 @@
               <base-button
                 type="primary"
                 icon
-                round
+                size="sm"
                 :loading="updating"
                 @click.native="refreshTable"
               >
@@ -70,7 +45,7 @@
                   <div v-if="column.prop ==='ip_addresses'">
                     <collapse accordion >
                       <collapse-item :title="'('+scope.row.ip_addresses.length+')'">
-                        <div v-for="(ip_address) in scope.row.ip_addresses">{{ip_address}}</div>
+                        <div v-for="(ip_address, index) in scope.row.ip_addresses" :key="index">{{ip_address}}</div>
                       </collapse-item>
                     </collapse>
                   </div>
@@ -151,7 +126,6 @@ import { unixNanoToMinDate } from 'src/data/time.js';
 import { mapGetters, mapState } from 'vuex';
 import { formatNSRecord } from 'src/data/formatters.js';
 import API from 'src/api/api.js';
-import Fuse from 'fuse.js';
 export default {
   components: {
     InfiniteLoading,
@@ -232,8 +206,7 @@ export default {
         }
       ],
       tableData: [],
-      multipleSelection: [],
-      fuseSearch: null
+      multipleSelection: []
     };
   },
   methods: {
@@ -251,9 +224,9 @@ export default {
           '/address/group/' + this.group_id + '/hosts',
           {
             params: {
-              start_host: start,
+              starts_host_address: start,
               limit: limit,
-              above_confidence: 99
+              equals_confidence: 100
             }
           }
         );
@@ -389,16 +362,11 @@ export default {
     }
   },
   mounted() {
-    // Fuse search initialization.
-    this.fuseSearch = new Fuse(this.tableData, {
-      keys: ['hostname'],
-      threshold: 0.3
-    });
+    
   },
   created() {},
   watch: {
     isUpdating(val, oldValue) {
-      console.log('new: ' + val + ' old: ' + oldValue);
       // reset the table data after we delete/ignore/unignore values
       if (val === false && oldValue === true) {
         this.pagination.lastIndex = 0;

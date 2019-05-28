@@ -601,18 +601,17 @@ export default {
         !Number.isNaN(this.pagination.discoveredDateTimePicker) &&
         this.pagination.discoveredDateTimePicker !== 0
       ) {
-        params.after_discovered = this.pagination.discoveredDateTimePicker;
+        params.after_discovered_time = this.pagination.discoveredDateTimePicker;
       }
 
       if (
         !Number.isNaN(this.pagination.seenDateTimePicker) &&
         this.pagination.seenDateTimePicker !== 0
       ) {
-        params.after_seen = this.pagination.seenDateTimePicker;
+        params.after_seen_time = this.pagination.seenDateTimePicker;
       }
 
       this.selectedFilters.map(v => {
-        console.log(v);
         if (v.has_value === false) {
           params[v.filter] = true;
           return;

@@ -1,7 +1,7 @@
 <template>
   <div class="content">
     <div class="col-md-8 ml-auto mr-auto">
-      <h2 class="text-center">{{group.group_name}}</h2>
+      <h2 class="text-center">{{ group.group_name }}</h2>
     </div>
     <div class="row mt-5">
       <div class="col-12">
@@ -31,8 +31,8 @@
                 <div class="col-md-4">
                   <base-input>
                     <base-button
-                      type="secondary"
-                      :round="true"
+                      type="primary"
+                      size="sm"
                       :loading="updating"
                       @click.native="filterSince"
                     >Filter</base-button>
@@ -46,13 +46,14 @@
           <div class="row">
             <div class="col-md-12 text-right">
               <base-button
-                type="secondary"
-                :round="true"
+                type="primary"
+                size="sm"
                 :loading="updating"
                 @click.native="handleExport"
               >Export all</base-button>
               <base-button
                 type="primary"
+                size="sm"
                 icon
                 round
                 :loading="updating"
@@ -123,7 +124,6 @@ import { unixNanoToMinDate, unixTimeToMinDate } from 'src/data/time.js';
 import { mapGetters, mapState } from 'vuex';
 import API from 'src/api/api.js';
 import Fuse from 'fuse.js';
-import swal from 'sweetalert2';
 
 export default {
   components: {
@@ -138,6 +138,10 @@ export default {
   props: {
     group_id: {
       type: String
+    },
+    expire_time: {
+      type: Number,
+      default: 0
     }
   },
   computed: {
@@ -290,6 +294,9 @@ export default {
       };
       if (this.pagination.sinceTimeTaken !== 0) {
         params.since_response_time = this.pagination.sinceTimeTaken;
+      }
+      if (this.expireTime !== 0) {
+        params.valid_to = this.expireTime;
       }
       try {
         let response = await API.get(

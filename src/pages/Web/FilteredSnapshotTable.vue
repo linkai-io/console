@@ -1,81 +1,9 @@
 <template>
   <div class="content">
-    <div class="col-md-8 ml-auto mr-auto">
-      <h2 class="text-center">{{group.group_name}}</h2>
-    </div>
     <div class="row mt-5">
       <div class="col-12">
         <card card-body-classes="table-full-width">
-          <h4 slot="header" class="card-title">Website Data</h4>
-
-          <div class="row">
-            <form class="form-horizontal col-md-12">
-              <div class="row">
-                <div class="col-md-2 d-flex">
-                  <el-tooltip
-                    content="Return results captured after the supplied date/time."
-                    effect="light"
-                    :open-delay="150"
-                    placement="top"
-                  >
-                    <base-input label="Time taken">
-                      <el-date-picker
-                        type="datetime"
-                        placeholder="Filter since time taken"
-                        v-model="dateTimePicker"
-                      ></el-date-picker>
-                    </base-input>
-                  </el-tooltip>
-                </div>
-
-                <div class="col-md-2 d-flex">
-                  <el-tooltip
-                    content="Only return responses that match the host name"
-                    effect="light"
-                    :open-delay="150"
-                    placement="bottom"
-                  >
-                    <base-input
-                      label="Matches host"
-                      v-model="filter.host_address"
-                      type="text"
-                      placeholder="example.com"
-                    ></base-input>
-                  </el-tooltip>
-                </div>
-
-                <div class="col-md-2 d-flex">
-                  <el-tooltip
-                    content="Only return responses that were found using the following technology"
-                    effect="light"
-                    :open-delay="150"
-                    placement="bottom"
-                  >
-                    <base-input
-                      label="Matches technology"
-                      v-model="filter.tech_type"
-                      type="text"
-                      placeholder="jquery"
-                    ></base-input>
-                  </el-tooltip>
-                </div>
-
-                <div class="col-md-2 d-flex align-bottom">
-                  <base-input class="mt-3">
-                    <base-button
-                      type="primary"
-                      size="sm"
-                      :loading="updating"
-                      @click.native="filterSince"
-                    >Filter</base-button>
-                  </base-input>
-                </div>
-              </div>
-            </form>
-
-            <!-- end row -->
-          </div>
-
+          <h3>{{ title }}</h3>
           <div class="row">
             <div class="col-md-12 text-right">
               <base-button
@@ -83,12 +11,12 @@
                 size="sm"
                 :loading="updating"
                 @click.native="handleExport"
-              >Export all</base-button>
+              >Export</base-button>
               <base-button
                 type="primary"
-                size="sm"
                 icon
                 round
+                size="sm"
                 :loading="updating"
                 @click.native="refreshTable"
               >
@@ -97,15 +25,23 @@
             </div>
           </div>
           <!--- show response data -->
-          <div id="response_details">
+          <div :id="'response_details_' + group_id">
             <div v-if="responseSelected === true">
-              <response-card @clicked="onResponseDetailsClick" :lookupFilter="responseDetails" title="Response"></response-card>
+              <response-card
+                @clicked="onResponseDetailsClick"
+                :lookupFilter="responseDetails"
+                title="Response"
+              ></response-card>
             </div>
           </div>
           <!--- show url data -->
-          <div id="url_details">
+          <div :id="'url_details_' + group_id">
             <div v-if="urlSelected === true">
-              <response-card @clicked="onURLDetailsClick" v-bind:lookupFilter="urlDetails" title="URL Details"></response-card>
+              <response-card
+                @clicked="onURLDetailsClick"
+                v-bind:lookupFilter="urlDetails"
+                title="URL Details"
+              ></response-card>
             </div>
           </div>
           <div class="col-sm-12">
@@ -115,7 +51,6 @@
               :data="tableData"
               @selection-change="handleSelectionChange"
             >
-            
               <el-table-column
                 v-for="column in tableColumns"
                 :key="column.label"
@@ -127,13 +62,19 @@
               >
                 <template slot-scope="scope">
                   <div v-if="column.prop === 'host_address'">
-                    {{scope.row.host_address}}
-                    <div v-if="scope.row.ip_address !== ''">({{scope.row.ip_address}})</div>
+                    Host: {{scope.row.host_address}}
+                    <div v-if="scope.row.ip_address !== ''">IP Address: {{scope.row.ip_address}}</div>
+                    <p>Port: {{ scope.row.response_port}}</p>
+                    <p>Time: {{ formatNSTime(scope.row.response_timestamp) }}</p>
                   </div>
                   <div v-else-if="column.prop === 'url'">
                     <a :href="formatWebLink(scope.row.url)">{{ formatWebLink(scope.row.url)}}</a>
                     <div v-if="wasRedirect(scope.row)">
-                      redirected from: <br><a :href="formatWebLink(scope.row.load_url)">{{ formatWebLink(scope.row.load_url) }}</a>
+                      redirected from:
+                      <br>
+                      <a
+                        :href="formatWebLink(scope.row.load_url)"
+                      >{{ formatWebLink(scope.row.load_url) }}</a>
                     </div>
                   </div>
                   <div v-else-if="column.prop ==='snapshot_link'">
@@ -144,7 +85,6 @@
                   </div>
 
                   <div v-else-if="column.prop === 'actions'">
-                    
                     <!-- view response -->
                     <el-tooltip
                       content="View This Response"
@@ -153,14 +93,14 @@
                       placement="top"
                     >
                       <base-button
-                      type="info"
-                      icon
-                      size="sm"
-                      class="btn-link"
-                      @click.native="setResponseDetails(scope.row)"
-                    >
-                      <i class="tim-icons icon-sound-wave"></i>
-                    </base-button>
+                        type="info"
+                        icon
+                        size="sm"
+                        class="btn-link"
+                        @click.native="setResponseDetails(scope.row)"
+                      >
+                        <i class="tim-icons icon-sound-wave"></i>
+                      </base-button>
                     </el-tooltip>
                     <!-- view url -->
                     <el-tooltip
@@ -170,14 +110,14 @@
                       placement="top"
                     >
                       <base-button
-                      type="info"
-                      icon
-                      size="sm"
-                      class="btn-link"
-                      @click.native="setURLDetails(scope.row)"
-                    >
-                      <i class="tim-icons icon-notes"></i>
-                    </base-button>
+                        type="info"
+                        icon
+                        size="sm"
+                        class="btn-link"
+                        @click.native="setURLDetails(scope.row)"
+                      >
+                        <i class="tim-icons icon-notes"></i>
+                      </base-button>
                     </el-tooltip>
                     <!-- download html -->
                     <el-tooltip
@@ -192,9 +132,6 @@
                     </el-tooltip>
                   </div>
 
-                  <div
-                    v-else-if="column.prop === 'response_timestamp'"
-                  >{{ formatNSTime(scope.row.response_timestamp) }}</div>
                   <div v-else>{{ scope.row[column.prop] }}</div>
                 </template>
               </el-table-column>
@@ -228,14 +165,13 @@ import {
 } from 'element-ui';
 import TechData from 'src/pages/Web/TechData.vue';
 import InfiniteLoading from 'vue-infinite-loading';
-import { mapGetters, mapState } from 'vuex';
 import { unixNanoToMinDate } from 'src/data/time.js';
 import { formatWebLink } from 'src/data/formatters.js';
 import ResponseCard from 'src/pages/Web/ResponseCard.vue';
 import API from 'src/api/api.js';
-import Fuse from 'fuse.js';
 
 export default {
+  name: 'filtered-snapshot-table',
   components: {
     TechData,
     ResponseCard,
@@ -249,22 +185,22 @@ export default {
   },
   props: {
     group_id: {
-      type: String
+      type: Number
+    },
+    group_name: {
+      type: String,
+      default: ''
+    },
+    filter: {
+      type: Object,
+      default: {}
+    },
+    title: {
+      type: String,
+      default: ''
     }
   },
   computed: {
-    ...mapGetters('addresses', ['getCountByID']),
-    ...mapState('addresses', ['isUpdating']),
-    ...mapGetters('scangroup', ['groups']),
-    group() {
-      if (this.groups[this.group_id] === undefined) {
-        return {
-          group_id: this.group_id,
-          group_name: ''
-        };
-      }
-      return this.groups[this.group_id];
-    },
     hasMultiSelected() {
       return this.multipleSelection.length > 0;
     },
@@ -282,7 +218,7 @@ export default {
     return {
       responseSelected: false,
       responseDetails: {},
-      urlSelected: false, 
+      urlSelected: false,
       urlDetails: {},
       dateTimePicker: '',
       pagination: {
@@ -291,10 +227,6 @@ export default {
         total: 0,
         sinceTimeTaken: 0,
         count: 0
-      },
-      filter: {
-        host_address: '',
-        tech_type: ''
       },
       searchQuery: '',
       tableColumns: [
@@ -305,18 +237,13 @@ export default {
         },
         {
           prop: 'host_address',
-          label: 'Host',
-          minWidth: 60
+          label: 'Load Details',
+          minWidth: 80
         },
         {
           prop: 'url',
           label: 'URL',
-          minWidth: 60
-        },
-        {
-          prop: 'response_port',
-          label: 'Port',
-          minWidth: 30
+          minWidth: 80
         },
         {
           prop: 'technologies',
@@ -324,14 +251,9 @@ export default {
           minWidth: 70
         },
         {
-          prop: 'response_timestamp',
-          label: 'Time Taken',
-          minWidth: 40
-        },
-        {
           prop: 'actions',
           label: 'Actions',
-          minWidth: 50
+          minWidth: 40
         }
       ],
       tableData: [],
@@ -340,8 +262,12 @@ export default {
     };
   },
   methods: {
-    wasRedirect(row) { 
-      return (row.url !== row.load_url && row.load_url !== '' && row.url !== row.load_url+'/');
+    wasRedirect(row) {
+      return (
+        row.url !== row.load_url &&
+        row.load_url !== '' &&
+        row.url !== row.load_url + '/'
+      );
     },
     formatWebLink(value) {
       return formatWebLink(value);
@@ -422,6 +348,15 @@ export default {
       if (this.filter.tech_type !== '') {
         params.tech_type = this.filter.tech_type;
       }
+
+      if (this.filter.tech_type_version !== '') {
+        params.tech_type_version = this.filter.tech_type_version;
+      }
+
+      if (this.filter.dependent_host_address !== '') {
+        params.dependent_host_address = this.filter.dependent_host_address;
+      }
+
       try {
         let response = await API.get(
           '/webdata/group/' + this.group_id + '/snapshots',
@@ -464,12 +399,32 @@ export default {
       }
     },
     handleExport() {
-      let details = {
+      let params = {
         group_id: this.group_id,
-        all_addresses: true
+        start: 0
       };
+      if (
+        !Number.isNaN(this.pagination.sinceTimeTaken) &&
+        this.pagination.sinceTimeTaken !== 0
+      ) {
+        params.after_response_time = this.pagination.sinceTimeTaken;
+      }
+      if (this.filter.host_address !== '') {
+        params.host_address = this.filter.host_address;
+      }
+      if (this.filter.tech_type !== '') {
+        params.tech_type = this.filter.tech_type;
+      }
 
-      this.$store.dispatch('webdata/EXPORT_WEBSITES', details);
+      if (this.filter.tech_type_version !== '') {
+        params.tech_type_version = this.filter.tech_type_version;
+      }
+
+      if (this.filter.dependent_host_address !== '') {
+        params.dependent_host_address = this.filter.dependent_host_address;
+      }
+
+      this.$store.dispatch('webdata/EXPORT_WEBSITES', params);
       return true;
     },
     setResponseDetails(row) {
@@ -482,7 +437,7 @@ export default {
         easing: 'ease-in',
         offset: -60
       };
-      this.$scrollTo('#response_details', options);
+      this.$scrollTo('#response_details_'+this.group_id, options);
     },
     setURLDetails(row) {
       this.onURLDetailsClick(null);
@@ -494,44 +449,28 @@ export default {
         easing: 'ease-in',
         offset: -60
       };
-      this.$scrollTo('#url_details', options);
+      this.$scrollTo('#url_details_'+this.group_id, options);
     },
-    onResponseDetailsClick(value) {
+    onResponseDetailsClick() {
       this.responseDetails = {};
       this.responseSelected = false;
     },
-    onURLDetailsClick(value) {
+    onURLDetailsClick() {
       this.urlDetails = {};
       this.urlSelected = false;
     }
   },
-  mounted() {
-    // Fuse search initialization.
-    this.fuseSearch = new Fuse(this.tableData, {
-      keys: ['hostname'],
-      threshold: 0.3
-    });
-  },
+  mounted() {},
   created() {},
   watch: {
     isUpdating(val, oldValue) {
-      // reset the table data after we delete/ignore/unignore values
       if (val === false && oldValue === true) {
         this.pagination.lastIndex = 0;
         this.tableData = [];
       }
     },
-    /**
-     * Searches through the table data by a given query.
-     * NOTE: If you have a lot of data, it's recommended to do the search on the Server Side and only display the results here.
-     * @param value of the query
-     */
-    searchQuery(value) {
-      let result = this.tableData;
-      if (value !== '') {
-        result = this.fuseSearch.search(this.searchQuery);
-      }
-      this.searchedData = result;
+    filter() {
+      this.refreshTable();
     }
   }
 };

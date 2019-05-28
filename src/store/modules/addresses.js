@@ -289,7 +289,6 @@ const actions = {
     ).then(
       resp => {
         commit('SET_IS_UPLOADING', false);
-        console.log(resp.data);
         if (resp.data.status == 'OK') {
           dispatch(
             'notify/CREATE_NOTIFY_MSG',

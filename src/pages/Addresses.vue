@@ -15,7 +15,7 @@
           <h4>Loading...</h4>
       </div>
       <div v-else-if="!hasGroups" class="col-md-6">
-        <p>You have no groups, create one first.</p>
+        <p>You have no groups, <router-link to="/groups/new">create one first</router-link>.</p>
       </div>
       <div v-else class="row" v-for="(value, key) in groups" :key="key">
         <card>

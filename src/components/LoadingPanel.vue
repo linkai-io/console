@@ -8,7 +8,7 @@ import { Loading } from 'element-ui';
 Vue.use(Loading.directive);
 export default {};
 </script>
-<style>
+<style scoped>
 #loading {
   min-height: 200px;
   display: flex;

@@ -8,6 +8,16 @@
         </div>
         <div class="card-body">
           <p>Review settings, current activity, update settings, and pause resume individual groups.</p>
+          <br>
+          <h6>Adding hosts</h6>
+          <p>Hosts can be in the form of: hostnames, IP addresses, CIDR ranges or URLs, one per line.</p>
+          <p>You can add hosts to your scan group in one of two ways.<p>
+            <ul>
+              <li>Upload a list of hosts</li>
+              <li>Type into the Add hosts text box</li>
+            </ul>
+            <p>When typing in to the text box, be sure to add only a single hostname / range / address per line.</p>
+            <p><span style="color: red">Warning:</span> When uploading IP addresses, if they can be resolved, they will be resolved and the hostname or domain that is returned will be added to your list of assets.</p>
           <div class="mr-auto">
             <base-button type="primary" @click="createGroup" size="sm">Create New Group</base-button>
           </div>

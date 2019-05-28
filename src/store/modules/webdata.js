@@ -24,11 +24,17 @@ const getters = {
   isLoadingWebDataStats: state => state.isLoadingStats,
   webStats: state => state.webDataStats,
   isUpdating: state => state.isUpdating,
+  certsFifteenByID: state => group_id =>
+    findStatByID(state.webDataStats, group_id, 'expiring_certs_15'),
+  certsThirtyByID: state => group_id =>
+    findStatByID(state.webDataStats, group_id, 'expiring_certs_30'),
   totalCertsFifteen: state =>
     sumFields(state.webDataStats, 'expiring_certs_15'),
   totalCertsThirty: state => sumFields(state.webDataStats, 'expiring_certs_30'),
   totalUniqueWebServers: state =>
     sumFields(state.webDataStats, 'unique_web_servers'),
+  uniqueWebServersByID: state => group_id =>
+    findStatByID(state.webDataStats, group_id, 'unique_web_servers'),
   webServerTypesByID: state => group_id => {
     return findStatByID(state.webDataStats, group_id, 'server_types');
   },
@@ -135,11 +141,11 @@ const actions = {
     );
   },
 
-  EXPORT_WEBSITES({ dispatch, commit }, details) {
+  EXPORT_WEBSITES({ dispatch, commit }, params) {
     commit('SET_IS_UPDATING', true);
-    API.post(
-      '/webdata/group/' + details.group_id + '/snapshots/download',
-      details,
+    API.get(
+      '/webdata/group/' + params.group_id + '/snapshots/download',
+      { params: params },
       {
         responseType: 'blob'
       }
@@ -149,8 +155,8 @@ const actions = {
         if (resp.data !== undefined) {
           console.log('downloading file');
           fileDownloader(
-            resp.data,
-            'websites.' + details.group_id + '.json',
+            JSON.stringify(resp.data),
+            'websites.' + params.group_id + '.json',
             'application/octet-stream'
           );
         }
