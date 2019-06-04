@@ -1,22 +1,51 @@
 <template>
-  <base-table :data="events" thead-classes="text-primary">
-    <template slot-scope="{ row }">
-      <td>
-        <base-checkbox v-on:input="markRead(row, $event)" :key="row.notification_id"></base-checkbox>
-      </td>
-      <td>
-        <p class="title">{{ formatTimestamp(row.event_timestamp) }} - {{ formatTitle(row) }}</p>
-        <div v-if="row.type_id === 100">
-          <div v-for="(data, index) in formatEventLinks(row.data)" :key="index">
-            <a :href="data.url">{{data.url}}</a>
-            on port {{data.port}}
-            <br>
-          </div>
-        </div>
-        <div v-else class="notification-text">{{ formatNotification(row) }}</div>
-      </td>
+  <card type="notifications" :header-classes="'text-right'">
+    <template slot="header">
+      <h6 class="title d-inline">notifications</h6>
+      <p class="card-category d-inline"></p>
+      <base-dropdown
+        menu-on-right
+        tag="div"
+        title-classes="btn btn-link btn-icon"
+        class="float-right"
+      >
+        <i slot="title" class="tim-icons icon-settings-gear-63"></i>
+
+        <a class="dropdown-item" @click="sendOnlyMarkedRead">Mark selected as read</a>
+        <a class="dropdown-item" @click="sendAllRead">Mark all as read</a>
+        <a class="dropdown-item" @click="configureNotifications">Configure notifications</a>
+      </base-dropdown>
     </template>
-  </base-table>
+    
+
+    <div class="table-full-width table-responsive table-notifications">
+      <base-table :data="eventByGroupID(group_id)" thead-classes="text-primary">
+        <template slot-scope="{ row }">
+          <td>
+            <base-checkbox v-on:input="markRead(row, $event)" :key="row.notification_id"></base-checkbox>
+          </td>
+          <td>
+            <p class="title">{{ formatTimestamp(row.event_timestamp) }} - {{ formatTitle(row) }}</p>
+            <div v-if="row.type_id === 100">
+              <div v-for="(data, index) in formatEventLinks(row.data, 2)" :key="index">
+                <a :href="data.url">{{data.url}}</a>
+                on port {{data.port}}
+                <br>
+              </div>
+            </div>
+            <div v-else-if="row.type_id === 102">
+              <div v-for="(data, index) in formatTechEventLinks(row.data, 4)" :key="index">
+                <a :href="data.url">{{data.url}}</a>
+                on port {{data.port}} is running {{data.tech}} {{ data.version }}
+                <br>
+              </div>
+            </div>
+            <div v-else class="notification-text">{{ formatNotification(row) }}</div>
+          </td>
+        </template>
+      </base-table>
+    </div>
+  </card>
 </template>
 <script>
 import moment from 'moment';
@@ -29,15 +58,32 @@ export default {
   components: {
     BaseTable
   },
+  data() {
+    return {};
+  },
   computed: {
-    ...mapGetters('event', ['events', 'eventByTypeID'])
+    ...mapGetters('event', ['eventByTypeID', 'eventByGroupID'])
+  },
+  props: {
+    group_id: {
+      type: Number
+    }
   },
   methods: {
+    sendAllRead() {
+      this.$store.dispatch('event/MARK_READ', {group_id: this.group_id, type: 'all'});
+    },
+    sendOnlyMarkedRead() {
+      this.$store.dispatch('event/MARK_READ', {group_id: this.group_id, type: 'marked_only'});
+    },
     markRead(id, value) {
       this.$store.dispatch('event/ADD_READ', {
         id: id.notification_id,
         value: value
       });
+    },
+    configureNotifications() {
+      this.$router.push('/settings');
     },
     formatTitle(row) {
       switch (row.type_id) {
@@ -54,7 +100,7 @@ export default {
         case 101:
           return "The following web site's HTML has been updated";
         case 102:
-          return "The following web site's technology has been changed";
+          return "The following web site's technology has been changed or updated";
         case 103:
           return "The following web site's javascript has been changed";
         case 150:
@@ -71,17 +117,32 @@ export default {
     formatTimestamp(ts) {
       return unixNanoToMinMonthDay(ts);
     },
-    formatEventLinks(data) {
-      if (data.length % 2 !== 0) {
+    formatEventLinks(data, offset) {
+      if (data.length % offset !== 0) {
         return [{ url: 'unknown data returned', port: 0 }];
       }
       var results = [];
 
-      for (let i = 0; i < data.length; i += 2) {
+      for (let i = 0; i < data.length; i += offset) {
         if (!data[i].startsWith('http')) {
           results.push({ url: 'http://' + data[i], port: data[i + 1] });
         } else {
           results.push({ url: data[i], port: data[i + 1] });
+        }
+      }
+      return results;
+    },
+    formatTechEventLinks(data, offset) {
+      if (data.length % offset !== 0) {
+        return [{ url: 'unknown data returned', port: 0 }];
+      }
+      var results = [];
+
+      for (let i = 0; i < data.length; i += offset) {
+        if (!data[i].startsWith('http')) {
+          results.push({ url: 'http://' + data[i], port: data[i + 1], tech: data[i+2], version: data[i+3] });
+        } else {
+          results.push({ url: data[i], port: data[i + 1], tech: data[i+2], version: data[i+3] });
         }
       }
       return results;
@@ -160,8 +221,7 @@ export default {
       return difference;
     }
   },
-  data() {
-    return {};
+  mounted() {
   }
 };
 </script>

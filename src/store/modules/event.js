@@ -1,5 +1,6 @@
 import API from '../../api/api';
 import Vue from 'vue';
+import { handleErrors } from '../../data/errors.js';
 
 // initial state
 const state = {
@@ -7,9 +8,10 @@ const state = {
   user_timezone: '',
   should_weekly_email: false,
   should_daily_email: false,
-  events: [],
+  events: {},
   markedReadEvents: [],
   isLoading: false,
+  isLoadingSettings: false,
   userSubscriptions: [
     {
       type_id: 10,
@@ -20,6 +22,14 @@ const state = {
     {
       type_id: 100,
       description: 'A new web site has been detected',
+      subscribed_since: 0,
+      subscribed: false
+    },
+    {
+      type_id: 102,
+      disabled: false,
+      description:
+        "A web site's technology has been changed or updated (recommended)",
       subscribed_since: 0,
       subscribed: false
     },
@@ -65,13 +75,6 @@ const state = {
       subscribed: false
     },
     {
-      type_id: 102,
-      disabled: true,
-      description: "A web site's technology has been changed",
-      subscribed_since: 0,
-      subscribed: false
-    },
-    {
       type_id: 103,
       disabled: true,
       description: "A web site's javascript has been changed (recommended)",
@@ -105,20 +108,33 @@ const getters = {
   getMarkedRead: state => state.markedReadEvents,
   eventByTypeID: state => id =>
     state.eventSubscriptions.find(evt => evt.type_id === id),
+  eventByGroupID: state => group_id => getEventByGroup(state, group_id),
+  eventCountByGroupID: state => group_id =>
+    getEventByGroup(state, group_id).length,
   shouldDailyEmail: state => state.should_daily_email,
   shouldWeeklyEmail: state => state.should_weekly_email,
   userTimezone: state => state.user_timezone,
   isLoading: state => state.isLoading,
   isUpdating: state => state.isUpdating,
-  isLoadingEvents: state => state.isLoading
+  isLoadingEvents: state => state.isLoading,
+  isLoadingSettings: state => state.isLoadingSettings
 };
+
+function getEventByGroup(state, group_id) {
+  if (state.events[group_id] !== undefined) {
+    return state.events[group_id];
+  }
+  return [];
+}
 
 // actions
 const actions = {
-  GET_EVENTS({ dispatch, commit }) {
-    API.get('/event/events?limit=10').then(
+  GET_GROUP_EVENTS({ dispatch, commit }, group_id) {
+    commit('SET_IS_LOADING', true);
+    API.get('/event/group/' + group_id + '/events?limit=10').then(
       resp => {
-        commit('SET_EVENTS', resp.data);
+        commit('SET_GROUP_EVENTS', resp.data);
+        commit('SET_IS_LOADING', false);
       },
       err => {
         commit('SET_IS_LOADING', false);
@@ -142,10 +158,15 @@ const actions = {
   MARK_READ({ dispatch, commit }, details) {
     commit('SET_IS_UPDATING', true);
     let eventIDs = state.markedReadEvents;
-    if (details === 'all') {
-      eventIDs = state.events.map(evt => evt.notification_id);
+    if (details.type === 'all') {
+      eventIDs = state.events[details.group_id].map(evt => evt.notification_id);
     }
-    API.patch('/event/events', { notification_ids: eventIDs }).then(
+    if (eventIDs.length === 0) {
+      return;
+    }
+    API.patch('/event/group/' + details.group_id + '/events', {
+      notification_ids: eventIDs
+    }).then(
       resp => {
         commit('SET_IS_UPDATING', false);
 
@@ -158,56 +179,24 @@ const actions = {
             },
             { root: true }
           );
-          dispatch('GET_EVENTS');
+          dispatch('GET_GROUP_EVENTS', details.group_id);
         }
       },
       err => {
         commit('SET_IS_UPDATING', false);
-
-        if (err.response !== undefined && err.response.data !== undefined) {
-          dispatch(
-            'notify/CREATE_NOTIFY_MSG',
-            {
-              msg: err.response.data.msg,
-              msgType: 'danger'
-            },
-            { root: true }
-          );
-          return;
-        }
-
-        if (err.response !== undefined && err.response.data !== undefined) {
-          dispatch(
-            'notify/CREATE_NOTIFY_MSG',
-            {
-              msg: 'Failed to mark messages as read: ' + err.response.data.msg,
-              msgType: 'danger'
-            },
-            { root: true }
-          );
-          return;
-        } else {
-          dispatch(
-            'notify/CREATE_NOTIFY_MSG',
-            {
-              msg: 'Failed to mark messages as read: ' + err.message,
-              msgType: 'danger'
-            },
-            { root: true }
-          );
-        }
+        handleErrors(dispatch, 'mark events as read', err);
       }
     );
   },
   GET_SETTINGS({ dispatch, commit }) {
-    commit('SET_IS_LOADING', true);
+    commit('SET_IS_LOADING_SETTINGS', true);
     API.get('/event/settings').then(
       resp => {
-        commit('SET_IS_LOADING', false);
         commit('SET_SETTINGS', resp.data);
+        commit('SET_IS_LOADING_SETTINGS', false);
       },
       err => {
-        commit('SET_IS_LOADING', false);
+        commit('SET_IS_LOADING_SETTINGS', false);
         dispatch(
           'notify/CREATE_NOTIFY_MSG',
           {
@@ -249,39 +238,7 @@ const actions = {
       },
       err => {
         commit('SET_IS_UPDATING', false);
-
-        if (err.response !== undefined && err.response.data !== undefined) {
-          dispatch(
-            'notify/CREATE_NOTIFY_MSG',
-            {
-              msg: err.response.data.msg,
-              msgType: 'danger'
-            },
-            { root: true }
-          );
-          return;
-        }
-
-        if (err.response !== undefined && err.response.data !== undefined) {
-          dispatch(
-            'notify/CREATE_NOTIFY_MSG',
-            {
-              msg: 'Failed to update settings: ' + err.response.data.msg,
-              msgType: 'danger'
-            },
-            { root: true }
-          );
-          return;
-        } else {
-          dispatch(
-            'notify/CREATE_NOTIFY_MSG',
-            {
-              msg: 'Failed to update settings: ' + err.message,
-              msgType: 'danger'
-            },
-            { root: true }
-          );
-        }
+        handleErrors(dispatch, 'update settings', err);
       }
     );
   }
@@ -290,7 +247,6 @@ const actions = {
 // mutations
 const mutations = {
   SET_MARKED_READ(state, notification) {
-    console.log(notification);
     if (notification.value === false) {
       state.markedReadEvents = state.markedReadEvents.filter(
         ele => ele !== notification.id
@@ -310,6 +266,9 @@ const mutations = {
   },
   SET_IS_LOADING(state, value) {
     state.isLoading = value;
+  },
+  SET_IS_LOADING_SETTINGS(state, value) {
+    state.isLoadingSettings = value;
   },
   SET_SUBSCRIPTIONS(state, details) {
     for (let i = 0; i < state.userSubscriptions.length; i++) {
@@ -350,9 +309,13 @@ const mutations = {
       }
     }
   },
-  SET_EVENTS(state, value) {
-    state.markedReadEvents = [];
-    state.events = value;
+  SET_GROUP_EVENTS(state, value) {
+    Vue.set(state.events, value.group_id, {});
+    Vue.set(
+      state.events,
+      value.group_id,
+      (state.events[value.group_id] = value.events)
+    );
   }
 };
 

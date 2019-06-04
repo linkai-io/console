@@ -1,5 +1,5 @@
 <template>
-  <div class="col-md-8">
+  <div class="col-md-12">
     <card>
       <div class="card-header">
         <h5 class="card-category">Scan Group</h5>
@@ -14,6 +14,7 @@
             <p>
               <ul>
                 <li><b>Concurrent Requests</b> - This option limits how many hosts to analyze in parallel. </li>
+                <li><b>Archive Stale Records After</b> - Stale DNS records (such as hosts that no longer resolve) and stale web requests will be automatically archived. Enter the number of days old results for this scan group should be archived. For DNS records, it is common for hosting providers to rotate different IP addresses for resolved hostnames. Over time, this can cause a scan groups asset list to be full of stale DNS records. The archival process is meant to remove hostname/ip address pairs that no longer resolve. Records that do resolve to the same IP are kept in the address list. The archival process is run after every iteration of a scan. If a scan group is paused, then it will only archive records the specified number of days after the last time the group was paused.</li>
                 <li><b>Custom Sub-Domains</b> - This option allows you to add environment specific sub domain names that will be prepended to all domains, and sub-domains found. For example, providing "gold, silver" 
                 to the custom sub domains would have the brute force module attempt: gold.example.com and silver.example.com. Note custom sub-domains are joined together with a built in list of commonly found sub-domains.</li>
                 <li><b>Custom Ports</b> - By default Hakken only attempts to connect to port 80 and 443 (tls). If you wish to find additional web sites on non-standard ports you can add them here. For example, providing "8000, 8080" would 
@@ -59,7 +60,28 @@
 
             <div class="row">
               <el-tooltip
-                    content="Limit the number of concurrent addresses to be tested at the same time. NOTICE: During beta this is limited to 10 per scan group"
+                    content="Automatically archive stale records and results after the specified number of days"
+                    effect="light"
+                    :open-delay="150"
+                    placement="right"
+                  >
+              <label class="col-sm-2 col-form-label">Archive Old Results After (Days)</label>
+              </el-tooltip>
+              <div class="col-sm-7">
+                <base-input
+                  name="archive_after_days"
+                  required
+                  v-validate="modelValidations.archive_after_days"
+                  v-model.number="model.archive_after_days"
+                  :error="getError('archive_after_days')"
+                >
+                </base-input>
+              </div>
+            </div>
+
+            <div class="row">
+              <el-tooltip
+                    content="Limit the number of concurrent addresses to be tested at the same time."
                     effect="light"
                     :open-delay="150"
                     placement="right"
@@ -167,6 +189,7 @@ export default {
     return {
       model: {
         group_name: '',
+        archive_after_days: 5,
         custom_sub_names: [],
         custom_ports: [],
         concurrent_requests: 5 // beta restriction to 10
@@ -176,10 +199,15 @@ export default {
           required: true,
           regex: /^((?!\/).)*$/
         },
+        archive_after_days: {
+          required: true, 
+          min_value: 2,
+          max_value: 14
+        },
         concurrent_requests: {
           required: true,
           min_value: 1,
-          max_value: 10 // beta restrictions
+          max_value: 20 // beta restrictions
         }
       }
     };
