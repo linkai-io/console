@@ -103,16 +103,17 @@
               </div>
             </div>
             <div class="row">
-                <div v-if="statsShow == 'notifications'" class="col-lg-12 col-md-12 d-flex">
-                  <event-notifications v-bind:group_id="group.group_id"></event-notifications>
-                </div>
-                <div v-else-if="statsShow === 'certs'" class="col-lg-12 col-md-12 d-flex">
-                  <filtered-certificates-expiring
-                    v-if="showExpiring(group.group_id)"
-                    v-bind:group_id="group.group_id"
-                    v-bind:expire_time="30"
-                  ></filtered-certificates-expiring>
-                </div>
+              <div v-if="statsShow == 'notifications'" class="col-lg-12 col-md-12 d-flex">
+                <event-notifications v-bind:group_id="group.group_id" @close="statsShow = ''"></event-notifications>
+              </div>
+              <div v-else-if="statsShow === 'certs'" class="col-lg-12 col-md-12 d-flex">
+                <filtered-certificates-expiring
+                  @close="statsShow = ''"
+                  v-if="showExpiring(group.group_id)"
+                  v-bind:group_id="group.group_id"
+                  v-bind:expire_time="30"
+                ></filtered-certificates-expiring>
+              </div>
             </div>
             <div class="row">
               <!-- tech stack card -->
@@ -256,6 +257,7 @@ export default {
       this.$store.dispatch('settings/UPDATE_SHOW_HOME', val);
     },
     handleChange(tabID) {
+      this.statsShow = '';
       this.activeTab = tabID;
     }
   },

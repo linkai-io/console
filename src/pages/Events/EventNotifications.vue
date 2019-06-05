@@ -1,13 +1,18 @@
 <template>
   <card type="notifications" :header-classes="'text-right'">
     <template slot="header">
-      <h6 class="title d-inline">notifications</h6>
+      <h6 class="title d-inline">
+       notifications
+      </h6>
       <p class="card-category d-inline"></p>
+      <base-button type="danger" icon size="sm" @click="closeNotifications" class="btn-link">
+        <i class="tim-icons icon-simple-remove"></i>
+      </base-button>
       <base-dropdown
-        menu-on-right
+        menu-on-left
         tag="div"
         title-classes="btn btn-link btn-icon"
-        class="float-right"
+        class="float-left"
       >
         <i slot="title" class="tim-icons icon-settings-gear-63"></i>
 
@@ -16,7 +21,6 @@
         <a class="dropdown-item" @click="configureNotifications">Configure notifications</a>
       </base-dropdown>
     </template>
-    
 
     <div class="table-full-width table-responsive table-notifications">
       <base-table :data="eventByGroupID(group_id)" thead-classes="text-primary">
@@ -70,11 +74,20 @@ export default {
     }
   },
   methods: {
+    closeNotifications() {
+      this.$emit('close');
+    },
     sendAllRead() {
-      this.$store.dispatch('event/MARK_READ', {group_id: this.group_id, type: 'all'});
+      this.$store.dispatch('event/MARK_READ', {
+        group_id: this.group_id,
+        type: 'all'
+      });
     },
     sendOnlyMarkedRead() {
-      this.$store.dispatch('event/MARK_READ', {group_id: this.group_id, type: 'marked_only'});
+      this.$store.dispatch('event/MARK_READ', {
+        group_id: this.group_id,
+        type: 'marked_only'
+      });
     },
     markRead(id, value) {
       this.$store.dispatch('event/ADD_READ', {
@@ -140,9 +153,19 @@ export default {
 
       for (let i = 0; i < data.length; i += offset) {
         if (!data[i].startsWith('http')) {
-          results.push({ url: 'http://' + data[i], port: data[i + 1], tech: data[i+2], version: data[i+3] });
+          results.push({
+            url: 'http://' + data[i],
+            port: data[i + 1],
+            tech: data[i + 2],
+            version: data[i + 3]
+          });
         } else {
-          results.push({ url: data[i], port: data[i + 1], tech: data[i+2], version: data[i+3] });
+          results.push({
+            url: data[i],
+            port: data[i + 1],
+            tech: data[i + 2],
+            version: data[i + 3]
+          });
         }
       }
       return results;
@@ -221,8 +244,7 @@ export default {
       return difference;
     }
   },
-  mounted() {
-  }
+  mounted() {}
 };
 </script>
 <style>
