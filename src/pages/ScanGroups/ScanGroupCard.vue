@@ -80,6 +80,20 @@
           </div>
 
           <div class="row">
+              <label class="col-sm-2 col-form-label">Archive Old Results After (Days)</label>
+              <div class="col-sm-7">
+                <base-input
+                  name="archive_after_days"
+                  required
+                  v-validate="modelValidations.archive_after_days"
+                  v-model.number="model.archive_after_days"
+                  :error="getError('archive_after_days')"
+                >
+                </base-input>
+              </div>
+            </div>
+
+          <div class="row">
             <label class="col-sm-2 col-form-label">Custom Sub Domains</label>
             <div class="col-sm-7">
               <base-text-area
@@ -336,6 +350,7 @@ export default {
       },
       model: {
         group_name: this.group.group_name,
+        archive_after_days: this.group.archive_after_days,
         custom_sub_names: this.group.module_configurations.dnsbrute_module
           .custom_subnames || [],
         custom_ports: this.group.module_configurations.port_module.custom_ports || [],
@@ -347,10 +362,15 @@ export default {
           required: true,
           regex: /^((?!\/).)*$/
         },
+        archive_after_days: {
+          required: true, 
+          min_value: 2,
+          max_value: 14
+        },
         concurrent_requests: {
           required: true,
           min_value: 1,
-          max_value: 10
+          max_value: 20
         }
       }
     };

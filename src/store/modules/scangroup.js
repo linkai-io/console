@@ -36,6 +36,11 @@ const actions = {
       resp => {
         commit('SET_IS_LOADING', false);
         commit('SET_GROUPS', resp.data);
+        for (let i = 0; i < resp.data.length; i++) {
+          dispatch('event/GET_GROUP_EVENTS', resp.data[i].group_id, {
+            root: true
+          });
+        }
       },
       err => {
         commit('SET_IS_LOADING', false);

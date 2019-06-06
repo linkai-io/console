@@ -258,7 +258,6 @@ export default {
   mounted() {
     this.$store.dispatch('scangroup/GET_GROUPS');
     this.$store.dispatch('scangroup/GET_GROUP_STATS');
-    this.$store.dispatch('event/GET_EVENTS');
     this.$store.dispatch('event/GET_SETTINGS');
     this.$store.dispatch('user/GET_USER');
     initScrollbar('sidebar-wrapper');

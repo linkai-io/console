@@ -1,58 +1,56 @@
 <template>
-  <div class="content">
-    <collapse accordion>
-      <collapse-item
-        title="Show Expiring Certificates"
-        :multiple-active="false"
-        @activate="loadCertificateTable"
-      >
-        <div class="col-sm-12">
-          <!-- start table -->
-          <el-table ref="certificateTable" :data="tableData">
-            <el-table-column
-              v-for="column in tableColumns"
-              :key="column.label"
-              :min-width="column.minWidth"
-              :prop="column.prop"
-              :formatter="formatColumn"
-              :label="column.label"
-            >
-              <template slot-scope="scope">
-                <div v-if="column.prop === 'host_address'">
-                  <p>Host: {{ scope.row.host_address }}</p>
-                  <p v-if="scope.row.ip_address !== ''">IP: {{ scope.row.ip_address }}</p>
-                  <p>Issuer: {{ scope.row.issuer }}</p>
-                  <p>Subject Name: {{ scope.row.subjectName}}</p>
-                </div>
-                <div v-else-if="column.prop === 'validity'">
-                  <p>Valid From: {{ formatUnixTime(scope.row.validFrom) }}</p>
-                  <p>Valid To: {{ formatUnixTime(scope.row.validTo) }}</p>
-                </div>
-                <div v-else>{{ scope.row[column.prop] }}</div>
-              </template>
-            </el-table-column>
 
-            <template slot="append">
-              <infinite-loading
-                ref="infiniteLoader"
-                slot="append"
-                spinner="waveDots"
-                :distance="10"
-                @infinite="getTableData"
-              >
-                <div slot="no-more">
-                  <router-link :to="'/webdata/certificates/'+ group_id">See all certificates...</router-link>
-                </div>
-                <div slot="no-results">
-                  <router-link :to="'/webdata/certificates/'+ group_id">See all certificates...</router-link>
-                </div>
-              </infinite-loading>
+      <card :header-classes="'text-right'">
+        <template slot="header">
+          <h6 class="title d-inline">Certificates</h6>
+          <p class="card-category d-inline"></p>
+          <base-button type="danger" icon size="sm" @click="closeCertificates" class="btn-link">
+            <i class="tim-icons icon-simple-remove"></i>
+          </base-button>
+        </template>
+        <!-- start table -->
+        <el-table ref="certificateTable" :data="tableData">
+          <el-table-column
+            v-for="column in tableColumns"
+            :key="column.label"
+            :min-width="column.minWidth"
+            :prop="column.prop"
+            :formatter="formatColumn"
+            :label="column.label"
+          >
+            <template slot-scope="scope">
+              <div v-if="column.prop === 'host_address'">
+                <p>Host: {{ scope.row.host_address }}</p>
+                <p v-if="scope.row.ip_address !== ''">IP: {{ scope.row.ip_address }}</p>
+                <p>Issuer: {{ scope.row.issuer }}</p>
+                <p>Subject Name: {{ scope.row.subjectName}}</p>
+              </div>
+              <div v-else-if="column.prop === 'validity'">
+                <p>Valid From: {{ formatUnixTime(scope.row.validFrom) }}</p>
+                <p>Valid To: {{ formatUnixTime(scope.row.validTo) }}</p>
+              </div>
+              <div v-else>{{ scope.row[column.prop] }}</div>
             </template>
-          </el-table>
-        </div>
-      </collapse-item>
-    </collapse>
-  </div>
+          </el-table-column>
+
+          <template slot="append">
+            <infinite-loading
+              ref="infiniteLoader"
+              slot="append"
+              spinner="waveDots"
+              :distance="10"
+              @infinite="getTableData"
+            >
+              <div slot="no-more">
+                <router-link :to="'/webdata/certificates/'+ group_id">See all certificates...</router-link>
+              </div>
+              <div slot="no-results">
+                <router-link :to="'/webdata/certificates/'+ group_id">See all certificates...</router-link>
+              </div>
+            </infinite-loading>
+          </template>
+        </el-table>
+      </card>
 </template>
 <script>
 import { Table, TableColumn } from 'element-ui';
@@ -133,6 +131,9 @@ export default {
     };
   },
   methods: {
+    closeCertificates() {
+      this.$emit('close');
+    },
     refreshTable() {
       this.pagination.lastIndex = 0;
       this.tableData = [];
@@ -189,8 +190,8 @@ export default {
       if (this.expire_time !== 0) {
         params.before_valid_to = moment()
           .add(30, 'days')
-          .valueOf();
-        params.after_valid_to = moment().valueOf();
+          .unix();
+        params.after_valid_to = moment().unix();
       }
       try {
         let response = await API.get(
@@ -242,7 +243,9 @@ export default {
       return true;
     }
   },
-  mounted() {},
+  mounted() {
+    this.loadCertificateTable();
+  },
   created() {},
   watch: {
     isUpdating(val, oldValue) {

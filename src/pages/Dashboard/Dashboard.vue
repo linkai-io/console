@@ -31,37 +31,7 @@
       </collapse>
     </card>
     <div id="loading_menu">
-    <loading-main-panel v-bind:loading="isLoading"></loading-main-panel>
-      <!-- notifications table -->
-      <div class="row">
-        <div class="col-lg-12 col-md-12 d-flex">
-          <card type="notifications" :header-classes="'text-right'">
-            <template slot="header">
-              <h6 class="title d-inline">Notifications ({{events.length}})</h6>
-              <p class="card-category d-inline"></p>
-              <base-dropdown
-                menu-on-right
-                tag="div"
-                title-classes="btn btn-link btn-icon"
-                class="float-right"
-              >
-                <i slot="title" class="tim-icons icon-settings-gear-63"></i>
-
-                <a class="dropdown-item" @click="sendOnlyMarkedRead">Mark selected as read</a>
-                <a class="dropdown-item" @click="sendAllRead">Mark all as read</a>
-                <a class="dropdown-item" @click="configureNotifications">Configure notifications</a>
-              </base-dropdown>
-            </template>
-            <div v-if="!hasSubscriptions" class="row">
-              <p class="col-sm">You do not currently have any notifications enabled</p>
-            </div>
-            <div class="table-full-width table-responsive table-notifications">
-              <event-notifications></event-notifications>
-            </div>
-          </card>
-        </div>
-      </div>
-
+      <loading-main-panel v-bind:loading="isLoading"></loading-main-panel>
       <div v-if="hasGroups">
         <tabs
           type="primary"
@@ -80,7 +50,7 @@
           >
             <div class="row">
               <!-- stat cards -->
-              <div class="col-lg-12">
+              <div class="col-md-12 col-lg-6">
                 <div class="row">
                   <div class="col-md-12">
                     <stats-card
@@ -91,19 +61,58 @@
                       :link="'/webdata/certificates/'+group.group_id"
                     >
                       <div slot="footer">
-                        Certificates expiring in 30 days
-                        <filtered-certificates-expiring
-                          v-if="showExpiring(group.group_id)"
-                          v-bind:group_id="group.group_id"
-                          v-bind:expire_time="30"
-                        ></filtered-certificates-expiring>
+                        <div
+                          v-if="certsExpiringTitle(group.group_id) === '0'"
+                        >You have no certificates expiring in 30 days.</div>
+                        <div v-else>
+                          <base-button
+                            type="primary"
+                            class="btn-link"
+                            @click="statsShow = 'certs'"
+                          >Show certificates expiring in 30 days</base-button>
+                        </div>
                       </div>
                     </stats-card>
                   </div>
                 </div>
-                <div class="row">
-                  <div class="col-md-12"></div>
-                </div>
+              </div>
+              <div class="col-md-12 col-lg-6">
+                <stats-card
+                  subTitle="Notifications"
+                  ref="events"
+                  :title="eventCountByGroupID(group.group_id).toString()"
+                  type="info"
+                  icon="tim-icons icon-sound-wave"
+                >
+                  <div slot="footer">
+                    <div v-if="!hasSubscriptions" class="row">
+                      <p class="col-sm">You do not currently have any notifications enabled</p>
+                    </div>
+                    <div
+                      v-if="eventCountByGroupID(group.group_id) === 0"
+                    >You have no new events for this group.</div>
+                    <div v-else>
+                      <base-button
+                        type="primary"
+                        class="btn-link"
+                        @click="statsShow = 'notifications'"
+                      >Show notifications</base-button>
+                    </div>
+                  </div>
+                </stats-card>
+              </div>
+            </div>
+            <div class="row">
+              <div v-if="statsShow == 'notifications'" class="col-lg-12 col-md-12 d-flex">
+                <event-notifications v-bind:group_id="group.group_id" @close="statsShow = ''"></event-notifications>
+              </div>
+              <div v-else-if="statsShow === 'certs'" class="col-lg-12 col-md-12 d-flex">
+                <filtered-certificates-expiring
+                  @close="statsShow = ''"
+                  v-if="showExpiring(group.group_id)"
+                  v-bind:group_id="group.group_id"
+                  v-bind:expire_time="30"
+                ></filtered-certificates-expiring>
               </div>
             </div>
             <div class="row">
@@ -179,11 +188,20 @@ export default {
       addressStatsLoaded: false,
       webStatsLoaded: false,
       showExpiringTable: false,
+      statsShow: '',
+      eventCount: 0,
       activeTab: 0
     };
   },
   computed: {
-    ...mapGetters('event', ['events', 'hasSubscriptions', 'isLoadingEvents']),
+    ...mapGetters('event', [
+      'events',
+      'hasSubscriptions',
+      'isLoadingSettings',
+      'isLoadingEvents',
+      'eventByGroupID',
+      'eventCountByGroupID'
+    ]),
     ...mapGetters('scangroup', ['groups']),
     ...mapGetters('settings', ['shouldShowHome']),
     ...mapGetters('addresses', [
@@ -235,22 +253,12 @@ export default {
       }
       return expiring.toString();
     },
-
-    sendAllRead() {
-      this.$store.dispatch('event/MARK_READ', 'all');
-    },
-    sendOnlyMarkedRead() {
-      this.$store.dispatch('event/MARK_READ');
-    },
     onClickShowHome(val) {
       this.$store.dispatch('settings/UPDATE_SHOW_HOME', val);
     },
-    configureNotifications() {
-      this.$router.push('/settings');
-    },
     handleChange(tabID) {
+      this.statsShow = '';
       this.activeTab = tabID;
-      console.log(this.activeTab);
     }
   },
   created() {},
