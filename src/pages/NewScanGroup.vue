@@ -171,6 +171,7 @@
           <base-alert v-if="groupCreated" type="success" dismissible icon="tim-icons icon-bell-55">
             Group created, go to <router-link to="/groups/list" class="alert-link">scan group list</router-link> to configure now
           </base-alert>
+        <scan-group-form></scan-group-form>
       </card>
     </form>
   </div>
@@ -179,11 +180,13 @@
 import { BaseAlert } from 'src/components';
 import { BaseTextArea } from 'src/components/index';
 import { mapState, mapGetters } from 'vuex';
+import ScanGroupForm from 'src/pages/ScanGroups/ScanGroupForm.vue';
 
 export default {
   components: {
     BaseAlert,
-    BaseTextArea
+    BaseTextArea,
+    ScanGroupForm
   },
   data() {
     return {

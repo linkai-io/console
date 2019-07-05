@@ -5,13 +5,15 @@ import API from '../../api/api';
 const state = {
   accepted: false,
   isUpdating: false,
+  portScanEnabled: false,
   user: {}
 };
 
 // getters
 const getters = {
   hasAccepted: state => state.accepted,
-  updating: state => state.isUpdating
+  updating: state => state.isUpdating,
+  canPortScan: state => state.portScanEnabled
 };
 
 // actions
@@ -100,8 +102,10 @@ const mutations = {
     state.isUpdating = details;
   },
   SET_USER(state, details) {
+    console.log(details);
     state.user = details;
     state.accepted = details.agreement_accepted;
+    state.portScanEnabled = details.port_scan_enabled;
     if (state.accepted === false) {
       router.push('/agreement');
     }
