@@ -88,6 +88,7 @@
       </div>
 
       <div v-if="model.port_scan_enabled">
+        <hr>
         <!-- disallowed TLDs -->
         <div class="row">
           <el-tooltip
@@ -185,29 +186,49 @@
             ></base-input>
           </div>
         </div>
+        <!-- tcp ports field -->
+        <div class="row">
+          <el-tooltip
+            content="Attempt to find web servers on non-standard ports (only 80,443 will be tested by default)"
+            effect="light"
+            :open-delay="150"
+            placement="right"
+          >
+            <label class="col-sm-2 col-form-label">TCP Ports</label>
+          </el-tooltip>
+          <div class="col-sm-7">
+            <base-text-area
+              name="tcp_ports"
+              placeholder="8080, 4443"
+              valueType="integer"
+              v-model="model.tcp_ports"
+              validate
+              @validation="checkValidArray('tcp_ports', $event)"
+              :error="getError('tcp_ports')"
+            ></base-text-area>
+          </div>
+        </div>
         <!-- ports table view -->
         <div class="row">
-          <el-table :data="ports" thead-classes="text-primary" class="col-6">
-            <el-table-column min-width="150" sortable label="Port" property="port"></el-table-column>
-
-            <el-table-column
-              min-width="150"
-              sortable
-              label="Web Check Enabled"
-              property="web_check"
-            ></el-table-column>
-
-            <template slot-scope="{ row, $index }">
-              <td>
-                {{ row }}
-                <p class="title">{{ row }}</p>
-              </td>
-              <td>
-                <!-- <base-checkbox v-on:input="addWebPort(row.port, $event)"></base-checkbox> -->
-                blah
-              </td>
-            </template>
-          </el-table>
+          <el-tooltip
+            content="Attempt to find web servers on non-standard ports (only 80,443 will be tested by default)"
+            effect="light"
+            :open-delay="150"
+            placement="right"
+          >
+            <label class="col-sm-2 col-form-label">Custom Web Ports</label>
+          </el-tooltip>
+          <div class="col-sm-7">
+            <base-text-area
+              name="custom_web_ports"
+              placeholder="8080, 4443"
+              valueType="integer"
+              v-model="model.custom_web_ports"
+              validate
+              @validation="checkValidArray('custom_web_ports', $event)"
+              :error="getError('custom_web_ports')"
+            ></base-text-area>
+          </div>
         </div>
       </div>
     </div>
@@ -226,7 +247,7 @@
           <base-text-area
             name="custom_ports"
             placeholder="8080, 4443"
-            valuetype="integer"
+            valueType="integer"
             v-model="model.custom_web_ports"
             :error="getError('custom_web_ports')"
           ></base-text-area>
@@ -247,8 +268,7 @@ import {
   Modal
 } from 'src/components/index';
 import { Table, TableColumn } from 'element-ui';
-import { mapState, mapGetters } from 'vuex';
-import { unixNanoToDate, unixNanoToMinDate } from 'src/data/time.js';
+import { mapGetters } from 'vuex';
 
 export default {
   name: 'scan-group-form',
@@ -313,8 +333,14 @@ export default {
           required: false,
           min_value: 5,
           max_value: 50
+        },
+        tcpports: {
+          required: true,
+          min_value: 1,
+          max_value: 65535
         }
       },
+      ports: [],
       default_tcp_ports: [
         21,
         22,
@@ -356,22 +382,6 @@ export default {
           return true;
       }
       return false;
-    },
-    ports() {
-      console.log('ports!');
-      let tcpPorts = [];
-
-      if (this.model.tcp_ports.length === 0) {
-        let tcpSet = new Set(this.default_tcp_ports);
-        let webSet = new Set(this.default_web_ports);
-        console.log('building set');
-        tcpSet.forEach(ele => {
-          tcpPorts.push({ port: ele, web_check: webSet.has(ele) });
-        });
-        console.log(tcpPorts);
-        return tcpPorts;
-      }
-      return this.model.tcp_ports;
     }
   },
   methods: {
@@ -386,8 +396,16 @@ export default {
     getError(fieldName) {
       return this.errors.first(fieldName);
     },
+    checkValidArray(fieldName, evt) {
+      if (evt === '') {
+        this.errors.remove(fieldName);
+        return;
+      }
+     this.errors.add({field: fieldName, msg: evt});
+    },
     validate() {
       this.$validator.validateAll().then(isValid => {
+        console.log('validate called');
         if (!isValid) {
           return;
         }
@@ -427,13 +445,19 @@ export default {
   },
   created() {},
   mounted() {
-    //this.$store.dispatch('addresses/GET_ADDRESS_COUNT', this.group.group_id);
+    let tcpPorts = [];
+    if (this.model.tcp_ports.length === 0) {
+      this.model.tcp_ports = this.default_tcp_ports;
+      this.model.custom_web_ports = this.default_web_ports;
+      return;
+    }
   }
 };
 </script>
-<style lang="scss" scoped>
-.card .alert {
-  position: relative !important;
-  width: 100%;
+<style lang="scss">
+.el-table__body-wrapper > table > tbody > tr > td {
+  padding-top: 2px;
+  padding-bottom: 2px;
+  border: none;
 }
 </style>
