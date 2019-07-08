@@ -123,9 +123,7 @@ export default {
         if (this.valueType === 'integer') {
           for (let i = 0; i < values.length; i++) {
             let val = Number.parseInt(values[i], 10);
-            console.log(val);
             if (values[i] !== '' && Number.isNaN(val)) {
-              console.log('emit error');
               this.$emit('validation', 'Invalid number ' + values[i]);
               break;
             }

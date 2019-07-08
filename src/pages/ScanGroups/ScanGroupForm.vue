@@ -1,14 +1,14 @@
 <template>
   <div class="container">
+    <!-- group field -->
     <div class="row">
-      <el-tooltip
-        content="The name of this group of addresses and hosts"
-        effect="light"
-        :open-delay="150"
-        placement="right"
-      >
-        <label class="col-sm-2 col-form-label">Group Name</label>
-      </el-tooltip>
+      <h6 class="col-sm-2 text-right">Setting</h6>
+      <h6 class="col-sm-7">Value</h6> 
+      <h6 class="col-sm-2">Help</h6>
+    </div>
+
+    <div class="row">
+      <label class="col-sm-2 col-form-label">Group Name</label>
       <div class="col-sm-7">
         <base-input
           name="group_name"
@@ -18,17 +18,24 @@
           :error="getError('group_name')"
         ></base-input>
       </div>
+      <div class="col-sm-2">
+        <base-button type="info" icon size="sm" class="btn-link" @click="showHelp('group_name')">
+          <i
+            :class="helpers.group_name ? 'tim-icons icon-minimal-down' : 'tim-icons icon-minimal-up'"
+          ></i>
+        </base-button>
+      </div>
     </div>
 
+    <div v-show="helpers.group_name" class="row">
+      <div class="col-sm-2"></div>
+      <p class="col-sm-7">Enter the name of this group of addresses and hosts, group names must be unique</p>
+    </div>
+    <!-- end group field -->
+
+    <!-- archive field -->
     <div class="row">
-      <el-tooltip
-        content="Automatically archive stale records and results after the specified number of days"
-        effect="light"
-        :open-delay="150"
-        placement="right"
-      >
-        <label class="col-sm-2 col-form-label">Archive Old Results After (Days)</label>
-      </el-tooltip>
+      <label class="col-sm-2 col-form-label">Archive Old Results After (Days)</label>
       <div class="col-sm-7">
         <base-input
           name="archive_after_days"
@@ -38,8 +45,30 @@
           :error="getError('archive_after_days')"
         ></base-input>
       </div>
+      <div class="col-sm-2">
+        <base-button
+          type="info"
+          icon
+          size="sm"
+          class="btn-link"
+          @click="showHelp('archive_after_days')"
+        >
+          <i
+            :class="helpers.archive_after_days ? 'tim-icons icon-minimal-down' : 'tim-icons icon-minimal-up'"
+          ></i>
+        </base-button>
+      </div>
     </div>
 
+    <div v-show="helpers.archive_after_days" class="row">
+      <div class="col-sm-2"></div>
+      <p
+        class="col-sm-7"
+      >Enter the number of days (from 2 to 14) for when old records should be archived. Stale DNS records (such as hosts that no longer resolve) and stale web requests will be automatically archived. Enter the number of days old results for this scan group should be archived. For DNS records, it is common for hosting providers to rotate different IP addresses for resolved hostnames. Over time, this can cause a scan groups asset list to be full of stale DNS records. The archival process is meant to remove hostname/ip address pairs that no longer resolve. Records that do resolve to the same IP are kept in the address list. The archival process is run after every iteration of a scan. If a scan group is paused, then it will only archive records the specified number of days after the last time the group was paused.</p>
+    </div>
+    <!-- end archive field -->
+
+    <!-- concurrent hosts -->
     <div class="row">
       <el-tooltip
         content="Limit the number of concurrent addresses to be tested at the same time."
@@ -58,17 +87,32 @@
           :error="getError('concurrent_requests')"
         ></base-input>
       </div>
+      <div class="col-sm-2">
+        <base-button
+          type="info"
+          icon
+          size="sm"
+          class="btn-link"
+          @click="showHelp('concurrent_requests')"
+        >
+          <i
+            :class="helpers.concurrent_requests ? 'tim-icons icon-minimal-down' : 'tim-icons icon-minimal-up'"
+          ></i>
+        </base-button>
+      </div>
     </div>
 
+    <div v-show="helpers.concurrent_requests" class="row">
+      <div class="col-sm-2"></div>
+      <p
+        class="col-sm-7"
+      >Enter the number (from 1 - 25) of hosts to test at the same time. This option limits how many hosts to analyze in parallel. If you have large groups of addresses it is recommended to have this value greater than 10 otherwise scan times may be significantly slower</p>
+    </div>
+    <!-- end concurrent hosts -->
+
+    <!-- custom sub domains -->
     <div class="row">
-      <el-tooltip
-        content="Prepend these subdomain prefixes to all hostnames, on top of the default 10,000 included"
-        effect="light"
-        :open-delay="150"
-        placement="right"
-      >
-        <label class="col-sm-2 col-form-label">Custom Sub Domains</label>
-      </el-tooltip>
+      <label class="col-sm-2 col-form-label">Prepend Sub Domains</label>
       <div class="col-sm-7">
         <base-text-area
           name="custom_sub_names"
@@ -77,105 +121,231 @@
           :error="getError('custom_sub_names')"
         ></base-text-area>
       </div>
+      <div class="col-sm-2">
+        <base-button
+          type="info"
+          icon
+          size="sm"
+          class="btn-link"
+          @click="showHelp('custom_sub_names')"
+        >
+          <i
+            :class="helpers.custom_sub_names ? 'tim-icons icon-minimal-down' : 'tim-icons icon-minimal-up'"
+          ></i>
+        </base-button>
+      </div>
+    </div>
+
+    <div v-show="helpers.custom_sub_names" class="row">
+      <div class="col-sm-2"></div>
+      <p
+        class="col-sm-7"
+      >Enter single words (no dots), seperated by comma. This option allows you to add environment specific sub-domain names that will be prepended to all TLD(s) and sub-domains found. For example, providing "gold, silver" to this field would have the brute force module attempt: gold.example.com, silver.example.com, gold.sub.example.com, silver.sub.example.com. Please note custom names added here are joined together with a built-in list of commonly found sub-domains.</p>
     </div>
 
     <div v-if="canPortScan">
       <div class="row">
         <label class="col-6 col-form-label mt-2 mb-2">Enable Port Scanning</label>
-        <div class="col-6 mb-2">
-          <base-checkbox v-model="model.port_scan_enabled"></base-checkbox>
+        <div class="col-7">
+          <base-checkbox class="ml-2 mt-1" v-model="model.port_scan_enabled"></base-checkbox>
+        </div>
+        <div class="col-sm-2">
+          <base-button
+            type="info"
+            icon
+            size="sm"
+            class="btn-link"
+            @click="showHelp('port_scan_enabled')"
+          >
+            <i
+              :class="helpers.port_scan_enabled ? 'tim-icons icon-minimal-down' : 'tim-icons icon-minimal-up'"
+            ></i>
+          </base-button>
+        </div>
+      </div>
+
+      <div v-show="helpers.port_scan_enabled" class="row">
+        <div class="col-12">
+          <div class="row">
+            <p class="col-2"></p>
+            <p
+              class="col-sm-7 mt-1"
+            >Enable port scanning on assets included in the Allowed TLDs and Allowed Hosts scope. You must enter at least one TLD or host/IP address if you wish to allow port scanning for this scan group. The results of open ports found will be passed to web analysis. Only hosts that fall under the initial TLD(s) or are added to the scan group as initial hosts will be scanned. This is to prevent scanning assets you do not own. Additionally, you can restrict the scope of what is scanned. Please review the following table to understand how scope is determined for hosts that should, or should not be port scanned.</p>
+          </div>
+
+          <div class="row">
+            <div class="col-sm-12 bg-dark">
+              <el-table
+                header-cell-class-name="table-transparent"
+                header-row-class-name="table-transparent"
+                row-class-name="table-transparent"
+                :data="scopeData"
+              >
+                <el-table-column
+                  v-for="column in scopeColumns"
+                  :key="column.label"
+                  :min-width="column.minWidth"
+                  :prop="column.prop"
+                  :sortable="column.sortable"
+                  :label="column.label"
+                >
+                  <template slot-scope="scope">
+                    <div
+                      v-if="column.prop === 'tld' || column.prop === 'host'"
+                    >{{scope.row[column.prop]}}</div>
+                    <div
+                      v-else
+                      :style="scope.row[column.prop] === '✔' ? 'color: green' : 'color: red'"
+                    >{{scope.row[column.prop]}}</div>
+                  </template>
+                </el-table-column>
+              </el-table>
+            </div>
+          </div>
         </div>
       </div>
 
       <div v-if="model.port_scan_enabled">
-        <hr>
+        <hr />
         <!-- disallowed TLDs -->
         <div class="row">
-          <el-tooltip
-            content="Enter the TLDs (such as example.com) to disallow all domains and subdomains that fall under this domain name"
-            effect="light"
-            :open-delay="150"
-            placement="right"
-          >
-            <label class="col-sm-2 col-form-label">Disallowed Top Level Domains (TLDs)</label>
-          </el-tooltip>
+          <label class="col-sm-2 col-form-label">Disallowed Top Level Domains (TLDs)</label>
           <div class="col-sm-7">
             <base-text-area
               name="disallowed_tlds"
-              placeholder="dontscanme.com"
+              placeholder="dontscanme.com,dontscan.com"
               v-model="model.disallowed_tlds"
               :error="getError('disallowed_tlds')"
             ></base-text-area>
           </div>
+          <div class="col-sm-2">
+            <base-button
+              type="info"
+              icon
+              size="sm"
+              class="btn-link"
+              @click="showHelp('disallowed_tlds')"
+            >
+              <i
+                :class="helpers.disallowed_tlds ? 'tim-icons icon-minimal-down' : 'tim-icons icon-minimal-up'"
+              ></i>
+            </base-button>
+          </div>
         </div>
+
+        <div v-show="helpers.disallowed_tlds" class="row">
+          <div class="col-sm-2"></div>
+          <p
+            class="col-sm-7"
+          >Enter TLDs seperated by commas, do not add wildcard (*) or other characters, only the TLD itself. By adding TLDs (such as example.com) to this field, you will be able to disallow port scanning against all sub-domains that fall under the specified TLD(s). Web analysis checks will still be run on the ports specified in the Web Analysis Ports field.</p>
+        </div>
+        <!-- end disallowed TLDs -->
+
         <!-- disallowed hosts -->
         <div class="row">
-          <el-tooltip
-            content="Enter hostnames (such as example.com, sub.example.com) to disallow port scanning of these hosts even if in allowed TLD list)"
-            effect="light"
-            :open-delay="150"
-            placement="right"
-          >
-            <label class="col-sm-2 col-form-label">Disallowed Hosts</label>
-          </el-tooltip>
+          <label class="col-sm-2 col-form-label">Disallowed Hosts</label>
           <div class="col-sm-7">
             <base-text-area
               name="disallowed_hosts"
-              placeholder="sub.dontscanme.com"
+              placeholder="sub.dontscanme.com,dont.scanme.com"
               v-model="model.disallowed_hosts"
               :error="getError('disallowed_hosts')"
             ></base-text-area>
           </div>
+          <div class="col-sm-2">
+            <base-button
+              type="info"
+              icon
+              size="sm"
+              class="btn-link"
+              @click="showHelp('disallowed_hosts')"
+            >
+              <i
+                :class="helpers.disallowed_hosts ? 'tim-icons icon-minimal-down' : 'tim-icons icon-minimal-up'"
+              ></i>
+            </base-button>
+          </div>
+        </div>
+
+        <div v-show="helpers.disallowed_hosts" class="row">
+          <div class="col-sm-2"></div>
+          <p
+            class="col-sm-7"
+          >Enter hosts seperated by commas. This option allows you to enter specific hostnames that you do not want portscanned. Even if the TLD is allowed, any hosts entered here will not be portscanned. However web analysis checks will still be run on the ports specified in the Web Analysis Ports field.</p>
         </div>
 
         <!-- Allowed TLDs -->
         <div class="row">
-          <el-tooltip
-            content="Enter the TLDs (such as example.com) to allow all domains and subdomains that fall under this domain name to be scanned"
-            effect="light"
-            :open-delay="150"
-            placement="right"
-          >
-            <label class="col-sm-2 col-form-label">Allowed Top Level Domains (TLDs)</label>
-          </el-tooltip>
+          <label class="col-sm-2 col-form-label">Allowed Top Level Domains (TLDs)</label>
           <div class="col-sm-7">
             <base-text-area
               name="allowed_tlds"
-              placeholder="scanme.com"
+              placeholder="scanme.com,scanmetoo.com"
               v-model="model.allowed_tlds"
               :error="getError('allowed_tlds')"
             ></base-text-area>
           </div>
+          <div class="col-sm-2">
+            <base-button
+              type="info"
+              icon
+              size="sm"
+              class="btn-link"
+              @click="showHelp('allowed_tlds')"
+            >
+              <i
+                :class="helpers.allowed_tlds ? 'tim-icons icon-minimal-down' : 'tim-icons icon-minimal-up'"
+              ></i>
+            </base-button>
+          </div>
         </div>
-        <!-- Allowed hosts -->
+
+        <div v-show="helpers.allowed_tlds" class="row">
+          <div class="col-sm-2"></div>
+          <p
+            class="col-sm-7"
+          >Enter TLDs seperated by commas, do not add wildcard (*) or other characters, only the TLD(s) themselves. By adding TLDs (such as example.com) to this field, you will allow port scanning against all sub-domains that fall under the specified TLD(s).</p>
+        </div>
+        <!-- end allowed tlds -->
+
+        <!-- allowed hosts -->
         <div class="row">
-          <el-tooltip
-            content="Enter hostnames (such as example.com, sub.example.com) to allow port scanning of these hosts even if in disallowed TLD list"
-            effect="light"
-            :open-delay="150"
-            placement="right"
-          >
-            <label class="col-sm-2 col-form-label">Allowed Hosts</label>
-          </el-tooltip>
+          <label class="col-sm-2 col-form-label">Allowed Hosts</label>
           <div class="col-sm-7">
             <base-text-area
               name="allowed_hosts"
-              placeholder="sub.scanme.com"
+              placeholder="sub.scanme.com,sub2.scanme.com"
               v-model="model.allowed_hosts"
               :error="getError('allowed_hosts')"
             ></base-text-area>
           </div>
+          <div class="col-sm-2">
+            <base-button
+              type="info"
+              icon
+              size="sm"
+              class="btn-link"
+              @click="showHelp('allowed_hosts')"
+            >
+              <i
+                :class="helpers.allowed_hosts ? 'tim-icons icon-minimal-down' : 'tim-icons icon-minimal-up'"
+              ></i>
+            </base-button>
+          </div>
         </div>
+
+        <div v-show="helpers.allowed_hosts" class="row">
+          <div class="col-sm-2"></div>
+          <p class="col-sm-7">
+            Enter hostnames, seperated by commas. This option allows you to enter specific hostnames that you want portscanned. Even if the TLD is disallowed, any hosts entered here
+            <b>will</b> be portscanned. Provided the port was found to be open, web analysis checks will be run on the ports that are specified in the Web Analysis Ports field.
+          </p>
+        </div>
+        <!-- end allowed hosts -->
+
         <!-- ports per second -->
         <div class="row">
-          <el-tooltip
-            content="Limit the number of ports tested per second for each host."
-            effect="light"
-            :open-delay="150"
-            placement="right"
-          >
-            <label class="col-sm-2 col-form-label">Ports Per Second</label>
-          </el-tooltip>
+          <label class="col-sm-2 col-form-label">Ports Per Second</label>
           <div class="col-sm-7">
             <base-input
               name="ports_per_second"
@@ -185,72 +355,129 @@
               :error="getError('ports_per_second')"
             ></base-input>
           </div>
+          <div class="col-sm-2">
+            <base-button
+              type="info"
+              icon
+              size="sm"
+              class="btn-link"
+              @click="showHelp('ports_per_second')"
+            >
+              <i
+                :class="helpers.ports_per_second ? 'tim-icons icon-minimal-down' : 'tim-icons icon-minimal-up'"
+              ></i>
+            </base-button>
+          </div>
         </div>
+
+        <div v-show="helpers.ports_per_second" class="row">
+          <div class="col-sm-2"></div>
+          <p
+            class="col-sm-7"
+          >Enter the number of ports per second, from 5 to 50. This option allows you to rate limit how many ports per second are probed per host. Please note, in the unlikely event all of your hosts are being port scanned at the same time with 15 concurrent hosts being tested along with allowing 50 ports per second, there would be a potential for 750 packets per second hitting your edge networks.</p>
+        </div>
+        <!-- end ports per second -->
+
         <!-- tcp ports field -->
         <div class="row">
-          <el-tooltip
-            content="Attempt to find web servers on non-standard ports (only 80,443 will be tested by default)"
-            effect="light"
-            :open-delay="150"
-            placement="right"
-          >
-            <label class="col-sm-2 col-form-label">TCP Ports</label>
-          </el-tooltip>
+          <label class="col-sm-2 col-form-label">TCP Ports</label>
           <div class="col-sm-7">
             <base-text-area
               name="tcp_ports"
-              placeholder="8080, 4443"
-              valueType="integer"
+              placeholder="21,22,23,25,53,80,135,139,443,445,1443,1723,3306,3389,5432,5900,6379,8000,8080,8443,8500,9500,27017"
+              valuetype="integer"
               v-model="model.tcp_ports"
               validate
               @validation="checkValidArray('tcp_ports', $event)"
               :error="getError('tcp_ports')"
             ></base-text-area>
           </div>
-        </div>
-        <!-- ports table view -->
-        <div class="row">
-          <el-tooltip
-            content="Attempt to find web servers on non-standard ports (only 80,443 will be tested by default)"
-            effect="light"
-            :open-delay="150"
-            placement="right"
-          >
-            <label class="col-sm-2 col-form-label">Custom Web Ports</label>
-          </el-tooltip>
-          <div class="col-sm-7">
-            <base-text-area
-              name="custom_web_ports"
-              placeholder="8080, 4443"
-              valueType="integer"
-              v-model="model.custom_web_ports"
-              validate
-              @validation="checkValidArray('custom_web_ports', $event)"
-              :error="getError('custom_web_ports')"
-            ></base-text-area>
+          <div class="col-sm-2">
+            <base-button type="info" icon size="sm" class="btn-link" @click="showHelp('tcp_ports')">
+              <i
+                :class="helpers.tcp_ports ? 'tim-icons icon-minimal-down' : 'tim-icons icon-minimal-up'"
+              ></i>
+            </base-button>
           </div>
         </div>
+      </div>
+
+      <div v-show="helpers.tcp_ports" class="row">
+        <div class="col-sm-2"></div>
+        <p
+          class="col-sm-7"
+        >Enter up to 50 unique TCP ports, seperated by commas. It is recommended that at least the following ports be tested: 21,22,23,25,53,80,135,139,443,445,1443,1723,3306,3389,5432,5900,6379,8000,8080,8443,8500,9500,27017</p>
+      </div>
+      <!-- end tcp ports field -->
+
+      <!-- web ports field -->
+      <div class="row">
+        <label class="col-sm-2 col-form-label">TCP Ports for Web Analysis</label>
+        <div class="col-sm-7">
+          <base-text-area
+            name="custom_web_ports"
+            placeholder="8080, 4443"
+            valuetype="integer"
+            v-model="model.custom_web_ports"
+            validate
+            @validation="checkValidArray('custom_web_ports', $event)"
+            :error="getError('custom_web_ports')"
+          ></base-text-area>
+        </div>
+        <div class="col-sm-2">
+          <base-button
+            type="info"
+            icon
+            size="sm"
+            class="btn-link"
+            @click="showHelp('custom_web_ports')"
+          >
+            <i
+              :class="helpers.custom_web_ports ? 'tim-icons icon-minimal-down' : 'tim-icons icon-minimal-up'"
+            ></i>
+          </base-button>
+        </div>
+      </div>
+
+      <div v-show="helpers.custom_web_ports" class="row">
+        <div class="col-sm-2"></div>
+        <p class="col-sm-7">
+          Enter TCP ports, seperated by commas. If the port is found open by the port scanning phase should be included for web analysis. You do not need to include ports 80 or 443 as they will be tested by default. If the port was found to be closed, analysis will not be completed. If the host or TLD is in the disallowed list, the ports specified in this list will still be analyzed for web services. It is
+          <b>not</b> recommended to add web analysis checks for ports that do not usually run web services (such as 21, or 22) as this will cause scan group analysis to perform significantly slower. Each port will be tested for both HTTP and HTTPS protocols.
+        </p>
       </div>
     </div>
     <!-- PORT SCANNING NOT ENABLED FOR THIS ORGANIZATION -->
     <div v-else>
       <div class="row">
-        <el-tooltip
-          content="Attempt to find web servers on non-standard ports (only 80,443 will be tested by default)"
-          effect="light"
-          :open-delay="150"
-          placement="right"
-        >
-          <label class="col-sm-2 col-form-label">Custom Web Ports</label>
-        </el-tooltip>
+        <label class="col-sm-2 col-form-label">TCP Ports for Web Analysis</label>
         <div class="col-sm-7">
           <base-text-area
             name="custom_ports"
             placeholder="8080, 4443"
-            valueType="integer"
+            valuetype="integer"
             v-model="model.custom_web_ports"
             :error="getError('custom_web_ports')"
           ></base-text-area>
+        </div>
+        <div class="col-sm-2">
+          <base-button
+            type="info"
+            icon
+            size="sm"
+            class="btn-link"
+            @click="showHelp('custom_web_ports')"
+          >
+            <i
+              :class="helpers.custom_web_ports ? 'tim-icons icon-minimal-down' : 'tim-icons icon-minimal-up'"
+            ></i>
+          </base-button>
+        </div>
+        <div v-show="helpers.custom_web_ports" class="row">
+          <div class="col-sm-2"></div>
+          <p
+            class="col-sm-7"
+          >Enter TCP ports which, if found open by the port scanning phase, should be included for web analysis. You do not need to include ports 80 or 443 as they will be tested by default. Each port will be tested for both HTTP and HTTPS protocols.</p>
         </div>
       </div>
     </div>
@@ -299,7 +526,119 @@ export default {
   },
   data() {
     return {
+      scopeColumns: [
+        {
+          prop: 'host',
+          label: 'Hostname',
+          minWidth: 70
+        },
+        {
+          prop: 'tld',
+          label: 'TLD',
+          minWidth: 60
+        },
+        {
+          prop: 'disallowed_hosts',
+          label: 'Disallowed Host'
+        },
+        {
+          prop: 'allowed_hosts',
+          label: 'Allowed Host'
+        },
+        {
+          prop: 'disallowed_tld',
+          label: 'Disallowed TLD'
+        },
+        {
+          prop: 'allowed_tld',
+          label: 'Allowed TLD'
+        },
+        {
+          prop: 'will_scan',
+          label: 'Will Port Scan',
+          sortable: true
+        }
+      ],
+      scopeData: [
+        {
+          host: 'sub.example.com',
+          tld: 'example.com',
+          disallowed_hosts: '✔',
+          allowed_hosts: '✘',
+          disallowed_tld: '✘',
+          allowed_tld: '✘',
+          will_scan: '✘'
+        },
+        {
+          host: 'sub.example.com',
+          tld: 'example.com',
+          disallowed_hosts: '✘',
+          allowed_hosts: '✘',
+          disallowed_tld: '✔',
+          allowed_tld: '✘',
+          will_scan: '✘'
+        },
+        {
+          host: 'sub.example.com',
+          tld: 'example.com',
+          disallowed_hosts: '✘',
+          allowed_hosts: '✘',
+          disallowed_tld: '✘',
+          allowed_tld: '✘',
+          will_scan: '✘'
+        },
+        {
+          host: 'sub.example.com',
+          tld: 'example.com',
+          disallowed_hosts: '✔',
+          allowed_hosts: '✘',
+          disallowed_tld: '✘',
+          allowed_tld: '✔',
+          will_scan: '✘'
+        },
+        {
+          host: 'sub.example.com',
+          tld: 'example.com',
+          disallowed_hosts: '✘',
+          allowed_hosts: '✔',
+          disallowed_tld: '✔',
+          allowed_tld: '✘',
+          will_scan: '✔'
+        },
+        {
+          host: 'sub.example.com',
+          tld: 'example.com',
+          disallowed_hosts: '✘',
+          allowed_hosts: '✔',
+          disallowed_tld: '✘',
+          allowed_tld: '✘',
+          will_scan: '✔'
+        },
+        {
+          host: 'sub.example.com',
+          tld: 'example.com',
+          disallowed_hosts: '✘',
+          allowed_hosts: '✘',
+          disallowed_tld: '✘',
+          allowed_tld: '✔',
+          will_scan: '✔'
+        }
+      ],
       text_addresses: '',
+      helpers: {
+        group_name: false,
+        archive_after_days: false,
+        concurrent_requests: false,
+        custom_sub_names: false,
+        port_scan_enabled: false,
+        disallowed_tlds: false,
+        disallowed_hosts: false,
+        allowed_tlds: false,
+        allowed_hosts: false,
+        ports_per_second: false,
+        tcp_ports: false,
+        custom_web_ports: false
+      },
       model: {
         group_name: '',
         port_scan_enabled: false,
@@ -365,8 +704,7 @@ export default {
         8500,
         9500,
         27017
-      ],
-      default_web_ports: [80, 443, 8000, 8080, 8443, 8500, 9500]
+      ]
     };
   },
   computed: {
@@ -385,12 +723,10 @@ export default {
     }
   },
   methods: {
-    addWebPort(port, evt) {
-      console.log(port);
-      console.log(evt);
+    showHelp(field) {
+      this.helpers[field] = !this.helpers[field];
     },
     setPortScanning() {
-      console.log(this.model.port_scan_enabled);
       this.model.port_scan_enabled = !this.model.port_scan_enabled;
     },
     getError(fieldName) {
@@ -401,7 +737,7 @@ export default {
         this.errors.remove(fieldName);
         return;
       }
-     this.errors.add({field: fieldName, msg: evt});
+      this.errors.add({ field: fieldName, msg: evt });
     },
     validate() {
       this.$validator.validateAll().then(isValid => {
@@ -445,12 +781,7 @@ export default {
   },
   created() {},
   mounted() {
-    let tcpPorts = [];
-    if (this.model.tcp_ports.length === 0) {
-      this.model.tcp_ports = this.default_tcp_ports;
-      this.model.custom_web_ports = this.default_web_ports;
-      return;
-    }
+    
   }
 };
 </script>
