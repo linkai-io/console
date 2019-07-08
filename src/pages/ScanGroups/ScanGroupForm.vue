@@ -3,7 +3,7 @@
     <!-- group field -->
     <div class="row">
       <h6 class="col-sm-2 text-right">Setting</h6>
-      <h6 class="col-sm-7">Value</h6> 
+      <h6 class="col-sm-7">Value</h6>
       <h6 class="col-sm-2">Help</h6>
     </div>
 
@@ -29,7 +29,9 @@
 
     <div v-show="helpers.group_name" class="row">
       <div class="col-sm-2"></div>
-      <p class="col-sm-7">Enter the name of this group of addresses and hosts, group names must be unique</p>
+      <p
+        class="col-sm-7"
+      >Enter the name of this group of addresses and hosts, group names must be unique</p>
     </div>
     <!-- end group field -->
 
@@ -62,9 +64,16 @@
 
     <div v-show="helpers.archive_after_days" class="row">
       <div class="col-sm-2"></div>
-      <p
-        class="col-sm-7"
-      >Enter the number of days (from 2 to 14) for when old records should be archived. Stale DNS records (such as hosts that no longer resolve) and stale web requests will be automatically archived. Enter the number of days old results for this scan group should be archived. For DNS records, it is common for hosting providers to rotate different IP addresses for resolved hostnames. Over time, this can cause a scan groups asset list to be full of stale DNS records. The archival process is meant to remove hostname/ip address pairs that no longer resolve. Records that do resolve to the same IP are kept in the address list. The archival process is run after every iteration of a scan. If a scan group is paused, then it will only archive records the specified number of days after the last time the group was paused.</p>
+      <div class="col-sm-7">
+        <p>Enter the number of days (from 2 to 14) for when outdated records should be archived. The archival process is meant to remove hostname/ip address pairs that no longer resolve.</p>
+        <ul>
+          <li>For DNS records, it is common for hosting providers to rotate different IP addresses for resolved hostnames. Over time, this can cause a scan groups asset list to be full of stale DNS records.</li>
+          <li>Web Results will be archived automatically if the response time is older than the specified number of days.</li>
+          <li>Records that do resolve to the same IP are kept in the address list.</li>
+          <li>The archival process is run after every iteration of a scan.</li>
+          <li>If a scan group is paused, then it will only archive records the specified number of days after the last time the group was paused.</li>
+        </ul>
+      </div>
     </div>
     <!-- end archive field -->
 
@@ -138,9 +147,17 @@
 
     <div v-show="helpers.custom_sub_names" class="row">
       <div class="col-sm-2"></div>
-      <p
-        class="col-sm-7"
-      >Enter single words (no dots), seperated by comma. This option allows you to add environment specific sub-domain names that will be prepended to all TLD(s) and sub-domains found. For example, providing "gold, silver" to this field would have the brute force module attempt: gold.example.com, silver.example.com, gold.sub.example.com, silver.sub.example.com. Please note custom names added here are joined together with a built-in list of commonly found sub-domains.</p>
+      <div class="col-sm-7">
+        <p>Enter single words (no dots), seperated by comma. This option allows you to add environment specific sub-domain names that will be prepended to all TLD(s) and sub-domains found.</p>
+        <p>For example, providing "gold, silver" to this field would have the brute force module attempt:</p>
+        <ul>
+          <li>gold.example.com</li>
+          <li>silver.example.com</li>
+          <li>gold.sub.example.com</li>
+          <li>silver.sub.example.com</li>
+        </ul>
+        <p>Please note custom names added here are joined together with a built-in list of commonly found sub-domains.</p>
+      </div>
     </div>
 
     <div v-if="canPortScan">
@@ -168,9 +185,19 @@
         <div class="col-12">
           <div class="row">
             <p class="col-2"></p>
-            <p
-              class="col-sm-7 mt-1"
-            >Enable port scanning on assets included in the Allowed TLDs and Allowed Hosts scope. You must enter at least one TLD or host/IP address if you wish to allow port scanning for this scan group. The results of open ports found will be passed to web analysis. Only hosts that fall under the initial TLD(s) or are added to the scan group as initial hosts will be scanned. This is to prevent scanning assets you do not own. Additionally, you can restrict the scope of what is scanned. Please review the following table to understand how scope is determined for hosts that should, or should not be port scanned.</p>
+            <div class="col-sm-7 mt-1">
+              <p>Enable port scanning on assets included in the Allowed TLDs and Allowed Hosts scope.</p>
+              <ul>
+                <li>Portscans will be coming from a single host: scanner1.linkai.io (209.126.252.34)</li>
+                <li>Currently, only IPv4 Addresses will be tested</li>
+                <li>Port scanning is done via requesting a single SYN packet per port</li>
+                <li>You must enter at least one TLD or host/IP address if you wish to allow port scanning for this scan group.</li>
+                <li>The results of open ports found will be passed to web analysis.</li>
+                <li>Hosts that fall under the initial TLD(s) or are added to the scan group as initial hosts will be scanned. This is to prevent scanning assets you do not own.</li>
+                <li>You can restrict the scope of what is scanned.</li>
+              </ul>
+              <p>Please review the following table to understand how scope is determined for hosts that should, or should not be port scanned.</p>
+            </div>
           </div>
 
           <div class="row">
@@ -235,9 +262,13 @@
 
         <div v-show="helpers.disallowed_tlds" class="row">
           <div class="col-sm-2"></div>
-          <p
-            class="col-sm-7"
-          >Enter TLDs seperated by commas, do not add wildcard (*) or other characters, only the TLD itself. By adding TLDs (such as example.com) to this field, you will be able to disallow port scanning against all sub-domains that fall under the specified TLD(s). Web analysis checks will still be run on the ports specified in the Web Analysis Ports field.</p>
+          <div class="col-sm-7">
+            <p>Enter TLDs seperated by commas, do not add wildcard (*) or other characters, only the TLDs themselves.</p>
+            <ul>
+              <li>By adding TLDs (such as example.com) to this field, you will be able to disallow port scanning against all sub-domains that fall under the specified TLD(s).</li>
+              <li>Web analysis checks will still be run on the ports specified in the Web Analysis Ports field.</li>
+            </ul>
+          </div>
         </div>
         <!-- end disallowed TLDs -->
 
@@ -269,9 +300,13 @@
 
         <div v-show="helpers.disallowed_hosts" class="row">
           <div class="col-sm-2"></div>
-          <p
-            class="col-sm-7"
-          >Enter hosts seperated by commas. This option allows you to enter specific hostnames that you do not want portscanned. Even if the TLD is allowed, any hosts entered here will not be portscanned. However web analysis checks will still be run on the ports specified in the Web Analysis Ports field.</p>
+          <div class="col-sm-7">
+            <p>Enter hosts seperated by commas. This option allows you to enter specific hostnames that you do not want portscanned.</p>
+            <ul>
+              <li>Even if the TLD is allowed, any hosts entered here will not be portscanned.</li>
+              <li>Web analysis checks will still be run on the ports specified in the Web Analysis Ports field.</li>
+            </ul>
+          </div>
         </div>
 
         <!-- Allowed TLDs -->
@@ -336,10 +371,16 @@
 
         <div v-show="helpers.allowed_hosts" class="row">
           <div class="col-sm-2"></div>
-          <p class="col-sm-7">
-            Enter hostnames, seperated by commas. This option allows you to enter specific hostnames that you want portscanned. Even if the TLD is disallowed, any hosts entered here
-            <b>will</b> be portscanned. Provided the port was found to be open, web analysis checks will be run on the ports that are specified in the Web Analysis Ports field.
-          </p>
+          <div class="col-sm-7">
+            <p>Enter hostnames, seperated by commas. This option allows you to enter specific hostnames that you want portscanned.</p>
+            <ul>
+              <li>
+                Even if the TLD is disallowed, any hosts entered here
+                <b>will</b> be portscanned.
+              </li>
+              <li>Provided the port was found to be open, web analysis checks will be run on the ports that are specified in the Web Analysis Ports field.</li>
+            </ul>
+          </div>
         </div>
         <!-- end allowed hosts -->
 
@@ -374,7 +415,7 @@
           <div class="col-sm-2"></div>
           <p
             class="col-sm-7"
-          >Enter the number of ports per second, from 5 to 50. This option allows you to rate limit how many ports per second are probed per host. Please note, in the unlikely event all of your hosts are being port scanned at the same time with 15 concurrent hosts being tested along with allowing 50 ports per second, there would be a potential for 750 packets per second hitting your edge networks.</p>
+          >Enter the number of ports per second, from 5 to 50. This option allows you to rate limit how many ports per second are probed per host.</p>
         </div>
         <!-- end ports per second -->
 
@@ -406,13 +447,13 @@
         <div class="col-sm-2"></div>
         <p
           class="col-sm-7"
-        >Enter up to 50 unique TCP ports, seperated by commas. It is recommended that at least the following ports be tested: 21,22,23,25,53,80,135,139,443,445,1443,1723,3306,3389,5432,5900,6379,8000,8080,8443,8500,9500,27017</p>
+        >Enter up to 50 unique TCP ports, seperated by commas. It is recommended that at least the following ports be tested:<br>21,22,23,25,53,80,135,139,443,445,1443,1723,3306,3389,5432,5900,6379,8000,8080,8443,8500,9500,27017</p>
       </div>
       <!-- end tcp ports field -->
 
       <!-- web ports field -->
       <div class="row">
-        <label class="col-sm-2 col-form-label">TCP Ports for Web Analysis</label>
+        <label class="col-sm-2 col-form-label">Web Analysis Ports</label>
         <div class="col-sm-7">
           <base-text-area
             name="custom_web_ports"
@@ -441,16 +482,24 @@
 
       <div v-show="helpers.custom_web_ports" class="row">
         <div class="col-sm-2"></div>
-        <p class="col-sm-7">
-          Enter TCP ports, seperated by commas. If the port is found open by the port scanning phase should be included for web analysis. You do not need to include ports 80 or 443 as they will be tested by default. If the port was found to be closed, analysis will not be completed. If the host or TLD is in the disallowed list, the ports specified in this list will still be analyzed for web services. It is
-          <b>not</b> recommended to add web analysis checks for ports that do not usually run web services (such as 21, or 22) as this will cause scan group analysis to perform significantly slower. Each port will be tested for both HTTP and HTTPS protocols.
-        </p>
+        <div class="col-sm-7">
+          <p>Enter TCP ports you wish to have the web analysis run against, seperated by commas.</p>
+          <ul>
+            <li>You do not need to include ports 80 or 443 as they will be tested by default.</li>
+            <li>Each port will be tested for both HTTP and HTTPS protocols.</li>
+            <li>If the port is found open by the port scanning phase should be included for web analysis.</li>
+            <li>If the port was found to be closed, analysis will not be completed. </li>
+            <li>If the host or TLD is in the disallowed list, the ports specified in this list will still be analyzed for web services.</li>
+          </ul>
+          <p>It is
+          <b>not</b> recommended to add web analysis checks for ports that do not usually run web services (such as 21, or 22) as this will cause scan group analysis to perform significantly slower.</p>
+        </div>
       </div>
     </div>
     <!-- PORT SCANNING NOT ENABLED FOR THIS ORGANIZATION -->
     <div v-else>
       <div class="row">
-        <label class="col-sm-2 col-form-label">TCP Ports for Web Analysis</label>
+        <label class="col-sm-2 col-form-label">Web Analysis Ports</label>
         <div class="col-sm-7">
           <base-text-area
             name="custom_ports"
@@ -474,10 +523,16 @@
           </base-button>
         </div>
         <div v-show="helpers.custom_web_ports" class="row">
-          <div class="col-sm-2"></div>
-          <p
-            class="col-sm-7"
-          >Enter TCP ports which, if found open by the port scanning phase, should be included for web analysis. You do not need to include ports 80 or 443 as they will be tested by default. Each port will be tested for both HTTP and HTTPS protocols.</p>
+        <div class="col-sm-2"></div>
+        <div class="col-sm-7">
+          <p>Enter the ports you wish to have the web analysis run against, seperated by commas.</p>
+          <ul>
+            <li>You do not need to include ports 80 or 443 as they will be tested by default.</li>
+            <li>Each port will be tested for both HTTP and HTTPS protocols.</li>
+          </ul>
+          <p>It is
+          <b>not</b> recommended to add web analysis checks for ports that do not usually run web services (such as 21, or 22) as this will cause scan group analysis to perform significantly slower.</p>
+        </div>
         </div>
       </div>
     </div>
@@ -746,30 +801,6 @@ export default {
           return;
         }
 
-        // ugh
-        this.model.custom_ports = this.model.custom_ports
-          .map(e => parseInt(e, 10))
-          .filter(function(val) {
-            if (val === null || Number.isNaN(val)) {
-              return false;
-            }
-            return true;
-          });
-
-        this.model.custom_sub_names = this.model.custom_sub_names
-          .map(e => e)
-          .filter(function(val) {
-            if (val === '') {
-              return false;
-            }
-            return true;
-          });
-
-        this.model.concurrent_requests = parseInt(
-          this.model.concurrent_requests,
-          10
-        );
-
         let details = {
           updates: this.model,
           group_id: this.group.group_id,
@@ -780,9 +811,7 @@ export default {
     }
   },
   created() {},
-  mounted() {
-    
-  }
+  mounted() {}
 };
 </script>
 <style lang="scss">
