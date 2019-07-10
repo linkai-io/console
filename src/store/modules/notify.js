@@ -2,14 +2,16 @@
 const state = {
   notifyMsg: '',
   notifyMsgType: '',
-  notifyMsgTimeout: 4000
+  notifyMsgTimeout: 4000,
+  notifyID: 0
 };
 
 // getters
 const getters = {
   getMsg: state => state.notifyMsg,
   getMsgType: state => state.notifyMsgType,
-  getMsgTimeout: state => state.notifyMsgTimeout
+  getMsgTimeout: state => state.notifyMsgTimeout,
+  getMsgID: state => state.notifyID
 };
 
 // actions
@@ -24,6 +26,7 @@ const mutations = {
   SET_NOTIFY_MSG(state, details) {
     state.notifyMsg = details.msg;
     state.notifyMsgType = details.msgType;
+    state.notifyID = new Date().getMilliseconds();
     if (details.msgTimeout !== undefined) {
       state.notifyMsgTimeout = details.msgTimeout;
     }
@@ -31,6 +34,7 @@ const mutations = {
   CLEAR_NOTIFY_MSG(state) {
     state.notifyMsg = '';
     state.notifyMsgType = '';
+    state.notifyID = 0;
     state.notifyMsgTimeout = 4000;
   }
 };

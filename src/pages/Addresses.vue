@@ -24,6 +24,13 @@
         </div>
         <div class="card-body">
           <div class="row">
+            <div v-if="canPortScan" class="col-sm">
+            <router-link :to="'/portstable/'+ value.group_id">
+            <stats-card title="Port Scan Results" type="info" class="results-card" icon="tim-icons icon-molecule-40">
+              <div slot="footer">Port Scan Results of all assets in scope</div>
+            </stats-card>
+            </router-link>
+          </div>
           <div class="col-sm">
              <router-link :to="'/hoststable/'+ value.group_id">
             <stats-card title="Hostnames" type="info" class="results-card" icon="tim-icons icon-laptop">
@@ -38,6 +45,7 @@
             </stats-card>
             </router-link>
           </div>
+          
           </div>
         </div>
         </card>
@@ -60,6 +68,8 @@ export default {
   },
   computed: {
     ...mapGetters('scangroup', ['groups', 'isLoading']),
+    ...mapGetters('user', ['canPortScan']),
+
     hasGroups() {
       return Object.entries(this.groups).length !== 0;
     }

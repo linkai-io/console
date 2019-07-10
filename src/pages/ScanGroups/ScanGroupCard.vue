@@ -1,5 +1,4 @@
 <template>
-  <div class="container">
     <div class="col-md-12">
       <form class="form-horizontal">
         <card>
@@ -10,15 +9,13 @@
                   <span>This scan group does not have any addresses associated with it, either type in or upload the initial addresses for this group.</span>
                 </div>
               </div>
-              <p><span style="color: red">Warning:</span> When uploading IP addresses, they will be resolved and the hostname or domain that is returned will be added to your list of assets.</p>
+              <p>
+                <span style="color: red">Warning:</span> When uploading IP addresses, they will be resolved and the hostname or domain that is returned will be added to your list of assets.
+              </p>
               <div class="row">
                 <label class="col-sm-2 col-form-label">Add Hosts</label>
                 <div class="col-sm-7">
-                  <raw-text-area
-                    name="text_hosts"
-                    v-model="text_addresses"
-                    rows="10"
-                  ></raw-text-area>
+                  <raw-text-area name="text_hosts" v-model="text_addresses" rows="10"></raw-text-area>
                 </div>
               </div>
               <div class="row">
@@ -37,7 +34,6 @@
                     @click.native="modals.upload = true;"
                   >Upload</base-button>
                 </div>
-                
               </div>
             </base-alert>
           </div>
@@ -53,77 +49,67 @@
             </div>
           </div>
 
-          <div class="row">
-            <label class="col-sm-2 col-form-label">GroupName</label>
-            <div class="col-sm-7">
-              <base-input
-                name="group_name"
-                required
-                v-validate="modelValidations.group_name"
-                v-model="model.group_name"
-                :error="getError('group_name')"
-              ></base-input>
-            </div>
-          </div>
+          <scan-group-form ref="scanGroupForm" :group="group" @submit="onFormSubmit" class="mt-2">
+            <template slot-scope="{validator}">
+              <div class="row">
+                <label class="col-sm-2 col-form-label">Created By</label>
+                <div class="col-sm-3">{{group.created_by}} at {{ createdAt }}</div>
 
-          <div class="row">
-            <label class="col-sm-2 col-form-label">Concurrent Requests</label>
-            <div class="col-sm-7">
-              <base-input
-                name="concurrent_requests"
-                required
-                v-validate="modelValidations.concurrent_requests"
-                v-model.number="model.concurrent_requests"
-                :error="getError('concurrent_requests')"
-              ></base-input>
-            </div>
-          </div>
-
-          <div class="row">
-              <label class="col-sm-2 col-form-label">Archive Old Results After (Days)</label>
-              <div class="col-sm-7">
-                <base-input
-                  name="archive_after_days"
-                  required
-                  v-validate="modelValidations.archive_after_days"
-                  v-model.number="model.archive_after_days"
-                  :error="getError('archive_after_days')"
-                >
-                </base-input>
+                <label class="col-sm-2 col-form-label">Last Modified By</label>
+                <div class="col-sm-3">{{group.modified_by}} at {{ modifiedAt }}</div>
               </div>
+
+              <div class="row mt-4 ml-3">
+                <div class="col-md-4">
+                  <base-button
+                    type="primary"
+                    native-type="submit"
+                    :loading="isUpdating"
+                    @click.native.prevent="validator"
+                  >Update</base-button>
+                </div>
+
+                <div class="col-md-4">
+                  <div v-if="!group.paused">
+                    <base-button
+                      type="danger"
+                      :loading="isUpdating"
+                      @click.native="modals.pause = true;"
+                    >Pause</base-button>
+                  </div>
+                  <div v-else>
+                    <base-button
+                      type="primary"
+                      :loading="isUpdating"
+                      @click.native="modals.resume = true;"
+                    >Resume</base-button>
+                  </div>
+                </div>
+
+                <div class="col-md-4">
+                  <base-button
+                    type="danger"
+                    :loading="deleteDisabled"
+                    @click.native="modals.delete = true;"
+                  >Delete</base-button>
+                </div>
+              </div>
+              <!--
+            <div class="text-center">
+              <base-button
+                native-type="submit"
+                @click.native.prevent="validator"
+                type="primary"
+                :loading="isCreating"
+                :disabled="!canCreate || !hasAccepted"
+                class="mb-3"
+                size="md"
+              >Create</base-button>
             </div>
+              -->
+            </template>
+          </scan-group-form>
 
-          <div class="row">
-            <label class="col-sm-2 col-form-label">Custom Sub Domains</label>
-            <div class="col-sm-7">
-              <base-text-area
-                name="custom_sub_names"
-                placeholder="sub1, sub2"
-                v-model="model.custom_sub_names"
-                :error="getError('custom_sub_names')"
-              ></base-text-area>
-            </div>
-          </div>
-
-          <div class="row">
-            <label class="col-sm-2 col-form-label">Custom Ports</label>
-            <div class="col-sm-7">
-              <base-text-area
-                name="custom_ports"
-                placeholder="80, 443"
-                v-model="model.custom_ports"
-                :error="getError('custom_ports')"
-              ></base-text-area>
-            </div>
-          </div>
-
-          <div class="row">
-            <label class="col-sm-2 col-form-label">Created By</label>
-            <div class="col-sm-3">{{group.created_by}} at {{ createdAt }}</div>
-
-            <label class="col-sm-2 col-form-label">Last Modified By</label>
-            <div class="col-sm-3">{{group.modified_by}} at {{ modifiedAt }}</div>
-          </div>
           <!-- activity details -->
           <div class="row">
             <card class="col-md-11 mt-4 mx-auto bg-dark">
@@ -173,41 +159,6 @@
                 </div>
               </div>
             </card>
-          </div>
-          <div class="row">
-            <div class="col-md-4">
-              <base-button
-                type="primary"
-                native-type="submit"
-                :loading="isUpdating"
-                @click.native.prevent="validate"
-              >Update</base-button>
-            </div>
-
-            <div class="col-md-4">
-              <div v-if="!group.paused">
-                <base-button
-                  type="danger"
-                  :loading="isUpdating"
-                  @click.native="modals.pause = true;"
-                >Pause</base-button>
-              </div>
-              <div v-else>
-                <base-button
-                  type="primary"
-                  :loading="isUpdating"
-                  @click.native="modals.resume = true;"
-                >Resume</base-button>
-              </div>
-            </div>
-
-            <div class="col-md-4">
-              <base-button
-                type="danger"
-                :loading="deleteDisabled"
-                @click.native="modals.delete = true;"
-              >Delete</base-button>
-            </div>
           </div>
         </card>
       </form>
@@ -296,8 +247,12 @@
           <i class="tim-icons icon-cloud-upload-94"></i>
         </div>
         <p>Are you sure you want to upload these addresses? Depending on price plan you may not be able to delete this group.</p>
-        <br>
-        <div class="justify-content-left" v-for="(addr, index) in text_addresses.split('\n')" v-bind:key="index">
+        <br />
+        <div
+          class="justify-content-left"
+          v-for="(addr, index) in text_addresses.split('\n')"
+          v-bind:key="index"
+        >
           <li>{{ addr }}</li>
         </div>
         <template slot="footer">
@@ -306,7 +261,6 @@
         </template>
       </modal>
     </div>
-  </div>
 </template>
 <script>
 import {
@@ -319,6 +273,7 @@ import {
 } from 'src/components/index';
 import { mapState, mapGetters } from 'vuex';
 import { unixNanoToDate, unixNanoToMinDate } from 'src/data/time.js';
+import ScanGroupForm from 'src/pages/ScanGroups/ScanGroupForm.vue';
 
 export default {
   components: {
@@ -326,6 +281,7 @@ export default {
     Modal,
     BaseAlert,
     BaseSwitch,
+    ScanGroupForm,
     BaseTextArea,
     RawTextArea
   },
@@ -346,32 +302,7 @@ export default {
         resume: false,
         delete: false,
         upload: false,
-        text_upload: false,
-      },
-      model: {
-        group_name: this.group.group_name,
-        archive_after_days: this.group.archive_after_days,
-        custom_sub_names: this.group.module_configurations.dnsbrute_module
-          .custom_subnames || [],
-        custom_ports: this.group.module_configurations.port_module.custom_ports || [],
-        concurrent_requests: this.group.module_configurations.ns_module
-          .requests_per_second
-      },
-      modelValidations: {
-        group_name: {
-          required: true,
-          regex: /^((?!\/).)*$/
-        },
-        archive_after_days: {
-          required: true, 
-          min_value: 2,
-          max_value: 14
-        },
-        concurrent_requests: {
-          required: true,
-          min_value: 1,
-          max_value: 20
-        }
+        text_upload: false
       }
     };
   },
@@ -445,7 +376,7 @@ export default {
     },
     modifiedAt: function() {
       return unixNanoToDate(this.group.modified_time);
-    }, 
+    },
     status: function() {
       return this.group.paused === false;
     },
@@ -463,7 +394,6 @@ export default {
         addresses: this.text_addresses
       };
       this.$store.dispatch('addresses/UPLOAD_ADDRESSES', details);
-
     },
     refreshActivity() {
       this.$store.dispatch('scangroup/GET_GROUP_STATS');
@@ -518,43 +448,8 @@ export default {
     onFileChange(file) {
       this.file = file;
     },
-    validate() {
-      this.$validator.validateAll().then(isValid => {
-        if (!isValid) {
-          return;
-        }
-
-        // ugh
-        this.model.custom_ports = this.model.custom_ports
-          .map(e => parseInt(e, 10))
-          .filter(function(val) {
-            if (val === null || Number.isNaN(val)) {
-              return false;
-            }
-            return true;
-          });
-
-        this.model.custom_sub_names = this.model.custom_sub_names
-          .map(e => e)
-          .filter(function(val) {
-            if (val === '') {
-              return false;
-            }
-            return true;
-          });
-
-        this.model.concurrent_requests = parseInt(
-          this.model.concurrent_requests,
-          10
-        );
-
-        let details = {
-          updates: this.model,
-          group_id: this.group.group_id,
-          original_name: this.group.group_name
-        };
-        this.$store.dispatch('scangroup/UPDATE_GROUP', details);
-      });
+    onFormSubmit(details) {
+      this.$store.dispatch('scangroup/UPDATE_GROUP', details);
     }
   },
   created() {},

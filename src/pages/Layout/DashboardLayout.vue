@@ -135,7 +135,7 @@ export default {
   },
   computed: {
     ...mapState('notify', ['notifyMsg', 'notifyMsgType']),
-    ...mapGetters('notify', ['getMsg', 'getMsgType', 'getMsgTimeout']),
+    ...mapGetters('notify', ['getMsg', 'getMsgID', 'getMsgType', 'getMsgTimeout']),
     ...mapGetters('scangroup', ['groups', 'groupStats'])
   },
   methods: {
@@ -262,13 +262,13 @@ export default {
     this.$store.dispatch('user/GET_USER');
     initScrollbar('sidebar-wrapper');
 
-    this.$watch('getMsg', msg => {
-      if (msg === '') {
+    this.$watch('getMsgID', (msg) => {
+      if (msg === 0) {
         return;
       }
 
       this.$notify({
-        message: msg,
+        message: this.notifyMsg,
         timeout: this.getMsgTimeout,
         icon: 'tim-icons icon-bell-55',
         horizontalAlign: 'center',

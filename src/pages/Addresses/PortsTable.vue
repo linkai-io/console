@@ -3,12 +3,11 @@
     <div class="col-md-8 ml-auto mr-auto">
       <h2 class="text-center">{{group.group_name}}</h2>
     </div>
-    <div class="row mt-5">
+    <div class="row">
       <div class="col-12">
         <card card-body-classes="table-full-width">
-          <h4 slot="header" class="card-title">Hostnames</h4>
+          <h4 slot="header" class="card-title">Port Scan Results</h4>
           <div class="col-sm-12">
-            
             <div class="col-md-12 text-right">
               <base-button
                 type="primary"
@@ -16,7 +15,7 @@
                 :loading="updating"
                 @click.native="handleExport"
               >Export all</base-button>
-              
+
               <base-button
                 type="primary"
                 icon
@@ -31,8 +30,7 @@
           <div class="text-right col-sm-12 ml-auto">Showing {{ count }} entries.</div>
           <div class="col-sm-12">
             <!-- start table -->
-            <el-table ref="hostTable" :data="tableData" @selection-change="handleSelectionChange">
-              <el-table-column type="selection" width="55"></el-table-column>
+            <el-table ref="hostTable" :data="tableData">
               <el-table-column
                 v-for="column in tableColumns"
                 :key="column.label"
@@ -40,62 +38,83 @@
                 :prop="column.prop"
                 sortable
                 :label="column.label"
+                class="border-bottom"
               >
                 <template slot-scope="scope">
-                  <div v-if="column.prop ==='ip_addresses'">
-                    <collapse accordion >
-                      <collapse-item :title="'('+scope.row.ip_addresses.length+')'">
-                        <div v-for="(ip_address, index) in scope.row.ip_addresses" :key="index">{{ip_address}}</div>
-                      </collapse-item>
-                    </collapse>
-                  </div>
-                  <div v-else-if="column.prop === 'etld'">{{ scope.row.etld }}</div>
-                  <div v-else-if="column.prop === 'host_address'">{{ scope.row.host_address }}</div>
-                </template>
-              </el-table-column>
+                  <div v-if="column.prop === 'host_address'" style="vertical-align: middle;" class="port-border-right">{{ scope.row.host_address }}</div>
 
-              <el-table-column min-width="30" header-align="right" align="right" label="Actions">
-                <div
-                  slot-scope="{
-                  row,
-                  $index
-                }"
-                  class="text-right table-actions"
-                >
-                  <el-tooltip
-                    :content="setIgnoreToolTip(row)"
-                    effect="light"
-                    :open-delay="150"
-                    placement="top"
-                  >
-                    <base-button
-                      type="warning"
-                      icon
-                      size="sm"
-                      @click="handleIgnore(row)"
-                      class="btn-link"
+                  <!-- start scan results -->
+                  <div v-else-if="column.prop === 'current'" class="port-border-right">
+                    <div class="row" v-if="scope.row.port_data.current.tcp_ports.length > 0">
+                      <h6 class="col-sm-6">TCP Port</h6>
+                      <h6 class="col-sm-6">Service</h6>
+                    </div>
+                    <div class="row" v-else>
+                      <div class="col-sm-12">No open ports identified</div>
+                    </div>
+                    <div
+                      v-for="port in scope.row.port_data.current.tcp_ports"
+                      class="row"
+                      :key="port"
                     >
-                      <i v-if="setIgnoreIcon(row)" class="tim-icons icon-simple-delete"></i>
-                      <i v-else class="tim-icons icon-bulb-63"></i>
-                    </base-button>
-                  </el-tooltip>
-                  <el-tooltip
-                    content="Delete Host"
-                    effect="light"
-                    :open-delay="150"
-                    placement="top"
-                  >
-                    <base-button
-                      type="danger"
-                      icon
-                      size="sm"
-                      @click="handleDelete(row)"
-                      class="btn-link"
+                      <div class="col-sm-6">
+                        <span class="open-port">⚫</span>
+                        &nbsp;{{port}}
+                      </div>
+                      <div class="col-sm-6">{{formatValues('tcp', port)}}</div>
+                    </div>
+                    <div class="row">
+                      <div class="col-sm-12"></div>
+                    </div>
+                    <div class="row mt-4">
+                      <div class="col-sm-6">IP Address:</div>
+                      <div class="col-sm-6">{{ scope.row.port_data.current.ip_address }}</div>
+                    </div>
+                    <div class="row mt-1">
+                      <div class="col-sm-6">Last Scanned:</div>
+                      <div
+                        class="col-sm-6"
+                      >{{ formatValues('timestamp', scope.row.scanned_timestamp) }}</div>
+                    </div>
+                  </div>
+                  <!-- end  scan results -->
+
+                  <!-- start previous scan results -->
+                  <div v-else-if="column.prop === 'previous'">
+                    <div class="row" v-if="scope.row.port_data.current.tcp_ports.length > 0" >
+                      <h6 class="col-sm-6">TCP Port</h6>
+                      <h6 class="col-sm-6">Service</h6>
+                    </div>
+                    <div class="row" v-else>
+                      <div class="col-sm-12">No open ports identified</div>
+                    </div>
+                    <div
+                      v-for="port in scope.row.port_data.previous.tcp_ports"
+                      class="row"
+                      :key="port"
                     >
-                      <i class="tim-icons icon-simple-remove"></i>
-                    </base-button>
-                  </el-tooltip>
-                </div>
+                      <div class="col-sm-6">
+                        <span class="open-port">⚫</span>
+                        &nbsp;{{port}}
+                      </div>
+                      <div class="col-sm-6">{{formatValues('tcp', port)}}</div>
+                    </div>
+                    <div class="row">
+                      <div class="col-sm-12"></div>
+                    </div>
+                    <div class="row mt-4">
+                      <div class="col-sm-6">IP Address:</div>
+                      <div class="col-sm-6">{{ scope.row.port_data.previous.ip_address }}</div>
+                    </div>
+                    <div class="row mt-1">
+                      <div class="col-sm-6">Last Scanned:</div>
+                      <div
+                        class="col-sm-6"
+                      >{{ formatValues('timestamp', scope.row.scanned_timestamp) }}</div>
+                    </div>
+                  </div>
+                  <!-- end previous scan results -->
+                </template>
               </el-table-column>
 
               <template slot="append">
@@ -118,13 +137,13 @@
   </div>
 </template>
 <script>
-import { Table, TableColumn, Select, Option, } from 'element-ui';
+import { Table, TableColumn, Select, Option } from 'element-ui';
 //import { Collapse, CollapseItem } from 'src/components';
 import InfiniteLoading from 'vue-infinite-loading';
-import {Collapse, CollapseItem} from 'src/components'
+import { Collapse, CollapseItem } from 'src/components';
 import { unixNanoToMinDate } from 'src/data/time.js';
 import { mapGetters, mapState } from 'vuex';
-import { formatNSRecord } from 'src/data/formatters.js';
+import { formatTCPPort } from 'src/data/formatters.js';
 import API from 'src/api/api.js';
 export default {
   components: {
@@ -167,41 +186,24 @@ export default {
   data() {
     return {
       pagination: {
-        lastHost: '',
+        lastIndex: 0,
         limit: 100,
         count: 0
       },
-      searchQuery: '',
-      propsToSearch: [
-        'host_address',
-        'ip_address',
-        'discovery_time',
-        'discovered_by',
-        'last_scanned_time',
-        'last_seen_time',
-        'confidence_score',
-        'user_confidence_score',
-        'is_wildcard_zone',
-        'is_hosted_service',
-        'ignored',
-        'found_from',
-        'ns_record',
-        'address_hash'
-      ],
       tableColumns: [
-        {
-          prop: 'etld',
-          label: 'Effective TLD',
-          minWidth: 80
-        },
         {
           prop: 'host_address',
           label: 'Hostname',
+          minWidth: 40
+        },
+        {
+          prop: 'current',
+          label: 'Current Results',
           minWidth: 80
         },
         {
-          prop: 'ip_addresses',
-          label: 'IP Addresses',
+          prop: 'previous',
+          label: 'Previous Results',
           minWidth: 80
         }
       ],
@@ -210,6 +212,16 @@ export default {
     };
   },
   methods: {
+    formatValues(prop, value) {
+      switch (prop) {
+        case 'timestamp':
+          return unixNanoToMinDate(value);
+        case 'tcp':
+          return formatTCPPort(value);
+      }
+      return value;
+    },
+
     async getTableData(state) {
       if (state === undefined) {
         return;
@@ -217,29 +229,29 @@ export default {
 
       this.loading = true;
       let limit = this.pagination.limit;
-      let start = this.pagination.lastHost;
+      let start = this.pagination.lastIndex;
 
       try {
         let response = await API.get(
-          '/address/group/' + this.group_id + '/hosts',
+          '/address/group/' + this.group_id + '/ports',
           {
             params: {
-              starts_host_address: start,
+              start: start,
               limit: limit,
               equals_confidence: 100
             }
           }
         );
-        if (response.data.hosts == null || response.data.hosts.length === 0) {
+        if (response.data.ports == null || response.data.ports.length === 0) {
           state.complete();
           return;
         }
-        this.tableData.push(...response.data.hosts);
+        this.tableData.push(...response.data.ports);
         state.loaded();
 
-        this.pagination.lastHost = response.data.last_host;
+        this.pagination.lastIndex = response.data.last_index;
         this.pagination.count = this.tableData.length;
-      } catch(err) {
+      } catch (err) {
         console.log(err);
         state.complete();
       } finally {
@@ -247,7 +259,7 @@ export default {
       }
     },
     refreshTable() {
-      this.pagination.lastHost = '';
+      this.pagination.lastIndex = 0;
       this.tableData = [];
       let state = this.$refs.infiniteLoader.stateChanger;
       state.reset();
@@ -346,10 +358,10 @@ export default {
     },
     handleExport() {
       let details = {
-        group_id: this.group_id,
+        group_id: this.group_id
       };
 
-      this.$store.dispatch('addresses/EXPORT_HOSTS', details);
+      this.$store.dispatch('addresses/EXPORT_PORTS', details);
       return true;
     },
     deleteRow(row) {
@@ -361,15 +373,13 @@ export default {
       }
     }
   },
-  mounted() {
-    
-  },
+  mounted() {},
   created() {},
   watch: {
     isUpdating(val, oldValue) {
       // reset the table data after we delete/ignore/unignore values
       if (val === false && oldValue === true) {
-        this.pagination.lastHost = '';
+        this.pagination.lastIndex = 0;
         this.tableData = [];
       }
     },
@@ -388,14 +398,24 @@ export default {
   }
 };
 </script>
-<style lang="scss" scoped>
+<style lang="scss">
+.port-divider {
+  border: none;
+  height: 1px;
+  /* Set the hr color */
+  color: rgb(95, 93, 93); /* old IE */
+  background-color: rgb(95, 93, 93); /* Modern Browsers */
+}
 
-.pagination-select,
-.search-input {
-  width: 200px;
+.open-port {
+  color: rgb(64, 255, 6);
 }
-.el-table {
-  overflow: hidden;
-  position: relative;
+.port-border-right {
+    border-right: 0.0625rem solid rgba(255, 255, 255, 0.1) !important;
 }
+
+.el-table table tbody tr td {
+  vertical-align: top;
+}
+
 </style>

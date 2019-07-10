@@ -13,18 +13,21 @@
     <form class="form-horizontal">
       <card>
         <h4 slot="header" class="card-title">New Scan Group</h4>
-        <scan-group-form v-model="model"></scan-group-form>
-        <div class="text-center">
-          <base-button
-            native-type="submit"
-            @click.native.prevent="validate"
-            type="primary"
-            :loading="isCreating"
-            :disabled="!canCreate || !hasAccepted"
-            class="mb-3"
-            size="md"
-          >Create</base-button>
-        </div>
+        <scan-group-form ref="scanGroupForm" @submit="onFormSubmit">
+          <template slot-scope="{validator}">
+            <div class="text-center">
+              <base-button
+                native-type="submit"
+                @click.native.prevent="validator"
+                type="primary"
+                :loading="isCreating"
+                :disabled="!canCreate || !hasAccepted"
+                class="mb-3"
+                size="md"
+              >Create</base-button>
+            </div>
+          </template>
+        </scan-group-form>
 
         <base-alert
           v-if="!hasAccepted"
@@ -51,7 +54,7 @@
 
         <base-alert v-if="groupCreated" type="success" dismissible icon="tim-icons icon-bell-55">
           Group created, go to
-          <router-link to="/groups/list" class="alert-link">scan group list</router-link>to configure now
+          <router-link to="/groups/list" class="alert-link">scan group list</router-link>&nbsp;to configure now
         </base-alert>
       </card>
     </form>
@@ -120,54 +123,11 @@ export default {
     }
   },
   methods: {
+    onFormSubmit(evt) {
+      this.$store.dispatch('scangroup/CREATE_GROUP', evt.updates);
+    },
     goto() {
       this.$router.push('/agreement');
-    },
-    created() {},
-    getError(fieldName) {
-      return this.errors.first(fieldName);
-    },
-    validate() {
-      this.$validator.validateAll().then(isValid => {
-        if (!isValid) {
-          return;
-        }
-        console.log('validate called baby!');
-        console.log(this.model);
-        // ugh
-        this.model.tcp_ports = this.model.tcp_ports
-          .map(e => parseInt(e, 10))
-          .filter(function(val) {
-            if (val === null || Number.isNaN(val)) {
-              return false;
-            }
-            return true;
-          });
-
-        this.model.custom_web_ports = this.model.custom_web_ports
-          .map(e => parseInt(e, 10))
-          .filter(function(val) {
-            if (val === null || Number.isNaN(val)) {
-              return false;
-            }
-            return true;
-          });
-
-        this.model.custom_sub_names = this.model.custom_sub_names
-          .map(e => e)
-          .filter(function(val) {
-            if (val === '') {
-              return false;
-            }
-            return true;
-          });
-
-        this.model.concurrent_requests = parseInt(
-          this.model.concurrent_requests,
-          10
-        );
-        this.$store.dispatch('scangroup/CREATE_GROUP', this.model);
-      });
     }
   },
   beforeDestroy() {

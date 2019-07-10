@@ -4,7 +4,13 @@
     <div class="row">
       <h6 class="col-sm-2 text-right">Setting</h6>
       <h6 class="col-sm-7">Value</h6>
-      <h6 class="col-sm-2">Help</h6>
+      <h6 class="col-sm-2 mb-2">Help
+        <base-button type="info" icon size="sm" class="btn-link mb-2">
+          <i
+            :class="helpers.show_all ? 'tim-icons icon-minimal-down' : 'tim-icons icon-minimal-up'" @click="showAllHelp()"
+          ></i>
+        </base-button>
+      </h6>
     </div>
 
     <div class="row">
@@ -164,7 +170,7 @@
       <div class="row">
         <label class="col-6 col-form-label mt-2 mb-2">Enable Port Scanning</label>
         <div class="col-7">
-          <base-checkbox class="ml-2 mt-1" v-model="model.port_scan_enabled"></base-checkbox>
+          <base-checkbox class="mt-1 ml-3" v-model="model.port_scan_enabled"></base-checkbox>
         </div>
         <div class="col-sm-2">
           <base-button
@@ -242,6 +248,8 @@
               name="disallowed_tlds"
               placeholder="dontscanme.com,dontscan.com"
               v-model="model.disallowed_tlds"
+              validate
+              @validation="checkValidArray('disallowed_tlds', $event)"
               :error="getError('disallowed_tlds')"
             ></base-text-area>
           </div>
@@ -280,6 +288,8 @@
               name="disallowed_hosts"
               placeholder="sub.dontscanme.com,dont.scanme.com"
               v-model="model.disallowed_hosts"
+              validate
+              @validation="checkValidArray('disallowed_hosts', $event)"
               :error="getError('disallowed_hosts')"
             ></base-text-area>
           </div>
@@ -317,6 +327,8 @@
               name="allowed_tlds"
               placeholder="scanme.com,scanmetoo.com"
               v-model="model.allowed_tlds"
+              validate
+              @validation="checkValidArray('allowed_tlds', $event)"
               :error="getError('allowed_tlds')"
             ></base-text-area>
           </div>
@@ -351,6 +363,8 @@
               name="allowed_hosts"
               placeholder="sub.scanme.com,sub2.scanme.com"
               v-model="model.allowed_hosts"
+              validate
+              @validation="checkValidArray('allowed_hosts', $event)"
               :error="getError('allowed_hosts')"
             ></base-text-area>
           </div>
@@ -389,11 +403,11 @@
           <label class="col-sm-2 col-form-label">Ports Per Second</label>
           <div class="col-sm-7">
             <base-input
-              name="ports_per_second"
+              name="requests_per_second"
               required
-              v-validate="modelValidations.ports_per_second"
-              v-model.number="model.ports_per_second"
-              :error="getError('ports_per_second')"
+              v-validate="modelValidations.requests_per_second"
+              v-model.number="model.requests_per_second"
+              :error="getError('requests_per_second')"
             ></base-input>
           </div>
           <div class="col-sm-2">
@@ -402,16 +416,16 @@
               icon
               size="sm"
               class="btn-link"
-              @click="showHelp('ports_per_second')"
+              @click="showHelp('requests_per_second')"
             >
               <i
-                :class="helpers.ports_per_second ? 'tim-icons icon-minimal-down' : 'tim-icons icon-minimal-up'"
+                :class="helpers.requests_per_second ? 'tim-icons icon-minimal-down' : 'tim-icons icon-minimal-up'"
               ></i>
             </base-button>
           </div>
         </div>
 
-        <div v-show="helpers.ports_per_second" class="row">
+        <div v-show="helpers.requests_per_second" class="row">
           <div class="col-sm-2"></div>
           <p
             class="col-sm-7"
@@ -426,7 +440,7 @@
             <base-text-area
               name="tcp_ports"
               placeholder="21,22,23,25,53,80,135,139,443,445,1443,1723,3306,3389,5432,5900,6379,8000,8080,8443,8500,9500,27017"
-              valuetype="integer"
+              valueType="integer"
               v-model="model.tcp_ports"
               validate
               @validation="checkValidArray('tcp_ports', $event)"
@@ -445,9 +459,12 @@
 
       <div v-show="helpers.tcp_ports" class="row">
         <div class="col-sm-2"></div>
-        <p
-          class="col-sm-7"
-        >Enter up to 50 unique TCP ports, seperated by commas. It is recommended that at least the following ports be tested:<br>21,22,23,25,53,80,135,139,443,445,1443,1723,3306,3389,5432,5900,6379,8000,8080,8443,8500,9500,27017</p>
+        <p class="col-sm-7">
+          Enter up to 50 unique TCP ports, seperated by commas. It is recommended that at least the following ports be tested:
+          <br />21,22,23,25,53,80,135,139,443,445,1443,1723,3306,3389,5432,5900,6379,8000,8080,8443,8500,9500,27017
+          <br />
+          <br />TCP ports 80 and 443 will be included by default.
+        </p>
       </div>
       <!-- end tcp ports field -->
 
@@ -458,7 +475,7 @@
           <base-text-area
             name="custom_web_ports"
             placeholder="8080, 4443"
-            valuetype="integer"
+            valueType="integer"
             v-model="model.custom_web_ports"
             validate
             @validation="checkValidArray('custom_web_ports', $event)"
@@ -488,11 +505,13 @@
             <li>You do not need to include ports 80 or 443 as they will be tested by default.</li>
             <li>Each port will be tested for both HTTP and HTTPS protocols.</li>
             <li>If the port is found open by the port scanning phase should be included for web analysis.</li>
-            <li>If the port was found to be closed, analysis will not be completed. </li>
+            <li>If the port was found to be closed, analysis will not be completed.</li>
             <li>If the host or TLD is in the disallowed list, the ports specified in this list will still be analyzed for web services.</li>
           </ul>
-          <p>It is
-          <b>not</b> recommended to add web analysis checks for ports that do not usually run web services (such as 21, or 22) as this will cause scan group analysis to perform significantly slower.</p>
+          <p>
+            It is
+            <b>not</b> recommended to add web analysis checks for ports that do not usually run web services (such as 21, or 22) as this will cause scan group analysis to perform significantly slower.
+          </p>
         </div>
       </div>
     </div>
@@ -504,7 +523,7 @@
           <base-text-area
             name="custom_ports"
             placeholder="8080, 4443"
-            valuetype="integer"
+            valueType="integer"
             v-model="model.custom_web_ports"
             :error="getError('custom_web_ports')"
           ></base-text-area>
@@ -523,19 +542,22 @@
           </base-button>
         </div>
         <div v-show="helpers.custom_web_ports" class="row">
-        <div class="col-sm-2"></div>
-        <div class="col-sm-7">
-          <p>Enter the ports you wish to have the web analysis run against, seperated by commas.</p>
-          <ul>
-            <li>You do not need to include ports 80 or 443 as they will be tested by default.</li>
-            <li>Each port will be tested for both HTTP and HTTPS protocols.</li>
-          </ul>
-          <p>It is
-          <b>not</b> recommended to add web analysis checks for ports that do not usually run web services (such as 21, or 22) as this will cause scan group analysis to perform significantly slower.</p>
-        </div>
+          <div class="col-sm-2"></div>
+          <div class="col-sm-7">
+            <p>Enter the ports you wish to have the web analysis run against, seperated by commas.</p>
+            <ul>
+              <li>You do not need to include ports 80 or 443 as they will be tested by default.</li>
+              <li>Each port will be tested for both HTTP and HTTPS protocols.</li>
+            </ul>
+            <p>
+              It is
+              <b>not</b> recommended to add web analysis checks for ports that do not usually run web services (such as 21, or 22) as this will cause scan group analysis to perform significantly slower.
+            </p>
+          </div>
         </div>
       </div>
     </div>
+    <slot :validator="validate"></slot>
   </div>
 </template>
 
@@ -567,12 +589,6 @@ export default {
   },
   props: {
     group: {
-      type: Object,
-      default: function() {
-        return {};
-      }
-    },
-    config: {
       type: Object,
       default: function() {
         return {};
@@ -681,6 +697,7 @@ export default {
       ],
       text_addresses: '',
       helpers: {
+        show_all: false,
         group_name: false,
         archive_after_days: false,
         concurrent_requests: false,
@@ -690,7 +707,7 @@ export default {
         disallowed_hosts: false,
         allowed_tlds: false,
         allowed_hosts: false,
-        ports_per_second: false,
+        requests_per_second: false,
         tcp_ports: false,
         custom_web_ports: false
       },
@@ -705,7 +722,7 @@ export default {
         allowed_hosts: [],
         disallowed_tlds: [],
         disallowed_hosts: [],
-        ports_per_second: 5,
+        requests_per_second: 5,
         concurrent_requests: 10
       },
       modelValidations: {
@@ -723,7 +740,7 @@ export default {
           min_value: 1,
           max_value: 20
         },
-        ports_per_second: {
+        requests_per_second: {
           required: false,
           min_value: 5,
           max_value: 50
@@ -778,6 +795,12 @@ export default {
     }
   },
   methods: {
+    showAllHelp() {
+      this.helpers.show_all = !this.helpers.show_all;
+      for (let key of Object.keys(this.helpers)) {
+        this.helpers[key] = this.helpers.show_all;
+      }
+    },
     showHelp(field) {
       this.helpers[field] = !this.helpers[field];
     },
@@ -794,23 +817,152 @@ export default {
       }
       this.errors.add({ field: fieldName, msg: evt });
     },
+    intersection(setA, setB) {
+      var _intersection = new Set();
+      for (var elem of setB) {
+        if (setA.has(elem)) {
+          _intersection.add(elem);
+        }
+      }
+      return _intersection;
+    },
     validate() {
+      let errors = this.errors;
       this.$validator.validateAll().then(isValid => {
         console.log('validate called');
         if (!isValid) {
           return;
         }
 
+        this.model.custom_web_ports = this.model.custom_web_ports
+          .map(e => parseInt(e, 10))
+          .filter(function(val) {
+            if (val === null || Number.isNaN(val)) {
+              errors.add({
+                field: 'custom_web_ports',
+                msg: 'invalid port specified'
+              });
+              return false;
+            }
+            return true;
+          });
+
+        this.model.custom_sub_names = this.model.custom_sub_names
+          .map(e => e)
+          .filter(function(val) {
+            if (val === '') {
+              errors.add({
+                field: 'custom_sub_names',
+                msg: 'invalid sub domain specified'
+              });
+              return false;
+            }
+            return true;
+          });
+
+        this.model.concurrent_requests = parseInt(
+          this.model.concurrent_requests,
+          10
+        );
+
+        // check port_scan fields since it's enabled
+        if (!this.model.port_scan_enabled) {
+          if (errors.count() !== 0) {
+            return false;
+          }
+          let details = {
+            updates: this.model,
+            group_id: this.group.group_id,
+            original_name: this.group.group_name
+          };
+
+          this.$emit('submit', details);
+        }
+
+        // do port scan enabled checks from here out.
+        if (
+          this.model.tcp_ports === undefined ||
+          this.model.tcp_ports === null
+        ) {
+          errors.add({ field: 'tcp_ports', msg: 'TCP ports not configured' });
+          return false;
+        }
+
+        this.model.tcp_ports = this.model.tcp_ports
+          .map(e => parseInt(e, 10))
+          .filter(function(val) {
+            if (val === null || Number.isNaN(val)) {
+              errors.add({ field: 'tcp_ports', msg: 'Invalid port specified' });
+              return false;
+            }
+            return true;
+          });
+
+        if (
+          (this.model.allowed_tlds === null ||
+            this.model.allowed_tlds.length === 0) &&
+          (this.model.allowed_hosts === null ||
+            this.model.allowed_hosts.length === 0)
+        ) {
+          errors.add({
+            field: 'allowed_tlds',
+            msg: 'You must specify at least one allowed TLD or allowed host'
+          });
+        }
+
+        let disallowedSet = new Set(this.model.disallowed_tlds);
+        for (var elem of this.model.allowed_tlds) {
+          if (disallowedSet.has(elem)) {
+            errors.add({
+              field: 'disallowed_tlds',
+              msg:
+                'TLDs can not exist in both allowed and disallowed lists: ' +
+                elem
+            });
+          }
+        }
+
+        if (errors.count() !== 0) {
+          return false;
+        }
+
+        // validation successful
         let details = {
           updates: this.model,
           group_id: this.group.group_id,
           original_name: this.group.group_name
         };
-        this.$store.dispatch('scangroup/UPDATE_GROUP', details);
+        this.$emit('submit', details);
       });
     }
   },
-  created() {},
+  created() {
+    console.log('group: ' + JSON.stringify(this.group));
+    if (this.group.group_name === undefined) {
+      return;
+    }
+    this.model.group_name = this.group.group_name;
+    this.model.archive_after_days = this.group.archive_after_days || 5;
+    this.model.concurrent_requests =
+      this.group.module_configurations.ns_module.requests_per_second || 10;
+    // port scan related
+    this.model.custom_web_ports =
+      this.group.module_configurations.port_module.custom_web_ports || [];
+    this.model.port_scan_enabled =
+      this.group.module_configurations.port_module.port_scan_enabled || false;
+    this.model.tcp_ports =
+      this.group.module_configurations.port_module.tcp_ports || [];
+    this.model.allowed_tlds =
+      this.group.module_configurations.port_module.allowed_tlds || [];
+    this.model.allowed_hosts =
+      this.group.module_configurations.port_module.allowed_hosts || [];
+    this.model.disallowed_tlds =
+      this.group.module_configurations.port_module.disallowed_tlds || [];
+    this.model.disallowed_hosts =
+      this.group.module_configurations.port_module.disallowed_hosts || [];
+    this.model.requests_per_second =
+      this.group.module_configurations.port_module.requests_per_second || 5;
+  },
   mounted() {}
 };
 </script>
