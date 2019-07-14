@@ -6,6 +6,7 @@ const state = {
   accepted: false,
   isUpdating: false,
   portScanEnabled: false,
+  hostLimitReached: false,
   user: {}
 };
 
@@ -13,7 +14,8 @@ const state = {
 const getters = {
   hasAccepted: state => state.accepted,
   updating: state => state.isUpdating,
-  canPortScan: state => state.portScanEnabled
+  canPortScan: state => state.portScanEnabled,
+  maxHostsReached: state => state.hostLimitReached
 };
 
 // actions
@@ -102,10 +104,10 @@ const mutations = {
     state.isUpdating = details;
   },
   SET_USER(state, details) {
-    console.log(details);
     state.user = details;
     state.accepted = details.agreement_accepted;
     state.portScanEnabled = details.port_scan_enabled;
+    state.hostLimitReached = details.limit_hosts_reached;
     if (state.accepted === false) {
       router.push('/agreement');
     }

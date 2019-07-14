@@ -30,7 +30,9 @@
           <div class="text-right col-sm-12 ml-auto">Showing {{ count }} entries.</div>
           <div class="col-sm-12">
             <!-- start table -->
-            <el-table ref="hostTable" :data="tableData">
+            <el-table 
+              header-row-class-name="border-bottom"
+              ref="hostTable" :data="tableData">
               <el-table-column
                 v-for="column in tableColumns"
                 :key="column.label"
@@ -38,14 +40,14 @@
                 :prop="column.prop"
                 sortable
                 :label="column.label"
-                class="border-bottom"
+                class=""
               >
                 <template slot-scope="scope">
-                  <div v-if="column.prop === 'host_address'" style="vertical-align: middle;" class="port-border-right">{{ scope.row.host_address }}</div>
+                  <div v-if="column.prop === 'host_address'" style="vertical-align: middle;" class="mb-3 port-border-right">{{ scope.row.host_address }}</div>
 
                   <!-- start scan results -->
-                  <div v-else-if="column.prop === 'current'" class="port-border-right">
-                    <div class="row" v-if="scope.row.port_data.current.tcp_ports.length > 0">
+                  <div v-else-if="column.prop === 'current'" class="mb-3 port-border-right">
+                    <div class="row" v-if="hasPorts(scope.row.port_data.current.tcp_ports)">
                       <h6 class="col-sm-6">TCP Port</h6>
                       <h6 class="col-sm-6">Service</h6>
                     </div>
@@ -58,7 +60,7 @@
                       :key="port"
                     >
                       <div class="col-sm-6">
-                        <span class="open-port">⚫</span>
+                        <span class="open-port"></span>
                         &nbsp;{{port}}
                       </div>
                       <div class="col-sm-6">{{formatValues('tcp', port)}}</div>
@@ -80,8 +82,8 @@
                   <!-- end  scan results -->
 
                   <!-- start previous scan results -->
-                  <div v-else-if="column.prop === 'previous'">
-                    <div class="row" v-if="scope.row.port_data.current.tcp_ports.length > 0" >
+                  <div v-else-if="column.prop === 'previous'" class="mb-3">
+                    <div class="row" v-if="hasPorts(scope.row.port_data.previous.tcp_ports)" >
                       <h6 class="col-sm-6">TCP Port</h6>
                       <h6 class="col-sm-6">Service</h6>
                     </div>
@@ -94,7 +96,7 @@
                       :key="port"
                     >
                       <div class="col-sm-6">
-                        <span class="open-port">⚫</span>
+                        <span class="open-port"></span>
                         &nbsp;{{port}}
                       </div>
                       <div class="col-sm-6">{{formatValues('tcp', port)}}</div>
@@ -102,15 +104,15 @@
                     <div class="row">
                       <div class="col-sm-12"></div>
                     </div>
-                    <div class="row mt-4">
+                    <div class="row mt-4" v-if="scope.row.port_data.previous.ip_address !== ''">
                       <div class="col-sm-6">IP Address:</div>
                       <div class="col-sm-6">{{ scope.row.port_data.previous.ip_address }}</div>
                     </div>
-                    <div class="row mt-1">
+                    <div class="row mt-1" v-if="scope.row.port_data.previous.ip_address !== ''">
                       <div class="col-sm-6">Last Scanned:</div>
                       <div
                         class="col-sm-6"
-                      >{{ formatValues('timestamp', scope.row.scanned_timestamp) }}</div>
+                      >{{ formatValues('timestamp', scope.row.previous_scanned_timestamp) }}</div>
                     </div>
                   </div>
                   <!-- end previous scan results -->
@@ -212,6 +214,12 @@ export default {
     };
   },
   methods: {
+    hasPorts(ports) {
+      if (ports === null || ports.length === 0) {
+        return false;
+      }
+      return true;
+    },
     formatValues(prop, value) {
       switch (prop) {
         case 'timestamp':
@@ -264,98 +272,6 @@ export default {
       let state = this.$refs.infiniteLoader.stateChanger;
       state.reset();
     },
-    formatColumn(row, column, cellValue, index) {
-      switch (column.property) {
-        case 'ns_record':
-          return formatNSRecord(cellValue);
-        case 'ignored':
-        case 'is_hosted_service':
-          return cellValue === true ? 'yes' : 'no';
-        case 'last_seen_time':
-        case 'last_scanned_time':
-        case 'discovery_time':
-          return unixNanoToMinDate(cellValue);
-        case 'discovered_by':
-          return cellValue.replace(/_/g, ' ');
-      }
-      return cellValue;
-    },
-    setIgnoreIcon(row) {
-      return !row.ignored;
-    },
-    setIgnoreToolTip(row) {
-      return row.ignored === true ? 'Unignore Host' : 'Ignore Host';
-    },
-    toggleSelection(rows) {
-      if (rows) {
-        rows.forEach(row => {
-          this.$refs.hostTable.toggleRowSelection(row);
-        });
-      } else {
-        this.$refs.hostTable.clearSelection();
-      }
-    },
-    handleSelectionChange(val) {
-      this.multipleSelection = val;
-    },
-
-    handleIgnore(row) {
-      let ignore_value = false;
-      if (row.ignored === false) {
-        ignore_value = true;
-      }
-      let details = {
-        group_id: this.group_id,
-        address_ids: [row.address_id],
-        ignore_value: ignore_value
-      };
-      this.$store.dispatch('addresses/IGNORE_ADDRESSES', details);
-    },
-    handleDelete(index, row) {
-      let details = {
-        group_id: this.group_id,
-        address_ids: [row.address_id]
-      };
-      this.$store.dispatch('addresses/DELETE_ADDRESSES', details);
-    },
-    handleMultiDelete() {
-      let details = {
-        group_id: this.group_id,
-        address_ids: this.getMultipleIDs()
-      };
-      this.$store.dispatch('addresses/DELETE_ADDRESSES', details);
-    },
-    handleMultiIgnore() {
-      let details = {
-        group_id: this.group_id,
-        address_ids: this.getMultipleIDs(),
-        ignore_value: true
-      };
-      this.$store.dispatch('addresses/IGNORE_ADDRESSES', details);
-    },
-    handleMultiUnignore() {
-      let details = {
-        group_id: this.group_id,
-        address_ids: this.getMultipleIDs(),
-        ignore_value: false
-      };
-      this.$store.dispatch('addresses/IGNORE_ADDRESSES', details);
-    },
-    handleMultiExport() {
-      let details = {
-        group_id: this.group_id,
-        address_ids: this.getMultipleIDs(),
-        all_addresses: false
-      };
-      this.$store.dispatch('addresses/EXPORT_ADDRESSES', details);
-    },
-    getMultipleIDs() {
-      let addrIDs = [];
-      for (let i = 0; i < this.multipleSelection.length; i++) {
-        addrIDs.push(this.multipleSelection[i].address_id);
-      }
-      return addrIDs;
-    },
     handleExport() {
       let details = {
         group_id: this.group_id
@@ -363,14 +279,6 @@ export default {
 
       this.$store.dispatch('addresses/EXPORT_PORTS', details);
       return true;
-    },
-    deleteRow(row) {
-      let indexToDelete = this.tableData.findIndex(
-        tableRow => tableRow.id === row.id
-      );
-      if (indexToDelete >= 0) {
-        this.tableData.splice(indexToDelete, 1);
-      }
     }
   },
   mounted() {},
@@ -382,23 +290,11 @@ export default {
         this.pagination.lastIndex = 0;
         this.tableData = [];
       }
-    },
-    /**
-     * Searches through the table data by a given query.
-     * NOTE: If you have a lot of data, it's recommended to do the search on the Server Side and only display the results here.
-     * @param value of the query
-     */
-    searchQuery(value) {
-      let result = this.tableData;
-      if (value !== '') {
-        result = this.fuseSearch.search(this.searchQuery);
-      }
-      this.searchedData = result;
     }
   }
 };
 </script>
-<style lang="scss">
+<style scoped>
 .port-divider {
   border: none;
   height: 1px;
@@ -410,8 +306,20 @@ export default {
 .open-port {
   color: rgb(64, 255, 6);
 }
+
+.open-port::before {
+  color: rgb(64, 255, 6);
+  content: '•';
+  float: left;
+  font-size: 2em;
+}
+
 .port-border-right {
     border-right: 0.0625rem solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.port-border-bottom {
+    border-bottom: 0.0625rem solid rgba(255, 255, 255, 0.1) !important;
 }
 
 .el-table table tbody tr td {

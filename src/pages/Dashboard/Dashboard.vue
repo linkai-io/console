@@ -31,6 +31,16 @@
       </collapse>
     </card>
     <div id="loading_menu">
+      <div v-if="maxHostsReached" class="row">
+        <base-alert
+          type="danger"
+          class="col-sm-12"
+          dismissible
+          icon="tim-icons icon-alert-circle-exc"
+        >
+          You have reached the maximum number of hosts. Please contact support about upgrading your plan
+        </base-alert>
+      </div>
       <loading-main-panel v-bind:loading="isLoading"></loading-main-panel>
       <div v-if="hasGroups">
         <tabs
@@ -144,7 +154,7 @@ import TechTable from 'src/pages/Web/TechTable.vue';
 import LoadingMainPanel from 'src/pages/Layout/LoadingMainPanel.vue';
 
 import { mapGetters } from 'vuex';
-import { TabPane, Tabs, Collapse, CollapseItem } from 'src/components';
+import { TabPane, Tabs, Collapse, CollapseItem, BaseAlert } from 'src/components';
 import PerfectScrollbar from 'perfect-scrollbar';
 import 'perfect-scrollbar/css/perfect-scrollbar.css';
 
@@ -168,6 +178,7 @@ function initScrollbar(className) {
 
 export default {
   components: {
+    BaseAlert,
     EventNotifications,
     DomainDependencyGraph,
     FilteredCertificatesExpiring,
@@ -202,6 +213,7 @@ export default {
       'eventByGroupID',
       'eventCountByGroupID'
     ]),
+    ...mapGetters('user', ['maxHostsReached']),
     ...mapGetters('scangroup', ['groups']),
     ...mapGetters('settings', ['shouldShowHome']),
     ...mapGetters('addresses', [

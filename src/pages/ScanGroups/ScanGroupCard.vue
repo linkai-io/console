@@ -403,10 +403,7 @@ export default {
     },
     pauseGroup() {
       this.modals.pause = false;
-      if (this.group.group_name != this.model.group_name) {
-        // notify
-        return;
-      }
+      
       let details = {
         group_name: this.group.group_name,
         group_id: this.group.group_id,
@@ -417,10 +414,6 @@ export default {
     },
     resumeGroup() {
       this.modals.resume = false;
-      if (this.group.group_name != this.model.group_name) {
-        // notify
-        return;
-      }
       let details = {
         group_name: this.group.group_name,
         group_id: this.group.group_id,

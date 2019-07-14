@@ -4,10 +4,12 @@
     <div class="row">
       <h6 class="col-sm-2 text-right">Setting</h6>
       <h6 class="col-sm-7">Value</h6>
-      <h6 class="col-sm-2 mb-2">Help
+      <h6 class="col-sm-2 mb-2">
+        Help
         <base-button type="info" icon size="sm" class="btn-link mb-2">
           <i
-            :class="helpers.show_all ? 'tim-icons icon-minimal-down' : 'tim-icons icon-minimal-up'" @click="showAllHelp()"
+            :class="helpers.show_all ? 'tim-icons icon-minimal-down' : 'tim-icons icon-minimal-right'"
+            @click="showAllHelp()"
           ></i>
         </base-button>
       </h6>
@@ -18,6 +20,7 @@
       <div class="col-sm-7">
         <base-input
           name="group_name"
+          id="group_name"
           required
           v-validate="modelValidations.group_name"
           v-model="model.group_name"
@@ -27,7 +30,7 @@
       <div class="col-sm-2">
         <base-button type="info" icon size="sm" class="btn-link" @click="showHelp('group_name')">
           <i
-            :class="helpers.group_name ? 'tim-icons icon-minimal-down' : 'tim-icons icon-minimal-up'"
+            :class="helpers.group_name ? 'tim-icons icon-minimal-down' : 'tim-icons icon-minimal-right'"
           ></i>
         </base-button>
       </div>
@@ -47,6 +50,7 @@
       <div class="col-sm-7">
         <base-input
           name="archive_after_days"
+          id="archive_after_days"
           required
           v-validate="modelValidations.archive_after_days"
           v-model.number="model.archive_after_days"
@@ -62,7 +66,7 @@
           @click="showHelp('archive_after_days')"
         >
           <i
-            :class="helpers.archive_after_days ? 'tim-icons icon-minimal-down' : 'tim-icons icon-minimal-up'"
+            :class="helpers.archive_after_days ? 'tim-icons icon-minimal-down' : 'tim-icons icon-minimal-right'"
           ></i>
         </base-button>
       </div>
@@ -96,6 +100,7 @@
       <div class="col-sm-7">
         <base-input
           name="concurrent_requests"
+          id="concurrent_requests"
           required
           v-validate="modelValidations.concurrent_requests"
           v-model.number="model.concurrent_requests"
@@ -111,7 +116,7 @@
           @click="showHelp('concurrent_requests')"
         >
           <i
-            :class="helpers.concurrent_requests ? 'tim-icons icon-minimal-down' : 'tim-icons icon-minimal-up'"
+            :class="helpers.concurrent_requests ? 'tim-icons icon-minimal-down' : 'tim-icons icon-minimal-right'"
           ></i>
         </base-button>
       </div>
@@ -131,6 +136,7 @@
       <div class="col-sm-7">
         <base-text-area
           name="custom_sub_names"
+          id="custom_sub_names"
           placeholder="sub1, sub2"
           v-model="model.custom_sub_names"
           :error="getError('custom_sub_names')"
@@ -145,7 +151,7 @@
           @click="showHelp('custom_sub_names')"
         >
           <i
-            :class="helpers.custom_sub_names ? 'tim-icons icon-minimal-down' : 'tim-icons icon-minimal-up'"
+            :class="helpers.custom_sub_names ? 'tim-icons icon-minimal-down' : 'tim-icons icon-minimal-right'"
           ></i>
         </base-button>
       </div>
@@ -157,10 +163,10 @@
         <p>Enter single words (no dots), seperated by comma. This option allows you to add environment specific sub-domain names that will be prepended to all TLD(s) and sub-domains found.</p>
         <p>For example, providing "gold, silver" to this field would have the brute force module attempt:</p>
         <ul>
-          <li>gold.example.com</li>
-          <li>silver.example.com</li>
-          <li>gold.sub.example.com</li>
-          <li>silver.sub.example.com</li>
+          <li>gold.test.com</li>
+          <li>silver.test.com</li>
+          <li>gold.sub.test.com</li>
+          <li>silver.sub.test.com</li>
         </ul>
         <p>Please note custom names added here are joined together with a built-in list of commonly found sub-domains.</p>
       </div>
@@ -181,7 +187,7 @@
             @click="showHelp('port_scan_enabled')"
           >
             <i
-              :class="helpers.port_scan_enabled ? 'tim-icons icon-minimal-down' : 'tim-icons icon-minimal-up'"
+              :class="helpers.port_scan_enabled ? 'tim-icons icon-minimal-down' : 'tim-icons icon-minimal-right'"
             ></i>
           </base-button>
         </div>
@@ -246,6 +252,7 @@
           <div class="col-sm-7">
             <base-text-area
               name="disallowed_tlds"
+              id="disallowed_tlds"
               placeholder="dontscanme.com,dontscan.com"
               v-model="model.disallowed_tlds"
               validate
@@ -262,7 +269,7 @@
               @click="showHelp('disallowed_tlds')"
             >
               <i
-                :class="helpers.disallowed_tlds ? 'tim-icons icon-minimal-down' : 'tim-icons icon-minimal-up'"
+                :class="helpers.disallowed_tlds ? 'tim-icons icon-minimal-down' : 'tim-icons icon-minimal-right'"
               ></i>
             </base-button>
           </div>
@@ -273,7 +280,7 @@
           <div class="col-sm-7">
             <p>Enter TLDs seperated by commas, do not add wildcard (*) or other characters, only the TLDs themselves.</p>
             <ul>
-              <li>By adding TLDs (such as example.com) to this field, you will be able to disallow port scanning against all sub-domains that fall under the specified TLD(s).</li>
+              <li>By adding TLDs (such as test.com) to this field, you will be able to disallow port scanning against all sub-domains that fall under the specified TLD(s).</li>
               <li>Web analysis checks will still be run on the ports specified in the Web Analysis Ports field.</li>
             </ul>
           </div>
@@ -286,6 +293,7 @@
           <div class="col-sm-7">
             <base-text-area
               name="disallowed_hosts"
+              id="disallowed_hosts"
               placeholder="sub.dontscanme.com,dont.scanme.com"
               v-model="model.disallowed_hosts"
               validate
@@ -302,7 +310,7 @@
               @click="showHelp('disallowed_hosts')"
             >
               <i
-                :class="helpers.disallowed_hosts ? 'tim-icons icon-minimal-down' : 'tim-icons icon-minimal-up'"
+                :class="helpers.disallowed_hosts ? 'tim-icons icon-minimal-down' : 'tim-icons icon-minimal-right'"
               ></i>
             </base-button>
           </div>
@@ -314,6 +322,7 @@
             <p>Enter hosts seperated by commas. This option allows you to enter specific hostnames that you do not want portscanned.</p>
             <ul>
               <li>Even if the TLD is allowed, any hosts entered here will not be portscanned.</li>
+              
               <li>Web analysis checks will still be run on the ports specified in the Web Analysis Ports field.</li>
             </ul>
           </div>
@@ -325,6 +334,7 @@
           <div class="col-sm-7">
             <base-text-area
               name="allowed_tlds"
+              id="allowed_tlds"
               placeholder="scanme.com,scanmetoo.com"
               v-model="model.allowed_tlds"
               validate
@@ -341,7 +351,7 @@
               @click="showHelp('allowed_tlds')"
             >
               <i
-                :class="helpers.allowed_tlds ? 'tim-icons icon-minimal-down' : 'tim-icons icon-minimal-up'"
+                :class="helpers.allowed_tlds ? 'tim-icons icon-minimal-down' : 'tim-icons icon-minimal-right'"
               ></i>
             </base-button>
           </div>
@@ -351,7 +361,7 @@
           <div class="col-sm-2"></div>
           <p
             class="col-sm-7"
-          >Enter TLDs seperated by commas, do not add wildcard (*) or other characters, only the TLD(s) themselves. By adding TLDs (such as example.com) to this field, you will allow port scanning against all sub-domains that fall under the specified TLD(s).</p>
+          >Enter TLDs seperated by commas, do not add wildcard (*) or other characters, only the TLD(s) themselves. By adding TLDs (such as test.com) to this field, you will allow port scanning against all sub-domains that fall under the specified TLD(s).</p>
         </div>
         <!-- end allowed tlds -->
 
@@ -361,6 +371,7 @@
           <div class="col-sm-7">
             <base-text-area
               name="allowed_hosts"
+              id="allowed_hosts"
               placeholder="sub.scanme.com,sub2.scanme.com"
               v-model="model.allowed_hosts"
               validate
@@ -377,7 +388,7 @@
               @click="showHelp('allowed_hosts')"
             >
               <i
-                :class="helpers.allowed_hosts ? 'tim-icons icon-minimal-down' : 'tim-icons icon-minimal-up'"
+                :class="helpers.allowed_hosts ? 'tim-icons icon-minimal-down' : 'tim-icons icon-minimal-right'"
               ></i>
             </base-button>
           </div>
@@ -392,6 +403,7 @@
                 Even if the TLD is disallowed, any hosts entered here
                 <b>will</b> be portscanned.
               </li>
+              <li>The identified hostname must be 100% confident, meaning the host or IP address falls under a TLD you have provided.</li>
               <li>Provided the port was found to be open, web analysis checks will be run on the ports that are specified in the Web Analysis Ports field.</li>
             </ul>
           </div>
@@ -403,11 +415,12 @@
           <label class="col-sm-2 col-form-label">Ports Per Second</label>
           <div class="col-sm-7">
             <base-input
-              name="requests_per_second"
+              name="ports_per_second"
+              id="ports_per_second"
               required
-              v-validate="modelValidations.requests_per_second"
-              v-model.number="model.requests_per_second"
-              :error="getError('requests_per_second')"
+              v-validate="modelValidations.ports_per_second"
+              v-model.number="model.ports_per_second"
+              :error="getError('ports_per_second')"
             ></base-input>
           </div>
           <div class="col-sm-2">
@@ -416,16 +429,16 @@
               icon
               size="sm"
               class="btn-link"
-              @click="showHelp('requests_per_second')"
+              @click="showHelp('ports_per_second')"
             >
               <i
-                :class="helpers.requests_per_second ? 'tim-icons icon-minimal-down' : 'tim-icons icon-minimal-up'"
+                :class="helpers.ports_per_second ? 'tim-icons icon-minimal-down' : 'tim-icons icon-minimal-right'"
               ></i>
             </base-button>
           </div>
         </div>
 
-        <div v-show="helpers.requests_per_second" class="row">
+        <div v-show="helpers.ports_per_second" class="row">
           <div class="col-sm-2"></div>
           <p
             class="col-sm-7"
@@ -439,8 +452,9 @@
           <div class="col-sm-7">
             <base-text-area
               name="tcp_ports"
-              placeholder="21,22,23,25,53,80,135,139,443,445,1443,1723,3306,3389,5432,5900,6379,8000,8080,8443,8500,9500,27017"
-              valueType="integer"
+              id="tcp_ports"
+              placeholder="21,22,23,25,53,80,135,139,443,445,1443,etc"
+              valuetype="integer"
               v-model="model.tcp_ports"
               validate
               @validation="checkValidArray('tcp_ports', $event)"
@@ -450,7 +464,7 @@
           <div class="col-sm-2">
             <base-button type="info" icon size="sm" class="btn-link" @click="showHelp('tcp_ports')">
               <i
-                :class="helpers.tcp_ports ? 'tim-icons icon-minimal-down' : 'tim-icons icon-minimal-up'"
+                :class="helpers.tcp_ports ? 'tim-icons icon-minimal-down' : 'tim-icons icon-minimal-right'"
               ></i>
             </base-button>
           </div>
@@ -474,8 +488,9 @@
         <div class="col-sm-7">
           <base-text-area
             name="custom_web_ports"
+            id="custom_web_ports"
             placeholder="8080, 4443"
-            valueType="integer"
+            valuetype="integer"
             v-model="model.custom_web_ports"
             validate
             @validation="checkValidArray('custom_web_ports', $event)"
@@ -491,7 +506,7 @@
             @click="showHelp('custom_web_ports')"
           >
             <i
-              :class="helpers.custom_web_ports ? 'tim-icons icon-minimal-down' : 'tim-icons icon-minimal-up'"
+              :class="helpers.custom_web_ports ? 'tim-icons icon-minimal-down' : 'tim-icons icon-minimal-right'"
             ></i>
           </base-button>
         </div>
@@ -521,9 +536,10 @@
         <label class="col-sm-2 col-form-label">Web Analysis Ports</label>
         <div class="col-sm-7">
           <base-text-area
-            name="custom_ports"
+            name="custom_web_ports"
+            id="custom_web_ports"
             placeholder="8080, 4443"
-            valueType="integer"
+            valuetype="integer"
             v-model="model.custom_web_ports"
             :error="getError('custom_web_ports')"
           ></base-text-area>
@@ -537,7 +553,7 @@
             @click="showHelp('custom_web_ports')"
           >
             <i
-              :class="helpers.custom_web_ports ? 'tim-icons icon-minimal-down' : 'tim-icons icon-minimal-up'"
+              :class="helpers.custom_web_ports ? 'tim-icons icon-minimal-down' : 'tim-icons icon-minimal-right'"
             ></i>
           </base-button>
         </div>
@@ -632,8 +648,8 @@ export default {
       ],
       scopeData: [
         {
-          host: 'sub.example.com',
-          tld: 'example.com',
+          host: 'sub.test.com',
+          tld: 'test.com',
           disallowed_hosts: '✔',
           allowed_hosts: '✘',
           disallowed_tld: '✘',
@@ -641,8 +657,8 @@ export default {
           will_scan: '✘'
         },
         {
-          host: 'sub.example.com',
-          tld: 'example.com',
+          host: 'sub.test.com',
+          tld: 'test.com',
           disallowed_hosts: '✘',
           allowed_hosts: '✘',
           disallowed_tld: '✔',
@@ -650,8 +666,8 @@ export default {
           will_scan: '✘'
         },
         {
-          host: 'sub.example.com',
-          tld: 'example.com',
+          host: 'sub.test.com',
+          tld: 'test.com',
           disallowed_hosts: '✘',
           allowed_hosts: '✘',
           disallowed_tld: '✘',
@@ -659,8 +675,8 @@ export default {
           will_scan: '✘'
         },
         {
-          host: 'sub.example.com',
-          tld: 'example.com',
+          host: 'sub.test.com',
+          tld: 'test.com',
           disallowed_hosts: '✔',
           allowed_hosts: '✘',
           disallowed_tld: '✘',
@@ -668,8 +684,8 @@ export default {
           will_scan: '✘'
         },
         {
-          host: 'sub.example.com',
-          tld: 'example.com',
+          host: 'sub.test.com',
+          tld: 'test.com',
           disallowed_hosts: '✘',
           allowed_hosts: '✔',
           disallowed_tld: '✔',
@@ -677,8 +693,8 @@ export default {
           will_scan: '✔'
         },
         {
-          host: 'sub.example.com',
-          tld: 'example.com',
+          host: 'sub.test.com',
+          tld: 'test.com',
           disallowed_hosts: '✘',
           allowed_hosts: '✔',
           disallowed_tld: '✘',
@@ -686,8 +702,8 @@ export default {
           will_scan: '✔'
         },
         {
-          host: 'sub.example.com',
-          tld: 'example.com',
+          host: 'sub.test.com',
+          tld: 'test.com',
           disallowed_hosts: '✘',
           allowed_hosts: '✘',
           disallowed_tld: '✘',
@@ -707,7 +723,7 @@ export default {
         disallowed_hosts: false,
         allowed_tlds: false,
         allowed_hosts: false,
-        requests_per_second: false,
+        ports_per_second: false,
         tcp_ports: false,
         custom_web_ports: false
       },
@@ -722,7 +738,7 @@ export default {
         allowed_hosts: [],
         disallowed_tlds: [],
         disallowed_hosts: [],
-        requests_per_second: 5,
+        ports_per_second: 5,
         concurrent_requests: 10
       },
       modelValidations: {
@@ -740,7 +756,7 @@ export default {
           min_value: 1,
           max_value: 20
         },
-        requests_per_second: {
+        ports_per_second: {
           required: false,
           min_value: 5,
           max_value: 50
@@ -808,7 +824,19 @@ export default {
       this.model.port_scan_enabled = !this.model.port_scan_enabled;
     },
     getError(fieldName) {
-      return this.errors.first(fieldName);
+      let error = this.errors.first(fieldName);
+      
+      if (error !== undefined) {
+        console.log(error);
+        let options = {
+          container: 'body',
+          easing: 'ease-in',
+          offset: -60
+        };
+        this.$scrollTo('#' + fieldName, options);
+      }
+
+      return error;
     },
     checkValidArray(fieldName, evt) {
       if (evt === '') {
@@ -892,7 +920,7 @@ export default {
           .map(e => parseInt(e, 10))
           .filter(function(val) {
             if (val === null || Number.isNaN(val)) {
-              errors.add({ field: 'tcp_ports', msg: 'Invalid port specified' });
+              errors.add({ field: 'tcp_ports', msg: 'Invalid TCP port(s) specified' });
               return false;
             }
             return true;
@@ -937,7 +965,6 @@ export default {
     }
   },
   created() {
-    console.log('group: ' + JSON.stringify(this.group));
     if (this.group.group_name === undefined) {
       return;
     }
@@ -960,7 +987,7 @@ export default {
       this.group.module_configurations.port_module.disallowed_tlds || [];
     this.model.disallowed_hosts =
       this.group.module_configurations.port_module.disallowed_hosts || [];
-    this.model.requests_per_second =
+    this.model.ports_per_second =
       this.group.module_configurations.port_module.requests_per_second || 5;
   },
   mounted() {}
