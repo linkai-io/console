@@ -11,46 +11,63 @@
         </div>
       </card>
     </div>
-      <div v-if="isLoading" class="col-md-6">
-          <h4>Loading...</h4>
-      </div>
-      <div v-else-if="!hasGroups" class="col-md-6">
-        <p>You have no groups, <router-link to="/groups/new">create one first</router-link>.</p>
-      </div>
-      <div v-else class="row" v-for="(value, key) in groups" :key="key">
-        <card>
+    <div v-if="isLoading" class="col-md-6">
+      <h4>Loading...</h4>
+    </div>
+    <div v-else-if="!hasGroups" class="col-md-6">
+      <p>
+        You have no groups,
+        <router-link to="/groups/new">create one first</router-link>.
+      </p>
+    </div>
+    <div v-else class="row" v-for="(value, key) in groups" :key="key">
+      <card>
         <div class="card-header mb-5">
           <h3 class="card-title">{{ value.group_name }} group - Asset List</h3>
         </div>
         <div class="card-body">
           <div class="row">
-            <div v-if="canPortScan" class="col-sm">
-            <router-link :to="'/portstable/'+ value.group_id">
-            <stats-card title="Port Scan Results" type="info" class="results-card" icon="tim-icons icon-molecule-40">
-              <div slot="footer">Port Scan Results of all assets in scope</div>
-            </stats-card>
-            </router-link>
-          </div>
-          <div class="col-sm">
-             <router-link :to="'/hoststable/'+ value.group_id">
-            <stats-card title="Hostnames" type="info" class="results-card" icon="tim-icons icon-laptop">
-              <div slot="footer">All hostnames identified with a list of IP addresses</div>
-            </stats-card>
-            </router-link>
-          </div>
-          <div class="col-sm">
-            <router-link :to="'/addresstable/'+ value.group_id">
-            <stats-card title="All Addresses" type="info" class="results-card" icon="tim-icons icon-vector">
-              <div slot="footer">All assets discovered, nameserver records, timestamps and more</div>
-            </stats-card>
-            </router-link>
-          </div>
-          
+            <div v-if="canPortScan && groupPortScanEnabled(value)" class="col-sm">
+              <router-link :to="'/portstable/'+ value.group_id">
+                <stats-card
+                  title="Port Scan Results"
+                  type="info"
+                  class="results-card"
+                  icon="tim-icons icon-molecule-40"
+                >
+                  <div slot="footer">Port Scan Results of all assets in scope</div>
+                </stats-card>
+              </router-link>
+            </div>
+            <div class="col-sm">
+              <router-link :to="'/hoststable/'+ value.group_id">
+                <stats-card
+                  title="Hostnames"
+                  type="info"
+                  class="results-card"
+                  icon="tim-icons icon-laptop"
+                >
+                  <div slot="footer">All hostnames identified with a list of IP addresses</div>
+                </stats-card>
+              </router-link>
+            </div>
+            <div class="col-sm">
+              <router-link :to="'/addresstable/'+ value.group_id">
+                <stats-card
+                  title="All Addresses"
+                  type="info"
+                  class="results-card"
+                  icon="tim-icons icon-vector"
+                >
+                  <div slot="footer">All assets discovered, nameserver records, timestamps and more</div>
+                </stats-card>
+              </router-link>
+            </div>
           </div>
         </div>
-        </card>
-      </div>
+      </card>
     </div>
+  </div>
 </template>
 <script>
 import { mapGetters } from 'vuex';
@@ -74,7 +91,18 @@ export default {
       return Object.entries(this.groups).length !== 0;
     }
   },
-  methods: {},
+  methods: {
+    groupPortScanEnabled(group) {
+      if (
+        group.module_configurations == undefined ||
+        group.module_configurations.port_module === undefined ||
+        group.module_configurations.port_module.port_scan_enabled === undefined
+      ) {
+        return false;
+      }
+      return group.module_configurations.port_module.port_scan_enabled === true;
+    }
+  },
   created() {},
   mounted() {}
 };

@@ -31,19 +31,29 @@
           <div class="col-sm-12">
             <!-- start table -->
             <el-table 
-              header-row-class-name="border-bottom"
+              
               ref="hostTable" :data="tableData">
               <el-table-column
                 v-for="column in tableColumns"
                 :key="column.label"
                 :min-width="column.minWidth"
                 :prop="column.prop"
+                border
                 sortable
                 :label="column.label"
                 class=""
               >
                 <template slot-scope="scope">
-                  <div v-if="column.prop === 'host_address'" style="vertical-align: middle;" class="mb-3 port-border-right">{{ scope.row.host_address }}</div>
+                  <div v-if="column.prop === 'host_address'" style="vertical-align: middle;" class="mb-3 port-border-right">
+                    <span v-if="portsDiffer(scope.row)" style="color: #ec250d;">
+                      <el-tooltip
+                        content="Differences between two scan results found"
+                        effect="light"
+                        :open-delay="150"
+                        placement="top"
+                      ><i class="tim-icons icon-alert-circle-exc"></i>
+                      </el-tooltip></span>
+                    {{ scope.row.host_address }}</div>
 
                   <!-- start scan results -->
                   <div v-else-if="column.prop === 'current'" class="mb-3 port-border-right">
@@ -55,7 +65,7 @@
                       <div class="col-sm-12">No open ports identified</div>
                     </div>
                     <div
-                      v-for="port in scope.row.port_data.current.tcp_ports"
+                      v-for="port in sortPorts(scope.row.port_data.current.tcp_ports)"
                       class="row"
                       :key="port"
                     >
@@ -91,7 +101,7 @@
                       <div class="col-sm-12">No open ports identified</div>
                     </div>
                     <div
-                      v-for="port in scope.row.port_data.previous.tcp_ports"
+                      v-for="port in sortPorts(scope.row.port_data.previous.tcp_ports)"
                       class="row"
                       :key="port"
                     >
@@ -214,6 +224,35 @@ export default {
     };
   },
   methods: {
+    portsDiffer(row) {
+      // no previous ip means no results, so no differences yet
+      if (row.port_data.previous.ip_address === '') {
+        return false;
+      }
+
+      let current = this.sortPorts(row.port_data.current.tcp_ports);
+      let previous = this.sortPorts(row.port_data.previous.tcp_ports);
+      
+      if (current.length !== previous.length) {
+        return true;
+      }
+
+      for (let i = 0; i < current.length; i++) {
+        if (current[i] !== previous[i]) {
+          return true;
+        }
+      }
+      return false;
+    },
+    sortPorts(ports) {
+      if (ports === null || ports === undefined) {
+        return [];
+      }
+      // Set slice() to avoid to generate an infinite loop!
+      return ports.slice().sort(function(a, b) {
+        return a - b;
+      });
+    },
     hasPorts(ports) {
       if (ports === null || ports.length === 0) {
         return false;
@@ -294,7 +333,7 @@ export default {
   }
 };
 </script>
-<style scoped>
+<style>
 .port-divider {
   border: none;
   height: 1px;
@@ -320,10 +359,6 @@ export default {
 
 .port-border-bottom {
     border-bottom: 0.0625rem solid rgba(255, 255, 255, 0.1) !important;
-}
-
-.el-table table tbody tr td {
-  vertical-align: top;
 }
 
 </style>

@@ -993,7 +993,7 @@ export default {
   mounted() {}
 };
 </script>
-<style lang="scss">
+<style lang="scss" scoped>
 .el-table__body-wrapper > table > tbody > tr > td {
   padding-top: 2px;
   padding-bottom: 2px;

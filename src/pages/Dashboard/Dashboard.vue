@@ -38,7 +38,7 @@
           dismissible
           icon="tim-icons icon-alert-circle-exc"
         >
-          You have reached the maximum number of hosts. Please contact support about upgrading your plan
+          You have reached the maximum number of hosts. Please contact <a style="color:#ba54f5;" href="mailto:support@linkai.io">support</a>&nbsp;about upgrading your plan
         </base-alert>
       </div>
       <loading-main-panel v-bind:loading="isLoading"></loading-main-panel>

@@ -406,14 +406,14 @@ export function formatWebLink(value) {
 
 export function formatTCPPort(port) {
   let found = TCPPortMap.find(e => e.port === port);
-  if (found !== null) {
+  if (found !== undefined && found.service !== undefined) {
     return found.service;
   }
   return 'Unknown';
 }
 export function formatNSRecord(record) {
   let found = NSRecords.find(e => e.value === record);
-  if (found !== null) {
+  if (found !== null || found !== undefined) {
     return found.record;
   }
   return 'Unknown';
