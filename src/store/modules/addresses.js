@@ -214,6 +214,26 @@ const actions = {
       }
     );
   },
+  EXPORT_PORTS({ dispatch, commit }, details) {
+    commit('SET_IS_UPDATING', true);
+    API.get('/address/group/' + details.group_id + '/ports/download', {
+      responseType: 'blob'
+    }).then(
+      resp => {
+        commit('SET_IS_UPDATING', false);
+        if (resp.data !== undefined) {
+          fileDownloader(
+            resp.data,
+            'ports.' + details.group_id + '.json',
+            'application/octet-stream'
+          );
+        }
+      },
+      err => {
+        handleError(commit, dispatch, 'export ports', err);
+      }
+    );
+  },
   EXPORT_ADDRESSES({ dispatch, commit }, details) {
     commit('SET_IS_UPDATING', true);
     API.post('/address/group/' + details.group_id + '/download', details, {

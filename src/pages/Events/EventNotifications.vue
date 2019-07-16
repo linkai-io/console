@@ -1,9 +1,7 @@
 <template>
   <card type="notifications" :header-classes="'text-right'">
     <template slot="header">
-      <h6 class="title d-inline">
-       notifications
-      </h6>
+      <h6 class="title d-inline">notifications</h6>
       <p class="card-category d-inline"></p>
       <base-button type="danger" icon size="sm" @click="closeNotifications" class="btn-link">
         <i class="tim-icons icon-simple-remove"></i>
@@ -34,14 +32,26 @@
               <div v-for="(data, index) in formatEventLinks(row.data, 2)" :key="index">
                 <a :href="data.url">{{data.url}}</a>
                 on port {{data.port}}
-                <br>
+                <br />
               </div>
             </div>
             <div v-else-if="row.type_id === 102">
               <div v-for="(data, index) in formatTechEventLinks(row.data, 4)" :key="index">
                 <a :href="data.url">{{data.url}}</a>
                 on port {{data.port}} is running {{data.tech}} {{ data.version }}
-                <br>
+                <br />
+              </div>
+            </div>
+            <div v-else-if="row.type_id === 12">
+              <div v-for="(data, index) in formatPorts(row.data, 4)" :key="index">
+                Host {{data.host}} ({{data.ips}}) has newly opened ports: {{data.ports}}
+                <br />
+              </div>
+            </div>
+            <div v-else-if="row.type_id === 13">
+              <div v-for="(data, index) in formatPorts(row.data, 4)" :key="index">
+                Host {{data.host}} ({{data.ips}}) has newly closed ports: {{data.ports}}
+                <br />
               </div>
             </div>
             <div v-else class="notification-text">{{ formatNotification(row) }}</div>
@@ -108,6 +118,10 @@ export default {
           return 'New host names have been detected';
         case 11:
           return 'The following new DNS record(s) has been detected';
+        case 12:
+          return 'The following ports were recently found open';
+        case 13:
+          return 'The following ports were recently found closed';
         case 100:
           return 'The following new web site(s) have been detected';
         case 101:
@@ -167,6 +181,24 @@ export default {
             version: data[i + 3]
           });
         }
+      }
+      return results;
+    },
+    formatPorts(data) {
+      let results = [];
+      if (data.length % 4 !== 0) {
+        return 'unknown data returned';
+      }
+      for (let i = 0; i < data.length; i += 4) {
+        let ips = data[i + 1] + ') previously (' + data[i + 2];
+        if (data[i + 1] === data[i + 2]) {
+          ips = data[i + 1];
+        }
+        results.push({
+          host: data[i],
+          ips: ips,
+          ports: data[i + 3]
+        });
       }
       return results;
     },

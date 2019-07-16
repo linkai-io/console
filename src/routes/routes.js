@@ -26,6 +26,9 @@ const NewScanGroup = () =>
 const Addresses = () =>
   import(/* webpackChunkName: "pages" */ 'src/pages/Addresses.vue');
 
+const PortsTable = () =>
+  import(/* webpackChunkName: "pages" */ 'src/pages/Addresses/PortsTable.vue');
+
 const AddressTable = () =>
   import(
     /* webpackChunkName: "pages" */ 'src/pages/Addresses/AddressTable.vue'
@@ -108,6 +111,12 @@ const routes = [
         path: 'addresstable/:group_id',
         name: 'Address Data',
         components: { default: AddressTable },
+        props: { default: true }
+      },
+      {
+        path: 'portstable/:group_id',
+        name: 'Address Data',
+        components: { default: PortsTable },
         props: { default: true }
       },
       {

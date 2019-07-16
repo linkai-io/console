@@ -20,6 +20,18 @@ const state = {
       subscribed: false
     },
     {
+      type_id: 12,
+      description: 'A new port was found open',
+      subscribed_since: 0,
+      subscribed: false
+    },
+    {
+      type_id: 13,
+      description: 'A previously open port was found closed',
+      subscribed_since: 0,
+      subscribed: false
+    },
+    {
       type_id: 100,
       description: 'A new web site has been detected',
       subscribed_since: 0,

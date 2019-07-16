@@ -167,7 +167,7 @@ export default {
   data() {
     return {
       pagination: {
-        lastIndex: 0,
+        lastHost: '',
         limit: 100,
         count: 0
       },
@@ -247,7 +247,7 @@ export default {
       }
     },
     refreshTable() {
-      this.pagination.lastIndex = 0;
+      this.pagination.lastHost = '';
       this.tableData = [];
       let state = this.$refs.infiniteLoader.stateChanger;
       state.reset();
@@ -369,7 +369,7 @@ export default {
     isUpdating(val, oldValue) {
       // reset the table data after we delete/ignore/unignore values
       if (val === false && oldValue === true) {
-        this.pagination.lastIndex = 0;
+        this.pagination.lastHost = '';
         this.tableData = [];
       }
     },

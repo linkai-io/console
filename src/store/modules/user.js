@@ -5,13 +5,17 @@ import API from '../../api/api';
 const state = {
   accepted: false,
   isUpdating: false,
+  portScanEnabled: false,
+  hostLimitReached: false,
   user: {}
 };
 
 // getters
 const getters = {
   hasAccepted: state => state.accepted,
-  updating: state => state.isUpdating
+  updating: state => state.isUpdating,
+  canPortScan: state => state.portScanEnabled,
+  maxHostsReached: state => state.hostLimitReached
 };
 
 // actions
@@ -102,6 +106,8 @@ const mutations = {
   SET_USER(state, details) {
     state.user = details;
     state.accepted = details.agreement_accepted;
+    state.portScanEnabled = details.port_scan_enabled;
+    state.hostLimitReached = details.limit_hosts_reached;
     if (state.accepted === false) {
       router.push('/agreement');
     }

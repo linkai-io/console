@@ -76,6 +76,10 @@ export default {
       type: String,
       description: 'Number of rows to display',
       default: "7"
+    },
+    validate: {
+      type: Boolean,
+      default: false,
     }
   },
   model: {
@@ -111,6 +115,21 @@ export default {
     onInput(evt) {
       if (!this.touched) {
         this.touched = true;
+      }
+      if (this.validate) {
+        let values = evt.target.value.split(/[\n,]+/).map(e => e.trim());
+        this.$emit('input', values);
+        this.$emit('validation', '');
+        if (this.valueType === 'integer') {
+          for (let i = 0; i < values.length; i++) {
+            let val = Number.parseInt(values[i], 10);
+            if (values[i] !== '' && Number.isNaN(val)) {
+              this.$emit('validation', 'Invalid number ' + values[i]);
+              break;
+            }
+          } 
+        } 
+        return;
       }
       this.$emit('input', evt.target.value.split(/[\n,]+/).map(e => e.trim()));      
     },
