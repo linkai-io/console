@@ -962,8 +962,18 @@ export default {
         };
         this.$emit('submit', details);
       });
+    },
+    assignSortedModel(field, value, defaultValue) {
+      if (value === undefined) {
+        field = defaultValue;
+        return;
+      }
+      field = defaultValue.slice().sort(function(a, b) {
+        return a - b;
+      });
     }
   },
+  
   created() {
     if (this.group.group_name === undefined) {
       return;

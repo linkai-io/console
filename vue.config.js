@@ -18,7 +18,7 @@ module.exports = {
     devServer: {
       proxy: {
         '/org': {
-          target: 'http://localhost:3000/org',
+          target: 'http://localhost:3000/',
           logLevel: 'debug'
         },
         '/scangroup': {

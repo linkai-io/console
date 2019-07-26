@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 import auth from './modules/auth';
+import org from './modules/org';
 import notify from './modules/notify';
 import scangroup from './modules/scangroup';
 import addresses from './modules/addresses';
@@ -18,6 +19,7 @@ const debug = process.env.NODE_ENV !== 'production';
 export default new Vuex.Store({
   modules: {
     auth,
+    org,
     notify,
     settings,
     scangroup,

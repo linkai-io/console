@@ -54,6 +54,9 @@ const CertificateTable = () =>
 const Settings = () =>
   import(/* webpackChunkName: "pages" */ 'src/pages/Events/EventSettings.vue');
 
+const Billing = () =>
+  import(/* webpackChunkName: "pages" */ 'src/pages/UserProfile/Billing.vue');
+
 const routes = [
   {
     path: '/',
@@ -80,6 +83,11 @@ const routes = [
         path: 'user',
         name: 'User Page',
         components: { default: User }
+      },
+      {
+        path: 'user/billing',
+        name: 'Billing',
+        components: { default: Billing }
       },
       {
         path: 'agreement',

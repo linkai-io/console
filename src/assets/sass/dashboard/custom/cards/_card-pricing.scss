@@ -12,6 +12,21 @@
       position: relative;
       font-size: 5em;
       font-weight: 900;
+      color: $white;
+      text-transform: lowercase;
+      margin-left: -5px;
+      z-index: 1;
+
+      &.card-title-right {
+        text-align: right;
+        margin-right: -5px;
+      }
+    }
+
+    .card-title-black {
+      position: relative;
+      font-size: 5em;
+      font-weight: 900;
       color: $black;
       text-transform: lowercase;
       margin-left: -5px;

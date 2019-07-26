@@ -1,7 +1,7 @@
 <template>
   <div class="wrapper" :class="{ 'nav-open': $sidebar.showSidebar }">
     <notifications></notifications>
-    <sidebar-fixed-toggle-button/>
+    <sidebar-fixed-toggle-button />
     <side-bar
       :background-color="sidebarBackground"
       :short-title="$t('sidebar.shortTitle')"
@@ -15,13 +15,23 @@
             path: '/dashboard'
           }"
         ></sidebar-item>
-        
+
         <sidebar-item
           :link="{ 
             name: $t('sidebar.settings'), 
-            icon: 'tim-icons icon-settings',
-            path: '/settings' }"
-        ></sidebar-item>
+            icon: 'tim-icons icon-settings'}"
+        >
+          <sidebar-item
+            :link="{
+                name: $t('sidebar.usersettings'),
+                path: '/settings' }"
+          ></sidebar-item>
+          <sidebar-item
+            :link="{
+                name: $t('sidebar.billing'),
+                path: '/user/billing' }"
+          ></sidebar-item>
+        </sidebar-item>
 
         <sidebar-item
           :link="{ 
@@ -135,7 +145,12 @@ export default {
   },
   computed: {
     ...mapState('notify', ['notifyMsg', 'notifyMsgType']),
-    ...mapGetters('notify', ['getMsg', 'getMsgID', 'getMsgType', 'getMsgTimeout']),
+    ...mapGetters('notify', [
+      'getMsg',
+      'getMsgID',
+      'getMsgType',
+      'getMsgTimeout'
+    ]),
     ...mapGetters('scangroup', ['groups', 'groupStats'])
   },
   methods: {
@@ -252,9 +267,7 @@ export default {
       }
     }
   },
-  created() {
-    
-  },
+  created() {},
   mounted() {
     this.$store.dispatch('scangroup/GET_GROUPS');
     this.$store.dispatch('scangroup/GET_GROUP_STATS');
@@ -262,7 +275,7 @@ export default {
     this.$store.dispatch('user/GET_USER');
     initScrollbar('sidebar-wrapper');
 
-    this.$watch('getMsgID', (msg) => {
+    this.$watch('getMsgID', msg => {
       if (msg === 0) {
         return;
       }
