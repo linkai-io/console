@@ -21,7 +21,7 @@
     <base-button
       v-if="plan.metadata.size !== 'enterprise'"
       slot="footer"
-      v-on:click="purchase"
+      v-on:click="purchase(plan.id)"
       :id="'checkout-button-'+plan.id"
       role="link"
       round
@@ -31,48 +31,17 @@
     <base-button
       v-else
       slot="footer"
-      v-on:click="contactUs"
-      :id="'checkout-button-'+plan.id"
       type="primary"
+      simple
+      link
       round
       class="btn-just-icon"
-    ><a href='mailto:support@linkai.io'>Contact Us</a></base-button>
+    ><a style='font-size: 2em' href='mailto:support@linkai.io'>Contact Us</a></base-button>
     <div id="error-message"></div>
   </card>
-  <!--
-    <h4 slot="header" class="title mt-2">{{ plan.nickname }}</h4>
-    <div class="row">
-      <p class="col">{{tlds(plan)}}</p>
-    </div>
-    <div class="row">
-      <p class="col">{{hosts(plan)}}</p>
-    </div>
-    <div class="row">
-      <p class="col">{{hours(plan)}}</p>
-    </div>
-     <div class="row">
-      <p class="col">Port scanning included</p>
-    </div>
-    <div class="row">
-      <p class="col">{{ currency(plan) }}</p>
-    </div>
-   
-    <div class="row">
-      <div class="col">
-        <button
-          v-on:click="purchase"
-          style="background-color:#f3c;color:#FFF;padding:8px 12px;border:0;border-radius:4px;font-size:1em"
-          :id="'checkout-button-'+plan.id"
-          role="link"
-        >Subscribe</button>
-      </div>
-    </div>
-    <div id="error-message"></div>
-  -->
 </template>
 <script>
 let stripe = Stripe('pk_test_ngMPkGB1t6niVqL1eXmF53ht'); //Stripe('pk_live_ZfyiPCBoZtT09A1cn1K25yGh'),
-//elements = stripe.elements({ locale: 'auto' })
 
 export default {
   name: 'billing-plan',
@@ -112,7 +81,7 @@ export default {
     },
     tlds(plan) {
       if (plan.metadata.size === 'enterprise') {
-        return ' ';
+        return 'Hundreds of TLDs ';
       }
       let msg = ' Top Level Domains (TLDs)';
       if (plan.metadata.tlds === '1') {
@@ -122,14 +91,11 @@ export default {
     },
     hosts(plan) {
       if (plan.metadata.size === 'enterprise') {
-        return ' ';
+        return 'Thousands of hosts';
       }
       return plan.metadata.hosts + ' hosts';
     },
     hours(plan) {
-      if (plan.metadata.size === 'enterprise') {
-        return ' ';
-      }
       return (
         'Analysis every ' +
         plan.metadata.hours +
@@ -144,7 +110,6 @@ export default {
         plan.metadata.size === 'enterprise' &&
         printType === 'currency'
       ) {
-        console.log('enterprise currency');
         return 'Contact Us';
       }
 
@@ -156,14 +121,16 @@ export default {
       return (
         amount.toLocaleString('en-US', {
           style: 'currency',
-          currency: plan.currency
+          currency: plan.currency,
+          maximumFractionDigits: 0,
+          minimumFractionDigits: 0
         }) + '/mo'
       );
     },
-    purchase: function() {
+    purchase: function(planID) {
       stripe
         .redirectToCheckout({
-          items: [{ plan: this.plan, quantity: 1 }],
+          items: [{ plan: planID, quantity: 1 }],
           successUrl: 'https://console.linkai.io/incoming/success',
           cancelUrl: 'https://console.linkai.io/incoming/canceled',
           billingAddressCollection: 'required',
