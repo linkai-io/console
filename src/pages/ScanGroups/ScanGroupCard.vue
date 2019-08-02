@@ -4,7 +4,7 @@
       <card>
         <div class="row">
           <div class="col-md-6">
-            <h4 class="card-title">Scan Group: {{group.group_name}}</h4>
+            <h3 class="card-title">Scan Group: {{group.group_name}}</h3>
           </div>
         </div>
         <div class="row">
@@ -13,12 +13,19 @@
           </div>
         </div>
         <div class="row">
-          <div class="col-md-6">
-            <h5 class>Inputs: {{topTenAddresses}}</h5>
+          <div class="col-md-10">
+            <h5 class>Inputs (Sample): {{topTenAddresses}}</h5>
           </div>
         </div>
-        <collapse class="col-md-12" accordion>
-          <collapse-item class="col-md-12 ml-1">
+
+        <collapse class="col-md-12" :active-index="showGroup" accordion>
+          <collapse-item @activate="onClickShowGroup" class="col-md-12 ml-1">
+          <base-alert
+          v-if="accountPaused"
+          type="danger"
+          dismissible
+          icon="tim-icons icon-alert-circle-exc"
+        >Unable to update this scan group because this account is paused.</base-alert>
             <div class="row">
               <div class="col-md-1"></div>
               <div class="col-md-9">
@@ -36,23 +43,24 @@
                     </div>
                   </div>
                   <div class="row">
-                    <div class="col-sm">
+                    <div class="col-6 text-center">
                       <base-button
                         type="primary"
                         :loading="isUploading"
-                        :disabled="text_addresses === ''"
+                        :disabled="text_addresses === '' || accountPaused"
                         @click.native="modals.text_upload = true;"
                       >Add Hosts</base-button>
                     </div>
-                    <div class="col-sm">
+                    <div class="col-6 text-center">
                       <base-button
                         type="primary"
                         :loading="isUploading"
+                        :disabled="accountPaused"
                         @click.native="modals.upload = true;"
                       >Upload</base-button>
                     </div>
                     <div>
-                      <span style="color: red">Warning:</span> When uploading IP addresses, they will be resolved and the hostname or domain that is returned will be added to your list of assets.
+                      <span style="color: red;">Warning:</span> When uploading IP addresses, they will be resolved and the hostname or domain that is returned will be added to your list of assets.
                     </div>
                   </div>
                 </base-alert>
@@ -76,6 +84,7 @@
                       type="primary"
                       native-type="submit"
                       :loading="isUpdating"
+                      :disabled="accountPaused"
                       @click.native.prevent="validator"
                     >Update</base-button>
                   </div>
@@ -84,6 +93,7 @@
                     <div v-if="!group.paused">
                       <base-button
                         type="danger"
+                        :disabled="accountPaused"
                         :loading="isUpdating"
                         @click.native="modals.pause = true;"
                       >Pause</base-button>
@@ -91,6 +101,7 @@
                     <div v-else>
                       <base-button
                         type="primary"
+                        :disabled="accountPaused"
                         :loading="isUpdating"
                         @click.native="modals.resume = true;"
                       >Resume</base-button>
@@ -100,6 +111,7 @@
                   <div class="col-md-4">
                     <base-button
                       type="danger"
+                      :disabled="accountPaused"
                       :loading="deleteDisabled"
                       @click.native="modals.delete = true;"
                     >Delete</base-button>
@@ -308,10 +320,15 @@ export default {
       default: function() {
         return {};
       }
+    },
+    show: {
+      type: Number,
+      default: 0
     }
   },
   data() {
     return {
+      show_group: this.show ? -1 : 0,
       text_addresses: '',
       top_ten_addresses: [],
       file: null,
@@ -330,6 +347,10 @@ export default {
     ...mapGetters('addresses', ['addrCounts', 'getCountByID']),
     ...mapGetters('scangroup', ['isUpdating', 'groupStats']),
     ...mapGetters('auth', ['subscriptionID']),
+    ...mapGetters('user', ['accountPaused']),
+    showGroup: function() {
+      return this.show_group;
+    },
     deleteDisabled: function() {
       if (this.isUpdating) {
         return true;
@@ -337,19 +358,18 @@ export default {
       switch (this.subscriptionID) {
         case '101':
           return true;
-          break;
       }
       return false;
     },
     topTenAddresses: function() {
       if (this.top_ten_addresses.length === 0) {
-        return 'empty';
+        return 'None';
       }
       let joined = this.top_ten_addresses;
       if (this.top_ten_addresses.length == 10) {
         joined.push('...');
       }
-      return joined.join(',');
+      return joined.join(', ');
     },
     activeAddresses: function() {
       let stats = this.groupStats[this.group.group_id];
@@ -414,6 +434,10 @@ export default {
     }
   },
   methods: {
+    onClickShowGroup() {
+      this.show_group = this.show_group === -1 ? 0 : -1;
+      this.$emit('open', {group_id: this.group.group_id, show: this.show_group});
+    },
     uploadTextAddresses() {
       this.modals.text_upload = false;
       let details = {
@@ -502,7 +526,6 @@ export default {
   watch: {
     isUploading(val, old) {
       if (val === false) {
-        console.log('updating');
         this.getInputs();
       }
     }

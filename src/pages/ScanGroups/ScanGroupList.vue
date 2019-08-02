@@ -32,12 +32,13 @@
       <p>You have no groups, create one now.</p>
     </div>
     <div v-else class="row" v-for="value in groups" :key="value.group_id">
-      <scan-group-card :group="value"></scan-group-card>
+      <scan-group-card :group="value" :show="showGroup(value.group_id)" @open="handleShouldShow"></scan-group-card>
     </div>
   </div>
 </template>
 
 <script>
+import Vue from 'vue';
 import { mapGetters } from 'vuex';
 import ScanGroupCard from './ScanGroupCard.vue';
 
@@ -46,7 +47,9 @@ export default {
     ScanGroupCard
   },
   data() {
-    return {};
+    return {
+      show_groups: []
+    };
   },
   computed: {
     ...mapGetters('scangroup', ['groups', 'isLoading']),
@@ -55,8 +58,18 @@ export default {
     }
   },
   methods: {
+    showGroup(group_id) {
+      if (this.show_groups[group_id] === undefined) {
+        return -1;
+      }
+      return this.show_groups[group_id];
+    },
     createGroup(evt) {
       this.$router.push('/groups/new');
+    },
+    handleShouldShow(evt) {
+      console.log('should show ' + evt);
+      Vue.set(this.show_groups, evt.group_id, evt.show);
     }
   },
   created() {}

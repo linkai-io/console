@@ -21,13 +21,20 @@
                 @click.native.prevent="validator"
                 type="primary"
                 :loading="isCreating"
-                :disabled="!canCreate || !hasAccepted"
+                :disabled="!canCreate || !hasAccepted || accountPaused"
                 class="mb-3"
                 size="md"
               >Create</base-button>
             </div>
           </template>
         </scan-group-form>
+
+        <base-alert
+          v-if="accountPaused"
+          type="danger"
+          dismissible
+          icon="tim-icons icon-alert-circle-exc"
+        >Unable to create new scan group because this account is paused.</base-alert>
 
         <base-alert
           v-if="!hasAccepted"
@@ -110,7 +117,7 @@ export default {
     ...mapState('scangroup', ['isCreating', 'creationMsg', 'groupCreated']),
     ...mapGetters('auth', ['subscriptionID']),
     ...mapGetters('scangroup', ['groups']),
-    ...mapGetters('user', ['hasAccepted']),
+    ...mapGetters('user', ['hasAccepted', 'accountPaused']),
     canCreate: function() {
       switch (this.subscriptionID) {
         case '101':

@@ -1,12 +1,14 @@
 <template>
   <div class="wrapper" :class="{ 'nav-open': $sidebar.showSidebar }">
     <notifications></notifications>
-    <sidebar-fixed-toggle-button/>
+    
+    <sidebar-fixed-toggle-button />
     <side-bar
       :background-color="sidebarBackground"
       :short-title="$t('sidebar.shortTitle')"
       :title="$t('sidebar.title')"
     >
+   
       <template slot-scope="props" slot="links">
         <sidebar-item
           :link="{
@@ -15,7 +17,7 @@
             path: '/dashboard'
           }"
         ></sidebar-item>
-        
+
         <sidebar-item
           :link="{ 
             name: $t('sidebar.settings'), 
@@ -80,6 +82,7 @@
       <div :class="{ content: !$route.meta.hideContent }" @click="toggleSidebar">
         <zoom-center-transition :duration="200" mode="out-in">
           <!-- your content here -->
+
           <router-view></router-view>
         </zoom-center-transition>
       </div>
@@ -89,6 +92,7 @@
 </template>
 <script>
 /* eslint-disable no-new */
+import { BaseAlert } from 'src/components';
 import PerfectScrollbar from 'perfect-scrollbar';
 import 'perfect-scrollbar/css/perfect-scrollbar.css';
 
@@ -121,6 +125,7 @@ import { mapGetters, mapState } from 'vuex';
 
 export default {
   components: {
+    BaseAlert,
     DashboardNavbar,
     ContentFooter,
     SidebarFixedToggleButton,
@@ -135,8 +140,14 @@ export default {
   },
   computed: {
     ...mapState('notify', ['notifyMsg', 'notifyMsgType']),
-    ...mapGetters('notify', ['getMsg', 'getMsgID', 'getMsgType', 'getMsgTimeout']),
-    ...mapGetters('scangroup', ['groups', 'groupStats'])
+    ...mapGetters('notify', [
+      'getMsg',
+      'getMsgID',
+      'getMsgType',
+      'getMsgTimeout'
+    ]),
+    ...mapGetters('scangroup', ['groups', 'groupStats']),
+    
   },
   methods: {
     logout() {
@@ -252,9 +263,7 @@ export default {
       }
     }
   },
-  created() {
-    
-  },
+  created() {},
   mounted() {
     this.$store.dispatch('scangroup/GET_GROUPS');
     this.$store.dispatch('scangroup/GET_GROUP_STATS');
@@ -262,7 +271,7 @@ export default {
     this.$store.dispatch('user/GET_USER');
     initScrollbar('sidebar-wrapper');
 
-    this.$watch('getMsgID', (msg) => {
+    this.$watch('getMsgID', msg => {
       if (msg === 0) {
         return;
       }

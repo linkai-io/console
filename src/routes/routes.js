@@ -115,7 +115,7 @@ const routes = [
       },
       {
         path: 'portstable/:group_id',
-        name: 'Address Data',
+        name: 'Port Scan Data',
         components: { default: PortsTable },
         props: { default: true }
       },

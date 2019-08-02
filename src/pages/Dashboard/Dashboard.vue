@@ -1,5 +1,25 @@
 <template>
   <div>
+     <base-alert v-show="accountPaused" type="primary" dismissible icon="tim-icons icon-bell-55">
+      This account has paused, while you may still access your information, you will be unable to create or start scan groups. Please contact
+      <a
+        style="color: white;"
+        href="mailto:support@linkai.io"
+      >support@linkai.io</a> to discuss pricing.
+    </base-alert>
+    <base-alert
+      v-show="maxHostsReached"
+      type="danger"
+      class="col-sm-12"
+      dismissible
+      icon="tim-icons icon-alert-circle-exc"
+    >
+      You have reached the maximum number of hosts. Please contact
+      <a
+        style="color: white;"
+        href="mailto:support@linkai.io"
+      >support@linkai.io</a>&nbsp;about upgrading your plan
+    </base-alert>
     <card>
       <div class="card-header">
         <h5 class="card-category">Hakken</h5>
@@ -31,16 +51,6 @@
       </collapse>
     </card>
     <div id="loading_menu">
-      <div v-if="maxHostsReached" class="row">
-        <base-alert
-          type="danger"
-          class="col-sm-12"
-          dismissible
-          icon="tim-icons icon-alert-circle-exc"
-        >
-          You have reached the maximum number of hosts. Please contact <a style="color:#ba54f5;" href="mailto:support@linkai.io">support</a>&nbsp;about upgrading your plan
-        </base-alert>
-      </div>
       <loading-main-panel v-bind:loading="isLoading"></loading-main-panel>
       <div v-if="hasGroups">
         <tabs
@@ -213,7 +223,6 @@ export default {
       'eventByGroupID',
       'eventCountByGroupID'
     ]),
-    ...mapGetters('user', ['maxHostsReached']),
     ...mapGetters('scangroup', ['groups']),
     ...mapGetters('settings', ['shouldShowHome']),
     ...mapGetters('addresses', [
@@ -222,6 +231,7 @@ export default {
       'totalAssetsDay',
       'discoveredBy'
     ]),
+    ...mapGetters('user', ['accountPaused', 'maxHostsReached']),
     ...mapGetters('webdata', [
       'isLoadingWebDataStats',
       'totalCertsThirty',
