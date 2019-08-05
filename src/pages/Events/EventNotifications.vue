@@ -28,49 +28,56 @@
           </td>
           <td>
             <p class="title">{{ formatTimestamp(row.event_timestamp) }} - {{ formatTitle(row) }}</p>
-            <div v-if="row.type_id === 100">
-              <div v-for="(data, index) in formatNewSite(row, 3)" :key="index">
-                <a :href="data.url">{{data.url}}</a>
-                <span v-if="data.url+'/' !== data.redirect">
-                  &nbsp;redirected to
-                  <a :href="data.redirect">{{data.redirect}}</a>
-                </span>
-                &nbsp;on port {{data.port}}
-                <br />
-              </div>
-            </div>
-            <div v-else-if="row.type_id === 102">
-              <div v-for="(data, index) in formatNewTechEvent(row, 5)" :key="index">
-                <a :href="data.url">{{data.url}}</a>
-                <span v-if="data.url+'/' !== data.redirect">
-                  &nbsp;redirected to
-                  <a :href="data.redirect">{{data.redirect}}</a>
-                </span>
-                on port {{data.port}} is running {{data.tech}} {{ data.version }}
+            <div v-if="row.type_id === 10">
+              <div v-for="(data, index) in formatNewHost(row)" :key="index">
+                {{data.new_host}}
                 <br />
               </div>
             </div>
             <div v-else-if="row.type_id === 12">
               <div v-for="(data, index) in formatPorts(row, 'open', 4)" :key="index">
-                Host {{data.host}} ({{data.ips}}) has newly opened ports: {{data.open_ports}}
+                Host {{data.hostname}} ({{data.ips}}) has newly opened ports: {{data.open_ports}}
                 <br />
               </div>
             </div>
             <div v-else-if="row.type_id === 13">
               <div v-for="(data, index) in formatPorts(row, 'closed')" :key="index">
-                Host {{data.host}} ({{data.ips}}) has newly closed ports: {{data.closed_ports}}
+                Host {{data.hostname}} ({{data.ips}}) has newly closed ports: {{data.closed_ports}}
                 <br />
               </div>
             </div>
+            <div v-else-if="row.type_id === 100">
+              <div v-for="(data, index) in formatNewSite(row)" :key="index">
+                <a :href="data.load_url">{{data.load_url}}</a>
+                <span v-if="data.redirect !== undefined">
+                  redirected to
+                  <a :href="data.redirect">{{data.redirect}}</a>
+                </span>
+                on port {{data.port}}
+                <br />
+              </div>
+            </div>
+            <div v-else-if="row.type_id === 102">
+              <div v-for="(data, index) in formatNewTechEvent(row)" :key="index">
+                <a :href="data.load_url">{{data.load_url}}</a>
+                <span v-if="data.redirect !== undefined">
+                  redirected to
+                  <a :href="data.redirect">{{data.redirect}}</a>
+                </span>
+                on port {{data.port}} is running {{data.tech_name}} {{ data.tech_version }}
+                <br />
+              </div>
+            </div>
+            
             <div v-else-if="row.type_id === 150">
               <div v-for="(data, index) in formatCertExpiring(row)" :key="index">
-                Host {{data.host}} ({{data.ips}}) has newly closed ports: {{data.closed_ports}}
+                The certificate for {{data.subject_name}} on port {{data.port}} expires {{data.time_remaining}}
                 <br />
               </div>
             </div>
             <div v-else-if="row.type_id === 200">
               <div v-for="(data, index) in formatServers(row)" :key="index">
-                Server {{data.servers}} is allowing DNS zone transfers.
+                {{data.servers}} is allowing DNS zone transfers.
                 <br />
               </div>
             </div>
@@ -160,70 +167,107 @@ export default {
       }
       return 'N/A';
     },
+    wasRedirect(urls) {
+      let slash = urls.load_url[urls.load_url.length-1];
+      let loadURL = urls.load_url;
+      if (slash !== '/') {
+        loadURL += '/';
+      }
+      return loadURL !== urls.url;
+    },
     formatTimestamp(ts) {
       return unixNanoToMinMonthDay(ts);
     },
-    formatNewSite(row, offset) {
+    formatNewHost(row) {
       if (row.json_data !== undefined) {
         return JSON.parse(row.json_data);
       }
-      // blech, old style
-      if (row.data.length % offset !== 0) {
-        return [
-          {
-            url: 'unknown data returned',
-            redirect: 'unknown data returned',
-            port: 0
+      let hosts = [];
+      for (let i = 0; i < row.data.length; i++) {
+        hosts.push({new_host: row.data[i]});
+      }
+      return hosts;
+    },
+    formatNewSite(row) {
+      let results = [];
+      if (row.json_data !== undefined && row.json_data !== '{}') {
+        let data = JSON.parse(row.json_data);
+        for (let i = 0; i < data.length; i++) {
+          let result = {load_url: data[i].load_url, port: data[i].port};
+          if (this.wasRedirect(data[i])) {
+              result.redirect = data[i].url;
           }
+          results.push(result);
+        }
+        return results;
+      }
+      // blech, old style
+      if (row.data.length % 2 !== 0) {
+        return [
         ];
       }
-      var results = [];
 
-      for (let i = 0; i < row.data.length; i += offset) {
-        if (!row.data[i].startsWith('http')) {
-          results.push({ url: 'http://' + row.data[i], port: row.data[i + 1] });
-        } else {
-          results.push({ url: row.data[i], port: row.data[i + 1] });
-        }
+      for (let i = 0; i < row.data.length; i += 2) {
+        results.push({ load_url: row.data[i], port: row.data[i + 1] });
       }
       return results;
     },
-    formatNewTechEvent(row, offset) {
-      if (row.json_data !== undefined) {
-        return JSON.parse(row.json_data);
+    formatNewTechEvent(row) {
+      let results = [];
+      if (row.json_data !== undefined && row.json_data !== '{}') {
+        let data = JSON.parse(row.json_data);
+        for (let i = 0; i < data.length; i++) {
+           let result = {load_url: data[i].load_url, port: data[i].port, tech_name: data[i].tech_name, tech_version: data[i].tech_version};
+          if (this.wasRedirect(data[i])) {
+              result.redirect = data[i].url;
+          }
+          results.push(result);
+        }
+        return results;
       }
-      if (row.data.length % offset !== 0) {
+      if (row.data.length % 4 !== 0) {
         return [{ url: 'unknown data returned', port: 0 }];
       }
-      var results = [];
 
-      for (let i = 0; i < row.data.length; i += offset) {
+      for (let i = 0; i < row.data.length; i += 4) {
         if (!row.data[i].startsWith('http')) {
           results.push({
-            url: 'http://' + row.data[i],
-            redirect: row.data[i + 1],
-            port: row.data[i + 2],
-            tech: row.data[i + 3],
-            version: row.data[i + 4]
+            load_url: 'http://' + row.data[i],
+            port: row.data[i + 1],
+            tech_name: row.data[i + 2],
+            tech_version: row.data[i + 3]
           });
         } else {
           results.push({
-            url: row.data[i],
-            redirect: row.data[i + 1],
-            port: row.data[i + 2],
-            tech: row.data[i + 3],
-            version: row.data[i + 4]
+            load_url: row.data[i],
+            port: row.data[i + 1],
+            tech_name: row.data[i + 2],
+            tech_version: row.data[i + 3]
           });
         }
       }
       return results;
     },
     formatPorts(row, rowType) {
-      if (row.json_data !== undefined) {
-        console.log(JSON.parse(row.json_data));
-        return JSON.parse(row.json_data);
-      }
       let results = [];
+      if (row.json_data !== undefined && row.json_data !== '{}') {
+        let data = JSON.parse(row.json_data);
+        for (let i = 0; i < data.length; i++) {
+          let ips = data[i].current_ip + ') previously (' + data[i].previous_ip;
+          if (data[i].current_ip === data[i].previous_ip) {
+            ips = data[i].current_ip;
+          }
+          let result = {hostname: data[i].hostname, ips: ips};
+          if (rowType === 'closed') {
+            result.closed_ports = data[i].closed_ports.join(', ');
+          } else {
+            result.open_ports = data[i].open_ports.join(', ');
+          }
+          results.push(result)
+        }
+        return results;
+      }
+      
       if (row.data.length % 4 !== 0) {
         return 'unknown data returned';
       }
@@ -232,7 +276,7 @@ export default {
         if (row.data[i + 1] === row.data[i + 2]) {
           ips = row.data[i + 1];
         }
-        let result = { host: row.data[i], ips: ips };
+        let result = { hostname: row.data[i], ips: ips };
         if (rowType === 'open') {
           result.open_ports = row.data[i + 3];
         } else {
@@ -243,51 +287,36 @@ export default {
       return results;
     },
     formatCertExpiring(row) {
-      if (row.json_data !== undefined ) {
-        return JSON.parse(row.json_data);
+      let results = [];
+      if (row.json_data !== undefined && row.json_data !== '{}') {
+        let data = JSON.parse(row.json_data);
+        for (let i = 0; i < data.length; i++) {
+          let then = moment.unix(data[i].valid_to);
+          results.push({subject_name: data[i].subject_name, port: data[i].port, time_remaining: moment(then).format('dddd, MMMM Do')});
+        }
+        return results;
       }
 
       if (row.data.length % 3 !== 0) {
         return 'unknown data returned';
       }
-      let val = '';
       for (let i = 0; i < row.data.length; i += 3) {
-        let then = moment(row.data[i + 2], 'sec');
-        val +=
-          'Host ' +
-          row.data[i] +
-          ' on port ' +
-          row.data[i + 1] +
-          ' expires in ' +
-          this.formatTimeDifference(then);
+        let then = moment.unix(row.data[i + 2]);
+        results.push({subject_name: row.data[i], port: row.data[i+1], time_remaining:  moment(then).format('dddd, MMMM Do')});
       }
-      return val;
+      return results;
     },
     formatServers(row) {
-      if (row.json_data !== undefined) {
-        return JSON.parse(row.json_data);
+      let servers = [];
+      if (row.json_data !== undefined && row.json_data !== '{}') {
+        let data = JSON.parse(row.json_data);
+        for (let i = 0; i < data.length; i++) {
+          servers.push({servers: data[i]['servers'].join(', ')});
+          return servers;
+        }
       }
-      return row.data.join(',');
-    },
-    formatTimeDifference(then) {
-      var duration = moment.duration(then.diff(moment()));
-
-      //Get Days and subtract from duration
-      var days = duration.asDays();
-      duration.subtract(moment.duration(days, 'days'));
-
-      //Get hours and subtract from duration
-      var hours = duration.hours();
-      duration.subtract(moment.duration(hours, 'hours'));
-
-      let difference = '';
-      if (days > 0) {
-        difference += days + ' days ';
-      }
-      if (hours > 0) {
-        difference += hours + ' hours';
-      }
-      return difference;
+      servers.push({servers: row.data.join(', ')});
+      return servers;
     }
   },
   mounted() {}
