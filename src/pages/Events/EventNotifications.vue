@@ -179,7 +179,7 @@ export default {
       return unixNanoToMinMonthDay(ts);
     },
     formatNewHost(row) {
-      if (row.json_data !== undefined) {
+      if (row.json_data !== undefined && row.json_data !== '{}') {
         return JSON.parse(row.json_data);
       }
       let hosts = [];
