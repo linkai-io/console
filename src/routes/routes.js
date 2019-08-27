@@ -54,6 +54,9 @@ const CertificateTable = () =>
 const Settings = () =>
   import(/* webpackChunkName: "pages" */ 'src/pages/Events/EventSettings.vue');
 
+const Webhooks = () =>
+  import(/* webpackChunkName: "pages" */ 'src/pages/Events/EventWebhooks.vue');
+
 const routes = [
   {
     path: '/',
@@ -75,6 +78,11 @@ const routes = [
         path: 'settings',
         name: 'Settings',
         components: { default: Settings }
+      },
+      {
+        path: 'webhooks',
+        name: 'Webhooks',
+        components: { default: Webhooks }
       },
       {
         path: 'user',
