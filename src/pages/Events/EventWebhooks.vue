@@ -6,7 +6,7 @@
         <h3 class="card-title">Settings</h3>
       </div>
       <div class="card-body mt-0">
-        <p>Configure a new or existing webhook to receive events.</p>
+        <p>Configure a new or existing webhook to receive events. For configuring a Slack webhook, please see <a target="_blank" href="https://api.slack.com/incoming-webhooks">Slack's incoming webhooks guide</a> and paste the URL into the URL field below.</p>
       </div>
 
       <div class="row">
@@ -16,7 +16,7 @@
       </div>
       <div class="row">
         <div class="col">
-          <webhook-form :is_new="true" :title="'Add New Webhook'"></webhook-form>
+          <webhook-form :is_new="true" :title="'Add New Webhook'" @saved="clearForm()" :key="update_new"></webhook-form>
         </div>
       </div>
       <div class="row">
@@ -24,8 +24,8 @@
           <h3 class="card-title">Current Webhooks</h3>
         </div>
       </div>
-      <div class="row" v-for="(hook, index) in sortedWebhooks" :key="index">
-        <webhook-form :is_new="false" :title="hook.name" :data="sortedWebhooks[index]"></webhook-form>
+      <div class="row" v-for="(hook, index) in webhooks" :key="hook.webhook_id">
+        <webhook-form :is_new="false" :title="hook.name" :index="index"></webhook-form>
       </div>
 
       <base-alert
@@ -77,20 +77,12 @@ export default {
       'webhooks'
     ]),
     ...mapGetters('scangroup', ['groups']),
-    ...mapGetters('user', ['hasAccepted', 'accountPaused']),
-    sortedWebhooks() {
-      if (this.webhooks.length === 0) {
-        console.log('empty');
-        return [];
-      }
-      return this.webhooks.slice().sort((a, b) => {
-        return a.webhook_id - b.webhook_id;
-      });
-    }
+    ...mapGetters('user', ['hasAccepted', 'accountPaused'])
   },
   data() {
     return {
       show_new: false,
+      update_new: 0,
       modelValidations: {
         name: {
           required: true,
@@ -100,20 +92,11 @@ export default {
     };
   },
   methods: {
+    clearForm() {
+      this.update_new += 1;
+    },
     showAddNew() {
       this.show_new = !this.show_new;
-    },
-    setModel() {
-      this.should_weekly_email = this.shouldWeeklyEmail;
-      this.should_daily_email = this.shouldDailyEmail;
-      this.user_timezone = this.userTimezone;
-    }
-  },
-  watch: {
-    isLoading(val, oldValue) {
-      if (val === false && oldValue === true) {
-        this.setModel();
-      }
     }
   },
   created() {},

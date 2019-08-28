@@ -6,7 +6,7 @@
     </div>
 
     <!-- single line -->
-    <div class="row">
+    <div class="row form-group">
       <div class="col">
         <label for="name">Webhook Name</label>
         <base-button
@@ -24,6 +24,7 @@
           id="name"
           required
           v-validate="modelValidations.name"
+          :disabled="!is_new"
           v-model="model.name"
           :error="getError('name')"
         ></base-input>
@@ -49,6 +50,7 @@
           placeholder="Group"
           name="group_id"
           id="group_id"
+          @select="clearError('group_id')"
           v-model="model.group_id"
         >
           <el-option
@@ -59,6 +61,9 @@
             :key="index"
           ></el-option>
         </el-select>
+        <div>
+          <label v-if="getError('group_id')" style="color: #ec250d;">{{ getError('group_id') }}</label>
+        </div>
       </div>
 
       <div class="col-md-3">
@@ -102,6 +107,7 @@
           placeholder="Type"
           name="type"
           id="type"
+          :error="getError('type')"
           v-model="model.type"
         >
           <el-option
@@ -124,7 +130,9 @@
           class="btn-link"
           @click="showHelp('events')"
         >
-          <i :class="helpers.type ? 'tim-icons icon-minimal-down' : 'tim-icons icon-minimal-right'"></i>
+          <i
+            :class="helpers.events ? 'tim-icons icon-minimal-down' : 'tim-icons icon-minimal-right'"
+          ></i>
         </base-button>
         <br />
         <el-select
@@ -134,6 +142,7 @@
           multiple
           name="events"
           id="events"
+          @focus="clearError('events')"
           v-model="model.events"
         >
           <el-option
@@ -144,6 +153,9 @@
             :key="option.type_id"
           ></el-option>
         </el-select>
+        <div>
+          <label v-if="getError('events')" style="color: #ec250d;">{{ getError('events') }}</label>
+        </div>
       </div>
 
       <div class="col">
@@ -173,55 +185,67 @@
         ></base-switch>
       </div>
     </div>
+    <!-- help text -->
+    <div class="row">
+      <div class="col">
+        <div v-show="helpers.actions" class="row">
+          <p class="col-sm-7">Test or save this webhook</p>
+        </div>
+
+        <div v-show="helpers.group_id" class="row">
+          <p class="col-sm-7">Create this webhook for the selected scan group</p>
+        </div>
+
+        <div v-show="helpers.name" class="row">
+          <p class="col-sm-7">Enter the name of this webhook, webhook names must be unique</p>
+        </div>
+
+        <div v-show="helpers.version" class="row">
+          <p class="col-sm-7">The API version for this webhook</p>
+        </div>
+
+        <div v-show="helpers.url" class="row">
+          <p class="col-sm-7">The URL to send events to. URLs must begin with https://</p>
+        </div>
+
+        <div v-show="helpers.type" class="row">
+          <p class="col-sm-7">The webhook integration type, currently only slack is supported</p>
+        </div>
+
+        <div v-show="helpers.events" class="row">
+          <p class="col-sm-7">Select which events you wish to send to this webhook</p>
+        </div>
+
+        <div v-show="helpers.enabled" class="row">
+          <p class="col-sm-7">Enable or disable this webhook</p>
+        </div>
+      </div>
+    </div>
     <div class="row">
       <div class="col text-right">
         <div class="row">
           <div class="col">
-            <base-button type="primary" size="sm" @click="testHook" :disabled="isValid">Test</base-button>
-
-            <base-button type="primary" size="sm" @click="saveHook" :disabled="isValid">
-              <div v-if="is_new">Save</div>
-              <div v-else>Update</div>
-            </base-button>
+            <base-button type="primary" size="sm" @click="testHook" :disabled="!isInvalid">Test</base-button>
 
             <base-button
-              v-show="!is_new"
-              type="danger"
+              v-if="is_new"
+              type="primary"
               size="sm"
-              @click="deleteHook"
-              :disabled="isValid"
-            >Delete</base-button>
+              @click="saveHook"
+              :disabled="!isInvalid"
+            >Save</base-button>
+            <base-button
+              v-else
+              type="primary"
+              size="sm"
+              @click="updateHook"
+              :disabled="!isInvalid"
+            >Update</base-button>
+
+            <base-button v-show="!is_new" type="danger" size="sm" @click="deleteHook">Delete</base-button>
           </div>
         </div>
       </div>
-    </div>
-
-    <div v-show="helpers.actions" class="row">
-      <p class="col-sm-7">Test or save this webhook</p>
-    </div>
-
-    <div v-show="helpers.group_id" class="row">
-      <p class="col-sm-7">Create this webhook for the selected scan group</p>
-    </div>
-
-    <div v-show="helpers.name" class="row">
-      <p class="col-sm-7">Enter the name of this webhook, webhook names must be unique</p>
-    </div>
-
-    <div v-show="helpers.version" class="row">
-      <p class="col-sm-7">The API version for this webhook</p>
-    </div>
-
-    <div v-show="helpers.url" class="row">
-      <p class="col-sm-7">The URL to send events to. URLs must begin with https://</p>
-    </div>
-
-    <div v-show="helpers.type" class="row">
-      <p class="col-sm-7">The webhook integration type, currently only slack is supported</p>
-    </div>
-
-    <div v-show="helpers.enabled" class="row">
-      <p class="col-sm-7">Enable or disable this webhook</p>
     </div>
   </div>
 </template>
@@ -240,13 +264,23 @@ export default {
   },
   computed: {
     ...mapGetters('scangroup', ['groups']),
-    ...mapGetters('event', ['userSubscriptions']),
+    ...mapGetters('event', ['userSubscriptions', 'webhooks']),
     eventTypes() {
       let events = Object.assign([], this.userSubscriptions);
       return events.filter(e => e.disabled === undefined);
     },
-    isValid() {
-      return !this.model.url.startsWith('https://');
+    isInvalid() {
+      if (!this.model.url.startsWith('https://')) {
+        return false;
+      }
+      if (this.model.events.length === 0) {
+        return false;
+      }
+      console.log(this.model.group_id);
+      if (this.model.group_id === '') {
+        return false;
+      }
+      return true;
     }
   },
   props: {
@@ -258,20 +292,8 @@ export default {
       type: Boolean,
       default: false
     },
-    data: {
-      type: Object,
-      default: function() {
-        return {
-          name: '',
-          version: 'v1',
-          type: '',
-          url: '',
-          events: [],
-          deleted: false,
-          group_id: '',
-          enabled: true
-        };
-      }
+    index: {
+      type: Number
     }
   },
   data() {
@@ -282,7 +304,7 @@ export default {
       model: {
         name: '',
         version: 'v1',
-        type: '',
+        type: 'slack',
         url: '',
         events: [],
         deleted: false,
@@ -318,14 +340,30 @@ export default {
     };
   },
   methods: {
-    emptyModel() {},
+    clearError(fieldName) {
+      this.errors.remove(fieldName);
+    },
+    emptyModel() {
+      return {
+        name: '',
+        version: 'v1',
+        type: 'slack',
+        url: '',
+        events: [],
+        deleted: false,
+        group_id: '',
+        enabled: true
+      };
+    },
     testHook() {
       this.$validator.validateAll().then(isValid => {
         if (!isValid) {
           console.log('invalid webhook settings');
-          return;
+          return false;
         }
-        console.log('dispatching webhook test event');
+        if (!this.validate()) {
+          return false;
+        }
         this.$store.dispatch('event/TEST_WEBHOOK', this.model);
       });
     },
@@ -335,7 +373,22 @@ export default {
           console.log('invalid webhook settings');
           return;
         }
-        console.log('dispatching webhook save event');
+        if (!this.validate()) {
+          return false;
+        }
+        this.$store.dispatch('event/UPDATE_WEBHOOK', this.model);
+        this.$emit('saved', {});
+      });
+    },
+    updateHook() {
+      this.$validator.validateAll().then(isValid => {
+        if (!isValid) {
+          console.log('invalid webhook settings');
+          return;
+        }
+        if (!this.validate()) {
+          return false;
+        }
         this.$store.dispatch('event/UPDATE_WEBHOOK', this.model);
       });
     },
@@ -350,19 +403,41 @@ export default {
         this.$store.dispatch('event/UPDATE_WEBHOOK', this.model);
       });
     },
-    getError(fieldName) {
-      let error = this.errors.first(fieldName);
-
-      if (error !== undefined) {
-        console.log(error);
-        let options = {
-          container: 'body',
-          easing: 'ease-in',
-          offset: -60
-        };
-        this.$scrollTo('#' + fieldName, options);
+    validate() {
+      let errors = this.errors;
+      let isValid = true;
+      if (this.model.events.length === 0) {
+        errors.add({
+          field: 'events',
+          msg: 'At least one event type required'
+        });
+        isValid = false;
+      }
+      if (this.model.group_id === '') {
+        errors.add({
+          field: 'group_id',
+          msg: 'Scan group is required'
+        });
+        isValid = false;
       }
 
+      // updates do not need to check if name in use.
+      if (!this.is_new) {
+        return isValid;
+      }
+      // see if this name is in use
+      let exists = this.webhooks.filter(e => e.name === this.model.name);
+      if (exists.length !== 0) {
+        errors.add({
+          field: 'name',
+          msg: 'This webhook name is already in use'
+        });
+        isValid = false;
+      }
+      return isValid;
+    },
+    getError(fieldName) {
+      let error = this.errors.first(fieldName);
       return error;
     },
     showAllHelp() {
@@ -375,17 +450,17 @@ export default {
       this.helpers[field] = !this.helpers[field];
     }
   },
-  created() {
-    // stupid but make a copy so we don't mutate vuex state
-    if (this.data !== undefined) {
-      this.model.name = this.data.name;
-      this.model.version = this.data.version;
-      this.model.type = this.data.type;
-      this.model.url = this.data.url;
-      this.model.events = this.data.events.slice();
-      this.model.deleted = this.data.deleted;
-      this.model.group_id = this.data.group_id;
-      this.model.enabled = this.data.enabled;
+  mounted() {
+    if (this.index !== undefined) {
+      this.model.webhook_id = this.webhooks[this.index].webhook_id;
+      this.model.name = this.webhooks[this.index].name;
+      this.model.version = this.webhooks[this.index].version;
+      this.model.type = this.webhooks[this.index].type;
+      this.model.url = this.webhooks[this.index].url;
+      this.model.events = this.webhooks[this.index].events.slice();
+      this.model.deleted = this.webhooks[this.index].deleted;
+      this.model.group_id = this.webhooks[this.index].group_id;
+      this.model.enabled = this.webhooks[this.index].enabled;
     }
   }
 };

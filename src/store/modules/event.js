@@ -359,21 +359,22 @@ const mutations = {
       settings.user_settings.should_weekly_email
     );
 
+    state.webhooks.splice(0);
     if (
       settings.webhook_settings !== undefined &&
       settings.webhook_settings !== null &&
       settings.webhook_settings.length > 0
     ) {
-      // force vue to update the subscription value by force setting it back to itself UGH
-      for (let i = 0; i < settings.webhook_settings.length; i++) {
-        let details = settings.webhook_settings[i];
+      let webhooks = settings.webhook_settings.sort((a, b) => {
+        return a.webhook_id - b.webhook_id;
+      });
 
-        state.webhooks[i] = details;
+      for (let i = 0; i < webhooks.length; i++) {
+        let details = webhooks[i];
 
-        Vue.set(state.webhooks, i, (state.webhooks[i] = state.webhooks[i])); //force update
+        console.log('resetting webhooks: ' + details.name);
+        Vue.set(state.webhooks, i, details); //force update
       }
-    } else {
-      state.webhooks = [];
     }
 
     if (
