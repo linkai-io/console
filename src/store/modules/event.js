@@ -10,30 +10,35 @@ const state = {
   should_daily_email: false,
   events: {},
   markedReadEvents: [],
+  webhooks: [],
   isLoading: false,
   isLoadingSettings: false,
   userSubscriptions: [
     {
       type_id: 10,
       description: 'A new hostname has been detected (recommended)',
+      short_description: 'New Host',
       subscribed_since: 0,
       subscribed: false
     },
     {
       type_id: 12,
       description: 'A new port was found open',
+      short_description: 'Open Port',
       subscribed_since: 0,
       subscribed: false
     },
     {
       type_id: 13,
       description: 'A previously open port was found closed',
+      short_description: 'Closed Port',
       subscribed_since: 0,
       subscribed: false
     },
     {
       type_id: 100,
       description: 'A new web site has been detected',
+      short_description: 'New Website',
       subscribed_since: 0,
       subscribed: false
     },
@@ -42,18 +47,21 @@ const state = {
       disabled: false,
       description:
         "A web site's technology has been changed or updated (recommended)",
+      short_description: 'New/Updated Tech',
       subscribed_since: 0,
       subscribed: false
     },
     {
       type_id: 150,
       description: "A web site's certificate will expire soon (recommended)",
+      short_description: 'Expiring Certificate',
       subscribed_since: 0,
       subscribed: false
     },
     {
       type_id: 200,
       description: 'A DNS server is allowing DNS zone transfers (recommended)',
+      short_description: 'Zone Transfers',
       subscribed_since: 0,
       subscribed: false
     },
@@ -129,7 +137,8 @@ const getters = {
   isLoading: state => state.isLoading,
   isUpdating: state => state.isUpdating,
   isLoadingEvents: state => state.isLoading,
-  isLoadingSettings: state => state.isLoadingSettings
+  isLoadingSettings: state => state.isLoadingSettings,
+  webhooks: state => state.webhooks
 };
 
 function getEventByGroup(state, group_id) {
@@ -163,6 +172,28 @@ const actions = {
   },
   EDIT_SUBSCRIPTION({ commit }, details) {
     commit('SET_SUBSCRIPTIONS', details);
+  },
+  TEST_WEBHOOK({ dispatch, commit }, details) {
+    API.post('/event/webhook_test', details).then(
+      resp => {
+        commit('SET_IS_UPDATING', false);
+
+        if (resp.data.status == 'OK') {
+          dispatch(
+            'notify/CREATE_NOTIFY_MSG',
+            {
+              msg: 'Successfully sent test message',
+              msgType: 'success'
+            },
+            { root: true }
+          );
+        }
+      },
+      err => {
+        commit('SET_IS_UPDATING', false);
+        handleErrors(dispatch, 'sending test webhook', err);
+      }
+    );
   },
   ADD_READ({ commit }, details) {
     commit('SET_MARKED_READ', details);
@@ -217,6 +248,31 @@ const actions = {
           },
           { root: true }
         );
+      }
+    );
+  },
+  UPDATE_WEBHOOK({ dispatch, commit }, details) {
+    commit('SET_IS_UPDATING', true);
+    let settings = details;
+    API.post('/event/group/' + settings.group_id + '/webhooks', settings).then(
+      resp => {
+        commit('SET_IS_UPDATING', false);
+
+        if (resp.data.status == 'OK') {
+          dispatch(
+            'notify/CREATE_NOTIFY_MSG',
+            {
+              msg: 'Successfully updated settings',
+              msgType: 'success'
+            },
+            { root: true }
+          );
+          dispatch('GET_SETTINGS');
+        }
+      },
+      err => {
+        commit('SET_IS_UPDATING', false);
+        handleErrors(dispatch, 'update webhook', err);
       }
     );
   },
@@ -290,27 +346,54 @@ const mutations = {
     }
   },
   SET_SETTINGS(state, settings) {
-    Vue.set(state, 'user_timezone', settings.user_timezone);
-    Vue.set(state, 'should_daily_email', settings.should_daily_email);
-    Vue.set(state, 'should_weekly_email', settings.should_weekly_email);
+    Vue.set(state, 'user_timezone', settings.user_settings.user_timezone);
+    Vue.set(
+      state,
+      'should_daily_email',
+      settings.user_settings.should_daily_email
+    );
+
+    Vue.set(
+      state,
+      'should_weekly_email',
+      settings.user_settings.should_weekly_email
+    );
+
+    state.webhooks.splice(0);
     if (
-      settings.subscriptions === null ||
-      settings.subscriptions === undefined
+      settings.webhook_settings !== undefined &&
+      settings.webhook_settings !== null &&
+      settings.webhook_settings.length > 0
+    ) {
+      let webhooks = settings.webhook_settings.sort((a, b) => {
+        return a.webhook_id - b.webhook_id;
+      });
+
+      for (let i = 0; i < webhooks.length; i++) {
+        let details = webhooks[i];
+
+        console.log('resetting webhooks: ' + details.name);
+        Vue.set(state.webhooks, i, details); //force update
+      }
+    }
+
+    if (
+      settings.user_settings.subscriptions === null ||
+      settings.user_settings.subscriptions === undefined
     ) {
       return;
     }
-
     for (let i = 0; i < state.userSubscriptions.length; i++) {
-      for (let j = 0; j < settings.subscriptions.length; j++) {
+      for (let j = 0; j < settings.user_settings.subscriptions.length; j++) {
         if (
-          settings.subscriptions[j].type_id ==
+          settings.user_settings.subscriptions[j].type_id ===
             state.userSubscriptions[i].type_id &&
-          settings.subscriptions[j].subscribed === true
+          settings.user_settings.subscriptions[j].subscribed === true
         ) {
           state.userSubscriptions[i].subscribed;
           state.userSubscriptions[i].subscribed = true;
           state.userSubscriptions[i].subscribed_since =
-            settings.subscriptions[j].subscribed_since;
+            settings.user_settings.subscriptions[j].subscribed_since;
           // force vue to update the subscription value by force setting it back to itself UGH
           Vue.set(
             state.userSubscriptions,

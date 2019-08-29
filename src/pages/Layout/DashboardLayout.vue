@@ -1,14 +1,13 @@
 <template>
   <div class="wrapper" :class="{ 'nav-open': $sidebar.showSidebar }">
     <notifications></notifications>
-    
+
     <sidebar-fixed-toggle-button />
     <side-bar
       :background-color="sidebarBackground"
       :short-title="$t('sidebar.shortTitle')"
       :title="$t('sidebar.title')"
     >
-   
       <template slot-scope="props" slot="links">
         <sidebar-item
           :link="{
@@ -21,9 +20,19 @@
         <sidebar-item
           :link="{ 
             name: $t('sidebar.settings'), 
-            icon: 'tim-icons icon-settings',
+            icon: 'tim-icons icon-settings'}"
+        >
+          <sidebar-item
+            :link="{ 
+            name: $t('sidebar.usersettings'), 
             path: '/settings' }"
-        ></sidebar-item>
+          ></sidebar-item>
+          <sidebar-item
+            :link="{
+                name: $t('sidebar.webhooks'),
+                path: '/webhooks' }"
+          ></sidebar-item>
+        </sidebar-item>
 
         <sidebar-item
           :link="{ 
@@ -146,8 +155,7 @@ export default {
       'getMsgType',
       'getMsgTimeout'
     ]),
-    ...mapGetters('scangroup', ['groups', 'groupStats']),
-    
+    ...mapGetters('scangroup', ['groups', 'groupStats'])
   },
   methods: {
     logout() {
