@@ -267,7 +267,7 @@ export default {
     ...mapGetters('event', ['userSubscriptions', 'webhooks']),
     eventTypes() {
       let events = Object.assign([], this.userSubscriptions);
-      return events.filter(e => e.disabled === undefined);
+      return events.filter(e => (e.disabled === undefined || e.disabled === false));
     },
     isInvalid() {
       if (!this.model.url.startsWith('https://')) {
