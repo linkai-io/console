@@ -9,7 +9,7 @@
     "dev": "npm run serve"
   },
   "dependencies": {
-    "axios": "^0.18.0",
+    "axios": "^0.21.1",
     "chart.js": "^2.7.1",
     "element-ui": "^2.2.1",
     "es6-promise": "^4.1.1",
