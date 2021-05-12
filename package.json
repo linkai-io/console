@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "axios": "^0.18.0",
-    "chart.js": "^2.7.1",
+    "chart.js": "^2.9.4",
     "element-ui": "^2.2.1",
     "es6-promise": "^4.1.1",
     "force-graph": "^1.15.0",
