@@ -13,7 +13,7 @@
     "chart.js": "^2.7.1",
     "element-ui": "^2.2.1",
     "es6-promise": "^4.1.1",
-    "force-graph": "^1.15.0",
+    "force-graph": "^1.42.13",
     "fullcalendar": "^3.9.0",
     "fuse.js": "^3.2.0",
     "jquery": "^3.4.1",
